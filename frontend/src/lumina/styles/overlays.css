@@ -1,0 +1,556 @@
+/* ============================================================
+   Slash menu
+   ============================================================ */
+.slash-menu {
+  position: absolute;
+  z-index: 50;
+  width: 320px;
+  padding: var(--space-2);
+  border-radius: var(--r-lg);
+  background: linear-gradient(
+    180deg,
+    var(--color-surface-2),
+    var(--color-surface-1)
+  );
+  border: 1px solid var(--color-line-strong);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  box-shadow:
+    0 1px 0 var(--color-overlay) inset,
+    0 20px 50px var(--color-ink-shadow),
+    0 8px 20px var(--color-ink-shadow);
+  opacity: 0;
+  transform: translateY(-4px) scale(0.98);
+  pointer-events: none;
+  transition:
+    opacity 220ms var(--ease-out-expo),
+    transform 260ms var(--ease-out-expo);
+}
+.slash-menu.open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+.slash-menu-label {
+  padding: var(--space-2) var(--space-3) 6px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+}
+.slash-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 8px var(--space-3);
+  border-radius: var(--r-sm);
+  color: var(--color-text-muted);
+  transition:
+    background 160ms,
+    color 160ms,
+    transform 160ms;
+  width: 100%;
+}
+.slash-item:hover,
+.slash-item.active {
+  background: var(--color-overlay);
+  color: var(--color-text);
+}
+.slash-item-icon {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  border-radius: 7px;
+  background: var(--color-overlay-weak);
+  border: 1px solid var(--color-overlay);
+  display: grid;
+  place-items: center;
+  color: var(--color-text);
+}
+.slash-item-icon svg {
+  width: 16px;
+  height: 16px;
+}
+.slash-item.active .slash-item-icon,
+.slash-item:hover .slash-item-icon {
+  background: oklch(0.68 0.2 42 / 0.1);
+  border-color: oklch(0.68 0.2 42 / 0.3);
+  color: var(--color-teal);
+}
+.slash-item-body {
+  flex: 1;
+  min-width: 0;
+}
+.slash-item-title {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+.slash-item-desc {
+  font-size: 12px;
+  color: var(--color-text-faint);
+  line-height: 1.35;
+}
+.slash-item-kbd {
+  font-size: 11px;
+  color: var(--color-text-faint);
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--color-line);
+  background: var(--color-ink-shadow);
+}
+
+/* ============================================================
+   Theme toggle (sun/moon)
+   ============================================================ */
+.theme-toggle {
+  position: relative;
+  width: 52px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--color-overlay);
+  border: 1px solid var(--color-line);
+  transition:
+    background 240ms var(--ease-out-expo),
+    border-color 240ms;
+  flex-shrink: 0;
+}
+.theme-toggle::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(
+    60% 60% at 35% 30%,
+    var(--color-teal-hi),
+    var(--color-teal)
+  );
+  box-shadow:
+    0 2px 6px var(--color-ink-shadow),
+    inset 0 1px 0 oklch(1 0 0 / 0.3);
+  transition:
+    transform 380ms var(--ease-spring),
+    background 240ms;
+  transform: translateX(0);
+}
+:root[data-theme='light'] .theme-toggle::before {
+  transform: translateX(26px);
+  background: radial-gradient(
+    60% 60% at 35% 30%,
+    oklch(0.96 0.05 85),
+    oklch(0.8 0.12 75)
+  );
+}
+.theme-toggle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 6px;
+  right: 6px;
+  height: 12px;
+  background-image:
+    radial-gradient(
+      circle at 10% 50%,
+      var(--color-gold-hi) 1.2px,
+      transparent 1.5px
+    ),
+    radial-gradient(
+      circle at 90% 50%,
+      oklch(0.96 0.05 85) 1.5px,
+      transparent 1.8px
+    );
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* ============================================================
+   Toast
+   ============================================================ */
+.toast-layer {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 10000;
+  pointer-events: none;
+}
+.toast {
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: linear-gradient(
+    180deg,
+    oklch(0.18 0.03 42 / 0.88),
+    oklch(0.1 0.02 42 / 0.88)
+  );
+  border: 1px solid oklch(0.68 0.2 42 / 0.3);
+  backdrop-filter: blur(18px) saturate(180%);
+  color: var(--color-text);
+  font-size: 13px;
+  box-shadow:
+    0 10px 30px var(--color-ink-shadow),
+    0 0 0 1px var(--color-ink-shadow);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  animation: toastIn 340ms var(--ease-out-expo);
+  max-width: 420px;
+}
+.toast.leaving {
+  animation: toastOut 220ms var(--ease-out-expo) forwards;
+}
+.toast svg {
+  width: 14px;
+  height: 14px;
+  color: var(--color-teal);
+  flex: 0 0 auto;
+}
+
+/* ============================================================
+   Modal
+   ============================================================ */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--color-backdrop, var(--color-ink-shadow));
+  backdrop-filter: blur(6px);
+  display: grid;
+  place-items: center;
+  z-index: 9000;
+  opacity: 0;
+  transition: opacity 220ms var(--ease-out-expo);
+}
+.modal-backdrop.open {
+  opacity: 1;
+}
+.modal {
+  width: min(560px, calc(100vw - 48px));
+  padding: 20px 22px;
+  border-radius: 16px;
+  background: linear-gradient(
+    180deg,
+    var(--color-surface-2),
+    var(--color-surface-1)
+  );
+  border: 1px solid var(--color-overlay-hi);
+  box-shadow: 0 30px 80px var(--color-ink-shadow);
+  transform: translateY(8px) scale(0.98);
+  transition: transform 260ms var(--ease-out-expo);
+}
+.modal-backdrop.open .modal {
+  transform: none;
+}
+.modal h3 {
+  font-family: 'Boska', serif;
+  font-weight: 400;
+  font-size: 22px;
+  margin: 0 0 8px;
+  letter-spacing: -0.01em;
+}
+.modal p {
+  font-size: 13.5px;
+  color: var(--color-text-muted);
+  line-height: 1.55;
+  margin: 0 0 16px;
+}
+.modal input[type='text'] {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--color-line-strong);
+  background: var(--color-ink-shadow);
+  color: var(--color-text);
+  font-size: 13px;
+}
+.modal-row {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+.modal-btn {
+  padding: 7px 14px;
+  font-size: 13px;
+  border-radius: 8px;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-line-strong);
+  background: oklch(1 0 0 / 0.02);
+  transition:
+    background 180ms,
+    color 180ms,
+    border-color 180ms;
+}
+.modal-btn:hover {
+  color: var(--color-text);
+  background: var(--color-overlay);
+}
+.modal-btn.primary {
+  color: oklch(0.08 0.02 42);
+  background: linear-gradient(180deg, oklch(0.78 0.2 42), oklch(0.58 0.2 42));
+  border-color: oklch(0.68 0.2 42);
+  font-weight: 500;
+}
+.modal-btn.primary:hover {
+  color: oklch(0.08 0.02 42);
+}
+.share-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.share-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 4px;
+  border-bottom: 1px solid var(--color-line);
+  font-size: 13px;
+}
+.share-row:last-child {
+  border-bottom: 0;
+}
+.share-row .avatar {
+  width: 26px;
+  height: 26px;
+  font-size: 11px;
+}
+.share-row .role {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--color-text-faint);
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 320px;
+  overflow: auto;
+}
+.history-item {
+  display: flex;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  transition: background 160ms;
+}
+.history-item:hover {
+  background: var(--color-overlay-weak);
+}
+.history-item .when {
+  font-size: 12px;
+  color: var(--color-text-faint);
+  width: 100px;
+  flex: 0 0 auto;
+}
+.history-item .what {
+  font-size: 13px;
+  color: var(--color-text);
+}
+.history-item .who {
+  font-size: 12px;
+  color: var(--color-text-faint);
+  margin-top: 2px;
+}
+
+/* ============================================================
+   Dropdown
+   ============================================================ */
+.dropdown {
+  position: absolute;
+  z-index: 2000;
+  min-width: 220px;
+  padding: 6px;
+  border-radius: 12px;
+  background: linear-gradient(
+    180deg,
+    oklch(0.12 0.02 42 / 0.88),
+    oklch(0.07 0.02 42 / 0.88)
+  );
+  border: 1px solid var(--color-overlay-hi);
+  backdrop-filter: blur(18px) saturate(180%);
+  box-shadow: 0 20px 40px var(--color-ink-shadow);
+  opacity: 0;
+  transform: translateY(-4px) scale(0.98);
+  transition:
+    opacity 180ms var(--ease-out-expo),
+    transform 220ms var(--ease-out-expo);
+  pointer-events: none;
+}
+.dropdown.open {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+.dropdown button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  transition:
+    background 140ms,
+    color 140ms;
+}
+.dropdown button:hover {
+  background: var(--color-overlay);
+  color: var(--color-text);
+}
+.dropdown button svg {
+  width: 14px;
+  height: 14px;
+}
+.dropdown hr {
+  border: 0;
+  border-top: 1px solid var(--color-line);
+  margin: 4px 6px;
+}
+
+.icon-btn.active {
+  color: var(--color-gold);
+  background: oklch(0.78 0.15 85 / 0.12);
+}
+.icon-btn.active svg {
+  fill: var(--color-gold);
+}
+
+/* ============================================================
+   Context menu (custom right-click)
+   ============================================================ */
+.ctx-menu {
+  position: fixed;
+  z-index: 10001;
+  min-width: 220px;
+  padding: 6px;
+  border-radius: 12px;
+  background: linear-gradient(
+    180deg,
+    var(--color-surface-2),
+    var(--color-surface-1)
+  );
+  border: 1px solid var(--color-overlay-hi);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  box-shadow:
+    0 1px 0 var(--color-overlay) inset,
+    0 24px 60px var(--color-ink-shadow),
+    0 8px 20px var(--color-ink-shadow);
+  opacity: 0;
+  transform: scale(0.96) translateY(-4px);
+  transform-origin: top left;
+  transition:
+    opacity 160ms var(--ease-out-expo),
+    transform 200ms var(--ease-out-expo);
+  pointer-events: none;
+}
+.ctx-menu.open {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+.ctx-menu-label {
+  padding: 6px 10px 4px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ctx-menu button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  transition:
+    background 140ms,
+    color 140ms;
+  text-align: left;
+}
+.ctx-menu button:hover {
+  background: var(--color-overlay);
+  color: var(--color-text);
+}
+.ctx-menu button.danger {
+  color: oklch(0.78 0.16 20);
+}
+.ctx-menu button.danger:hover {
+  background: oklch(0.65 0.2 20 / 0.12);
+  color: oklch(0.9 0.16 20);
+}
+.ctx-menu button svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+}
+.ctx-menu button .kbd {
+  margin-left: auto;
+  font-size: 10.5px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  border: 1px solid var(--color-line);
+  color: var(--color-text-faint);
+  background: var(--color-ink-shadow);
+}
+.ctx-menu hr {
+  border: 0;
+  border-top: 1px solid var(--color-line);
+  margin: 4px 6px;
+}
+
+/* ============================================================
+   Empty state (Today / Archive / Trash)
+   ============================================================ */
+.empty-state {
+  padding: 80px 20px;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+.empty-state .icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: linear-gradient(
+    180deg,
+    oklch(0.68 0.2 42 / 0.1),
+    oklch(0.68 0.2 42 / 0.02)
+  );
+  border: 1px solid oklch(0.68 0.2 42 / 0.15);
+}
+.empty-state .icon svg {
+  width: 28px;
+  height: 28px;
+  color: var(--color-teal);
+}
+.empty-state h2 {
+  font-family: 'Boska', serif;
+  font-weight: 400;
+  font-size: 28px;
+  margin: 0 0 8px;
+  color: var(--color-text);
+  letter-spacing: -0.01em;
+}
+.empty-state p {
+  font-size: 14px;
+  color: var(--color-text-faint);
+  margin: 0 auto;
+  max-width: 360px;
+  line-height: 1.55;
+}

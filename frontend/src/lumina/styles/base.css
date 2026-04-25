@@ -1,0 +1,145 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: 'Satoshi', -apple-system, system-ui, sans-serif;
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.55;
+  letter-spacing: 0.005em;
+  color: var(--color-text);
+  background: var(--color-bg);
+  overflow: hidden;
+  cursor: none;
+  background-image:
+    radial-gradient(
+      1200px 600px at 80% -10%,
+      var(--ambient-a),
+      transparent 60%
+    ),
+    radial-gradient(
+      800px 500px at 10% 110%,
+      var(--ambient-b),
+      transparent 60%
+    );
+}
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: none;
+}
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  outline: none;
+  cursor: none;
+}
+[contenteditable] {
+  outline: none;
+  cursor: none;
+}
+a {
+  color: inherit;
+  cursor: none;
+}
+
+::selection {
+  background: var(--color-teal-soft);
+  color: var(--color-text);
+}
+
+/* ============================================================
+   Custom cursor
+   ============================================================ */
+.cursor-dot,
+.cursor-trail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  border-radius: 50%;
+  mix-blend-mode: difference;
+  transform: translate3d(-50%, -50%, 0);
+  will-change: transform, width, height, opacity;
+}
+.cursor-dot {
+  width: 12px;
+  height: 12px;
+  background: oklch(0.85 0.15 42);
+  transition:
+    width 260ms var(--ease-out-expo),
+    height 260ms var(--ease-out-expo),
+    background-color 260ms var(--ease-out-expo),
+    opacity 260ms var(--ease-out-expo);
+}
+.cursor-trail {
+  width: 36px;
+  height: 36px;
+  border: 1px solid oklch(0.85 0.15 42 / 0.5);
+  opacity: 0.5;
+}
+body.cursor-hover .cursor-dot {
+  width: 30px;
+  height: 30px;
+  background: oklch(0.85 0.15 42 / 0.15);
+  border: 1px solid oklch(0.85 0.15 42 / 0.6);
+}
+body.cursor-hover .cursor-trail {
+  opacity: 0;
+}
+body.cursor-text .cursor-dot {
+  width: 2px;
+  height: 22px;
+  border-radius: 1px;
+  background: oklch(0.92 0.06 42);
+}
+body.cursor-text .cursor-trail {
+  opacity: 0;
+}
+
+/* ============================================================
+   Layout
+   ============================================================ */
+.app {
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr) 300px;
+  grid-template-rows: 100%;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+.app.panel-collapsed {
+  grid-template-columns: 240px minmax(0, 1fr) 0px;
+}
+.sidebar,
+.editor-col,
+.panel {
+  min-height: 0;
+  min-width: 0;
+  height: 100%;
+}
+
+/* particle burst */
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: var(--color-teal);
+  box-shadow: 0 0 8px var(--color-teal);
+}
