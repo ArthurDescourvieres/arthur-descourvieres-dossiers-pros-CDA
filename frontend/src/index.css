@@ -1,3 +1,9 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@import './lumina/styles/tokens.css';
+@import './lumina/styles/base.css';
+@import './lumina/styles/sidebar.css';
+@import './lumina/styles/editor.css';
+@import './lumina/styles/panel.css';
+@import './lumina/styles/overlays.css';
+@import './lumina/styles/responsive.css';
