@@ -7,80 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  OWNER
-  MEMBER
-  VIEWER
-}
-
-enum BlockType {
-  TEXT
-  HEADING1
-  HEADING2
-  HEADING3
-  BULLET
-  TODO
-  CODE
-  IMAGE
-  DIVIDER
-}
-
 model User {
   id           String          @id @default(cuid())
   email        String          @unique
   name         String
-  passwordHash String
+  password     String
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
-  workspaces   UserWorkspace[]
-  pages        Page[]
-}
-
-model Workspace {
-  id        String          @id @default(cuid())
-  name      String
-  ownerId   String
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
-  members   UserWorkspace[]
-  pages     Page[]
-}
-
-model UserWorkspace {
-  userId      String
-  workspaceId String
-  role        Role
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  @@id([userId, workspaceId])
-}
-
-model Page {
-  id          String    @id @default(cuid())
-  title       String
-  workspaceId String
-  parentId    String?
-  createdById String
-  icon        String?
-  cover       String?
-  isPublic    Boolean   @default(false)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  createdBy   User      @relation(fields: [createdById], references: [id])
-  parent      Page?     @relation("PageChildren", fields: [parentId], references: [id])
-  children    Page[]    @relation("PageChildren")
-  blocks      Block[]
-}
-
-model Block {
-  id        String    @id @default(cuid())
-  pageId    String
-  type      BlockType
-  content   Json      @db.JsonB
-  order     Int
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  page      Page      @relation(fields: [pageId], references: [id], onDelete: Cascade)
 }

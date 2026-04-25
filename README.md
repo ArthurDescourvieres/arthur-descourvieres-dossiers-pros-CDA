@@ -1,6 +1,6 @@
-# Notion-like App
+# Memo App
 
-Full-stack Notion-like application — React · Hono · Prisma · PostgreSQL · Redis.
+Full-stack Memo application — React · Hono · Prisma · PostgreSQL · Redis.
 
 ## Stack
 
