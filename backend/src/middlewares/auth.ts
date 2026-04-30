@@ -6,4 +6,5 @@ export type AuthVariables = JwtVariables
 
 export const authMiddleware: MiddlewareHandler = jwt({
   secret: process.env.JWT_SECRET ?? 'secret',
+  alg: 'HS256',
 })

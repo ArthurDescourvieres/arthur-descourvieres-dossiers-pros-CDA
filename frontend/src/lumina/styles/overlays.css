@@ -169,21 +169,11 @@
 
 /* ============================================================
    Toast
+   Layout/spacing/typo migrés en Tailwind dans Overlays.tsx
+   (ToastLayer). On garde uniquement le gradient + blur +
+   ombre + animation d'apparition / disparition.
    ============================================================ */
-.toast-layer {
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  z-index: 10000;
-  pointer-events: none;
-}
 .toast {
-  padding: 10px 16px;
-  border-radius: 10px;
   background: linear-gradient(
     180deg,
     oklch(0.18 0.03 42 / 0.88),
@@ -191,38 +181,29 @@
   );
   border: 1px solid oklch(0.68 0.2 42 / 0.3);
   backdrop-filter: blur(18px) saturate(180%);
-  color: var(--color-text);
-  font-size: 13px;
+  -webkit-backdrop-filter: blur(18px) saturate(180%);
   box-shadow:
     0 10px 30px var(--color-ink-shadow),
     0 0 0 1px var(--color-ink-shadow);
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
   animation: toastIn 340ms var(--ease-out-expo);
-  max-width: 420px;
 }
 .toast.leaving {
   animation: toastOut 220ms var(--ease-out-expo) forwards;
 }
-.toast svg {
-  width: 14px;
-  height: 14px;
-  color: var(--color-teal);
-  flex: 0 0 auto;
-}
 
 /* ============================================================
    Modal
+   Layout/inset/positionnement migrés en Tailwind dans
+   Overlays.tsx (Modal). On garde le backdrop-filter, le
+   gradient interne, l'animation d'ouverture et les sélecteurs
+   descendants (.modal h3 / p / input, .modal-row, .modal-btn,
+   .share-row…) car le contenu vient de composants externes
+   (cf. openSearchModal dans Sidebar.tsx).
    ============================================================ */
 .modal-backdrop {
-  position: fixed;
-  inset: 0;
   background: var(--color-backdrop, var(--color-ink-shadow));
   backdrop-filter: blur(6px);
-  display: grid;
-  place-items: center;
-  z-index: 9000;
+  -webkit-backdrop-filter: blur(6px);
   opacity: 0;
   transition: opacity 220ms var(--ease-out-expo);
 }
@@ -230,9 +211,6 @@
   opacity: 1;
 }
 .modal {
-  width: min(560px, calc(100vw - 48px));
-  padding: 20px 22px;
-  border-radius: 16px;
   background: linear-gradient(
     180deg,
     var(--color-surface-2),
@@ -425,13 +403,14 @@
 
 /* ============================================================
    Context menu (custom right-click)
+   Le shell (gradient + blur + box-shadow + animation
+   d'ouverture) reste ici. Tout le contenu interne
+   (boutons, label, hr, kbd) est désormais stylé par
+   utilitaires Tailwind dans Overlays.tsx (ContextMenu).
    ============================================================ */
 .ctx-menu {
   position: fixed;
   z-index: 10001;
-  min-width: 220px;
-  padding: 6px;
-  border-radius: 12px;
   background: linear-gradient(
     180deg,
     var(--color-surface-2),
@@ -456,60 +435,6 @@
   opacity: 1;
   transform: none;
   pointer-events: auto;
-}
-.ctx-menu-label {
-  padding: 6px 10px 4px;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-text-faint);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.ctx-menu button {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  padding: 7px 10px;
-  border-radius: 6px;
-  font-size: 13px;
-  color: var(--color-text-muted);
-  transition:
-    background 140ms,
-    color 140ms;
-  text-align: left;
-}
-.ctx-menu button:hover {
-  background: var(--color-overlay);
-  color: var(--color-text);
-}
-.ctx-menu button.danger {
-  color: oklch(0.78 0.16 20);
-}
-.ctx-menu button.danger:hover {
-  background: oklch(0.65 0.2 20 / 0.12);
-  color: oklch(0.9 0.16 20);
-}
-.ctx-menu button svg {
-  width: 14px;
-  height: 14px;
-  flex: 0 0 14px;
-}
-.ctx-menu button .kbd {
-  margin-left: auto;
-  font-size: 10.5px;
-  padding: 1px 5px;
-  border-radius: 4px;
-  border: 1px solid var(--color-line);
-  color: var(--color-text-faint);
-  background: var(--color-ink-shadow);
-}
-.ctx-menu hr {
-  border: 0;
-  border-top: 1px solid var(--color-line);
-  margin: 4px 6px;
 }
 
 /* ============================================================

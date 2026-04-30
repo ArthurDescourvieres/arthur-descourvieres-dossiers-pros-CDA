@@ -381,7 +381,7 @@ function NavItem({
     indicator?.kind === 'line' && indicator.uid === node.uid && !indicator.before;
 
   const cls =
-    'nav-item' +
+    'nav-item group relative flex items-center gap-[var(--space-2)] py-[6px] px-[10px] my-[1px] rounded-[var(--r-sm)] text-[13.5px] font-normal text-[var(--color-text-muted)] cursor-none select-none [transform-style:preserve-3d] [transform:perspective(600px)_rotateX(0)_rotateY(0)_translateZ(0)] transition-[color,background-color] duration-[180ms] ease-[var(--ease-out-expo)] hover:text-[var(--color-text)]' +
     (hasChildren && node.expanded ? ' expanded' : '') +
     (isActive ? ' active' : '') +
     (indicator?.kind === 'into' && indicator.uid === node.uid ? ' drop-into' : '');
@@ -403,34 +403,54 @@ function NavItem({
         onDragLeave={onDragLeave}
         onDrop={onDrop}
       >
-        <span className={'chevron' + (isFolder ? '' : ' placeholder')}>
+        <span
+          className={
+            'chevron w-[14px] h-[14px] flex-[0_0_14px] grid place-items-center text-[var(--color-text-faint)] transition-transform duration-200 ease-[var(--ease-out-expo)] [&>svg]:w-[12px] [&>svg]:h-[12px]' +
+            (isFolder ? '' : ' opacity-0')
+          }
+        >
           {isFolder ? <LuminaIcon name="chevron-right" /> : null}
         </span>
-        <span className="leaf-icon">
+        <span className="leaf-icon w-[16px] h-[16px] flex-[0_0_16px] grid place-items-center text-[var(--color-text-dim)] [&>svg]:w-[15px] [&>svg]:h-[15px]">
           <LuminaIcon name={node.icon} />
         </span>
-        <span className="label" data-role="label" ref={labelRef}>
+        <span
+          className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap relative z-[1]"
+          data-role="label"
+          ref={labelRef}
+        >
           {node.label}
         </span>
         {node.badge ? <span className="todo-meta tag">{node.badge}</span> : null}
         {node.starred ? (
-          <span className="star">
+          <span className="w-[13px] h-[13px] text-[var(--color-gold)] opacity-90 [filter:drop-shadow(0_0_4px_oklch(0.78_0.15_85_/_0.5))] group-hover:opacity-0 transition-opacity duration-[140ms]">
             <LuminaIcon name="star" />
           </span>
         ) : null}
-        <span className="nav-actions">
+        <span className="absolute right-[6px] top-1/2 -translate-y-1/2 flex gap-[2px] opacity-0 group-hover:opacity-100 transition-opacity duration-[140ms] z-[3] pl-[14px] bg-[linear-gradient(90deg,transparent,oklch(0.08_0.02_42_/_0.9)_30%)]">
           {isFolder ? (
-            <button data-role="add" title="Add inside">
+            <button
+              data-role="add"
+              title="Add inside"
+              className="w-[22px] h-[22px] grid place-items-center rounded-[5px] text-[var(--color-text-faint)] transition-[background,color] duration-[140ms] hover:bg-[var(--color-overlay-hi)] hover:text-[var(--color-text)] [&>svg]:w-[13px] [&>svg]:h-[13px]"
+            >
               <LuminaIcon name="plus" />
             </button>
           ) : null}
-          <button data-role="more" title="More">
+          <button
+            data-role="more"
+            title="More"
+            className="w-[22px] h-[22px] grid place-items-center rounded-[5px] text-[var(--color-text-faint)] transition-[background,color] duration-[140ms] hover:bg-[var(--color-overlay-hi)] hover:text-[var(--color-text)] [&>svg]:w-[13px] [&>svg]:h-[13px]"
+          >
             <LuminaIcon name="more-horizontal" />
           </button>
         </span>
       </div>
       {hasChildren ? (
-        <div className="nav-children" data-expanded={node.expanded ? '1' : '0'}>
+        <div
+          className="nav-children grid [grid-template-rows:0fr] transition-[grid-template-rows] duration-[260ms] ease-[var(--ease-out-expo)] [&>div]:overflow-hidden"
+          data-expanded={node.expanded ? '1' : '0'}
+        >
           <div>
             {node.expanded
               ? (node.children ?? []).map((c, i) => (
@@ -501,8 +521,11 @@ function NavNewInput({ parent, depth }: { parent: NavNode; depth: number }) {
   }, [parent, value, lumina, mutatePages]);
 
   return (
-    <div className="nav-new-input" style={{ marginLeft: depth * 14 + 'px' }}>
-      <span className="leaf-icon">
+    <div
+      className="nav-new-input flex items-center gap-[6px] py-[5px] px-[10px] my-[2px] rounded-[var(--r-sm)] bg-[var(--color-ink-shadow)] [box-shadow:inset_0_0_0_1px_oklch(0.68_0.2_42_/_0.5)] [animation:inputAppear_220ms_var(--ease-out-expo)_both]"
+      style={{ marginLeft: depth * 14 + 'px' }}
+    >
+      <span className="w-[16px] h-[16px] grid place-items-center text-[var(--color-teal)] [&>svg]:w-[14px] [&>svg]:h-[14px]">
         <LuminaIcon
           name={parent._pendingNew?.type === 'folder' ? 'folder' : 'file-text'}
         />
@@ -515,6 +538,7 @@ function NavNewInput({ parent, depth }: { parent: NavNode; depth: number }) {
         }
         value={value}
         onChange={(e) => setValue(e.target.value)}
+        className="flex-1 min-w-0 bg-transparent border-0 outline-none text-[var(--color-text)] text-[13.5px] placeholder:text-[var(--color-text-faint)]"
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             e.preventDefault();
@@ -661,28 +685,36 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="sidebar" onContextMenu={onSidebarContextMenu}>
-      <div className="sidebar-inner">
-        <button className="brand" onClick={() => lumina.navigate('inbox')}>
+    <aside
+      className="sidebar relative flex flex-col overflow-hidden bg-[var(--color-surface-1)] border-r border-[var(--color-line)]"
+      onContextMenu={onSidebarContextMenu}
+    >
+      <div className="relative z-[1] flex flex-col h-full py-[var(--space-4)] px-[var(--space-3)]">
+        <button
+          className="flex items-center gap-[var(--space-3)] py-[var(--space-2)] px-[var(--space-3)] mb-[var(--space-6)] w-full text-left"
+          onClick={() => lumina.navigate('inbox')}
+        >
           <div className="brand-mark" aria-hidden="true" />
-          <div className="brand-name">
-            Lumin<em>a</em>
+          <div className="font-['Boska',serif] font-normal text-[22px] tracking-[-0.01em] text-[var(--color-text)]">
+            Lumin<em className="italic font-normal text-[var(--color-gold)]">a</em>
           </div>
         </button>
 
         <button
-          className="sidebar-search"
+          className="flex items-center gap-[var(--space-2)] py-[8px] px-[var(--space-3)] mx-[var(--space-2)] mb-[var(--space-5)] border border-[var(--color-line)] rounded-[var(--r-md)] bg-[var(--color-ink-shadow)] text-[var(--color-text-dim)] text-[13px] transition-[border-color,background] duration-[180ms] ease-[var(--ease-out-expo)] hover:border-[var(--color-line-strong)] [&>svg]:w-[14px] [&>svg]:h-[14px]"
           data-magnetic=""
           onClick={() => openSearchModal(lumina)}
         >
           <LuminaIcon name="search" />
           <span>Search notes…</span>
-          <span className="kbd">⌘ K</span>
+          <span className="ml-auto text-[11px] py-[2px] px-[6px] rounded-[4px] border border-[var(--color-line)] text-[var(--color-text-faint)] bg-[var(--color-ink-shadow)]">
+            ⌘ K
+          </span>
         </button>
 
-        <div className="sidebar-actions">
+        <div className="flex gap-[6px] px-[var(--space-2)] pb-[var(--space-3)]">
           <button
-            className="sidebar-action primary"
+            className="flex-1 flex items-center justify-center gap-[6px] py-[7px] px-[10px] rounded-[8px] text-[12.5px] [color:oklch(0.96_0.04_42)] border border-[oklch(0.68_0.2_42_/_0.45)] bg-[linear-gradient(180deg,oklch(0.68_0.2_42_/_0.28),oklch(0.5_0.2_42_/_0.22))] [box-shadow:0_4px_12px_oklch(0.68_0.2_42_/_0.2)] transition-[background,color,border-color,transform] duration-[160ms] ease-[var(--ease-out-expo)] hover:-translate-y-px hover:bg-[linear-gradient(180deg,oklch(0.78_0.2_42_/_0.35),oklch(0.58_0.2_42_/_0.3))] [&>svg]:w-[13px] [&>svg]:h-[13px]"
             title="New note (⌘N)"
             onClick={() => beginInlineCreateRoot('note')}
           >
@@ -690,7 +722,7 @@ export function Sidebar() {
             <span>New note</span>
           </button>
           <button
-            className="sidebar-action"
+            className="flex-1 flex items-center justify-center gap-[6px] py-[7px] px-[10px] rounded-[8px] text-[12.5px] text-[var(--color-text-muted)] border border-[var(--color-line)] bg-[oklch(1_0_0_/_0.02)] transition-[background,color,border-color,transform] duration-[160ms] ease-[var(--ease-out-expo)] hover:-translate-y-px hover:text-[var(--color-text)] hover:bg-[oklch(0.68_0.2_42_/_0.1)] hover:border-[oklch(0.68_0.2_42_/_0.3)] [&>svg]:w-[13px] [&>svg]:h-[13px]"
             title="New folder"
             onClick={() => beginInlineCreateRoot('folder')}
           >
@@ -699,14 +731,20 @@ export function Sidebar() {
           </button>
         </div>
 
-        <div className="nav-section-head">
-          <span className="label">Workspace</span>
-          <button className="add" title="Add to workspace" onClick={onAddRoot}>
+        <div className="group flex items-center pt-[var(--space-2)] px-[var(--space-4)] pb-[2px]">
+          <span className="flex-1 text-[11px] font-medium tracking-[0.08em] uppercase text-[var(--color-text-faint)]">
+            Workspace
+          </span>
+          <button
+            className="w-[20px] h-[20px] grid place-items-center rounded-[4px] text-[var(--color-text-faint)] opacity-0 transition-[opacity,color,background] duration-[140ms] group-hover:opacity-100 hover:bg-[var(--color-overlay)] hover:text-[var(--color-text)] [&>svg]:w-[12px] [&>svg]:h-[12px]"
+            title="Add to workspace"
+            onClick={onAddRoot}
+          >
             <LuminaIcon name="plus" />
           </button>
         </div>
 
-        <nav className="nav">
+        <nav className="nav flex flex-col gap-px flex-1 overflow-y-auto overflow-x-hidden pb-[var(--space-6)] relative">
           {lumina.navTree.map((n, i) => (
             <NavItem
               key={n.uid}
@@ -717,14 +755,18 @@ export function Sidebar() {
           ))}
         </nav>
 
-        <div className="sidebar-footer">
-          <button className="user-chip">
+        <div className="relative z-[1] mt-auto pt-[var(--space-3)] px-[var(--space-2)] border-t border-[var(--color-line)]">
+          <button className="flex items-center gap-[var(--space-3)] py-[var(--space-2)] px-[var(--space-3)] rounded-[var(--r-md)] w-full text-left transition-colors duration-[180ms] hover:bg-[var(--color-overlay-weak)]">
             <div className="avatar">E</div>
             <div>
-              <div className="user-chip-name">Elise Marchetti</div>
-              <div className="user-chip-mail">elise@lumina.work</div>
+              <div className="text-[13px] text-[var(--color-text)]">
+                Elise Marchetti
+              </div>
+              <div className="text-[11px] text-[var(--color-text-faint)]">
+                elise@lumina.work
+              </div>
             </div>
-            <span className="settings">
+            <span className="ml-auto w-[16px] h-[16px] text-[var(--color-text-faint)]">
               <LuminaIcon name="settings-2" />
             </span>
           </button>
