@@ -10,6 +10,7 @@ import {
   useWorkspaces,
 } from '../hooks/useWorkspaces'
 import { useNoteAutosave, type AutosaveStatus } from '../hooks/useNoteAutosave'
+import { useSearch, type SearchHit } from '../hooks/useSearch'
 import { TiptapEditor } from './TiptapEditor'
 import { AttachmentsPanel } from './AttachmentsPanel'
 
@@ -98,6 +99,16 @@ export function WorkspaceShell() {
           <div style={{ fontSize: 12, opacity: 0.6 }}>
             {user.name} · {user.email}
           </div>
+        )}
+
+        {selectedWorkspaceId && (
+          <SearchBox
+            workspaceId={selectedWorkspaceId}
+            onPick={(hit) => {
+              setSelectedFolderId(hit.folderId)
+              setSelectedNoteId(hit.id)
+            }}
+          />
         )}
 
         <WorkspaceSection
@@ -523,3 +534,103 @@ const smallButtonStyle: React.CSSProperties = {
 
 const loadingStyle: React.CSSProperties = { opacity: 0.4, fontSize: 12 }
 const emptyStyle: React.CSSProperties = { opacity: 0.4, fontSize: 12, padding: '4px 8px' }
+
+function SearchBox({
+  workspaceId,
+  onPick,
+}: {
+  workspaceId: string
+  onPick: (hit: SearchHit) => void
+}) {
+  const [query, setQuery] = useState('')
+  const search = useSearch(workspaceId, query)
+  const showResults = query.trim().length > 0
+
+  return (
+    <section style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <input
+        type="search"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Rechercher dans le workspace…"
+        style={{
+          background: 'rgba(255,255,255,0.06)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: 4,
+          color: 'inherit',
+          padding: '6px 8px',
+          fontSize: 12,
+          outline: 'none',
+        }}
+      />
+      {showResults && (
+        <div
+          style={{
+            background: 'rgba(255,255,255,0.04)',
+            border: '1px solid rgba(255,255,255,0.06)',
+            borderRadius: 4,
+            padding: 4,
+            maxHeight: 240,
+            overflow: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+          }}
+        >
+          {search.isPending ? (
+            <div style={{ opacity: 0.4, fontSize: 11, padding: 6 }}>Recherche…</div>
+          ) : !search.data || search.data.hits.length === 0 ? (
+            <div style={{ opacity: 0.4, fontSize: 11, padding: 6 }}>Aucun résultat</div>
+          ) : (
+            search.data.hits.map((hit) => (
+              <button
+                key={hit.id}
+                type="button"
+                onClick={() => {
+                  onPick(hit)
+                  setQuery('')
+                }}
+                style={{
+                  textAlign: 'left',
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'inherit',
+                  padding: '4px 6px',
+                  borderRadius: 3,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 2,
+                }}
+              >
+                <span style={{ fontSize: 12, fontWeight: 500 }}>
+                  {hit.title || '(sans titre)'}
+                </span>
+                {hit.snippet && (
+                  <span
+                    style={{ fontSize: 11, opacity: 0.5 }}
+                    // The server returns << / >> markers around matches.
+                    dangerouslySetInnerHTML={{
+                      __html: highlightSnippet(hit.snippet),
+                    }}
+                  />
+                )}
+              </button>
+            ))
+          )}
+        </div>
+      )}
+    </section>
+  )
+}
+
+function highlightSnippet(text: string): string {
+  const escaped = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+  // The original << / >> become &lt;&lt; / &gt;&gt; — restore as <mark>
+  return escaped
+    .replace(/&lt;&lt;/g, '<mark style="background: rgba(91,140,255,0.3); color: inherit;">')
+    .replace(/&gt;&gt;/g, '</mark>')
+}

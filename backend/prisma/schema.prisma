@@ -62,18 +62,22 @@ model Folder {
 }
 
 model Note {
-  id          String       @id @default(cuid())
-  title       String
-  content     Json
-  contentText String?
-  deletedAt   DateTime?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  folderId    String
-  createdById String
-  folder      Folder       @relation(fields: [folderId], references: [id], onDelete: Cascade)
-  createdBy   User         @relation(fields: [createdById], references: [id])
-  attachments Attachment[]
+  id           String                  @id @default(cuid())
+  title        String
+  content      Json
+  contentText  String?
+  // searchVector is GENERATED ALWAYS AS (...) STORED — managed entirely
+  // by Postgres (see migration add_note_search_vector). Declared here so
+  // Prisma doesn't try to drop it on drift detection.
+  searchVector Unsupported("tsvector")?
+  deletedAt    DateTime?
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime                @updatedAt
+  folderId     String
+  createdById  String
+  folder       Folder                  @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  createdBy    User                    @relation(fields: [createdById], references: [id])
+  attachments  Attachment[]
 }
 
 model Attachment {
