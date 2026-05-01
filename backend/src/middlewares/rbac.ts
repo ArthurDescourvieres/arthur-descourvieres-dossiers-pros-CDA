@@ -43,3 +43,16 @@ export const resolveWorkspaceFromNote: MiddlewareHandler<AppEnv> = async (c, nex
   c.set('workspaceId', note.folder.workspaceId)
   await next()
 }
+
+export const resolveWorkspaceFromAttachment: MiddlewareHandler<AppEnv> = async (c, next) => {
+  const id = c.req.param('id')
+  const attachment = await prisma.attachment.findUnique({
+    where: { id },
+    select: { note: { select: { folder: { select: { workspaceId: true } } } } },
+  })
+
+  if (!attachment) return c.json({ error: 'Not found' }, 404)
+
+  c.set('workspaceId', attachment.note.folder.workspaceId)
+  await next()
+}

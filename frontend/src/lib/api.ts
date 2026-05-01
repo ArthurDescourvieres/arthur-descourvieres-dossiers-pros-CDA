@@ -26,7 +26,29 @@ type ApiInit = Omit<RequestInit, 'body'> & {
   json?: unknown
 }
 
-export async function api<T = unknown>(path: string, init: ApiInit = {}): Promise<T> {
+async function tryRefresh(): Promise<string | null> {
+  try {
+    const res = await fetch('/api/auth/refresh', {
+      method: 'POST',
+      credentials: 'include',
+    })
+    if (!res.ok) return null
+    const data = (await res.json()) as { accessToken?: string }
+    if (data.accessToken) {
+      setAccessToken(data.accessToken)
+      return data.accessToken
+    }
+    return null
+  } catch {
+    return null
+  }
+}
+
+async function rawFetch(
+  path: string,
+  init: ApiInit,
+  token: string | null,
+): Promise<Response> {
   const { json, body, headers, ...rest } = init
   const finalHeaders = new Headers(headers ?? {})
   let finalBody: BodyInit | undefined
@@ -40,25 +62,35 @@ export async function api<T = unknown>(path: string, init: ApiInit = {}): Promis
     finalBody = body as BodyInit
   }
 
-  const token = getAccessToken()
   if (token && !finalHeaders.has('Authorization')) {
     finalHeaders.set('Authorization', `Bearer ${token}`)
   }
 
-  const res = await fetch(path.startsWith('/') ? path : `/${path}`, {
+  return fetch(path.startsWith('/') ? path : `/${path}`, {
     ...rest,
     headers: finalHeaders,
     body: finalBody,
+    credentials: 'include',
   })
+}
+
+export async function api<T = unknown>(path: string, init: ApiInit = {}): Promise<T> {
+  let res = await rawFetch(path, init, getAccessToken())
+
+  if (res.status === 401) {
+    const newToken = await tryRefresh()
+    if (newToken) {
+      res = await rawFetch(path, init, newToken)
+    } else {
+      setAccessToken(null)
+    }
+  }
 
   const contentType = res.headers.get('Content-Type') ?? ''
   const isJson = contentType.includes('application/json')
   const payload = isJson ? await res.json().catch(() => null) : await res.text()
 
   if (!res.ok) {
-    if (res.status === 401) {
-      setAccessToken(null)
-    }
     throw new ApiError(res.status, payload)
   }
 

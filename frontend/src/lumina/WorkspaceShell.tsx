@@ -11,6 +11,7 @@ import {
 } from '../hooks/useWorkspaces'
 import { useNoteAutosave, type AutosaveStatus } from '../hooks/useNoteAutosave'
 import { TiptapEditor } from './TiptapEditor'
+import { AttachmentsPanel } from './AttachmentsPanel'
 
 export function WorkspaceShell() {
   const auth = useAuth()
@@ -390,9 +391,12 @@ function NoteEditor({ noteId }: { noteId: string }) {
 
       <TiptapEditor
         key={noteId}
+        noteId={noteId}
         initialContent={initialContent}
         onChange={(content) => autosave.schedule({ content })}
       />
+
+      <AttachmentsPanel noteId={noteId} />
     </article>
   )
 }

@@ -1,25 +1,28 @@
 import { useEditor, EditorContent, type Editor } from '@tiptap/react'
 import { StarterKit } from '@tiptap/starter-kit'
-import { Image } from '@tiptap/extension-image'
 import { CodeBlockLowlight } from '@tiptap/extension-code-block-lowlight'
 import { createLowlight, common } from 'lowlight'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import type { TiptapDoc } from '../lib/types'
+import { AttachmentAwareImage } from './TiptapImageNode'
+import { useUploadAttachment, attachmentFileUrl } from '../hooks/useAttachments'
 
 const lowlight = createLowlight(common)
 
 export type TiptapEditorProps = {
+  noteId: string
   initialContent: TiptapDoc | null
   onChange: (doc: TiptapDoc) => void
   editable?: boolean
 }
 
-export function TiptapEditor({ initialContent, onChange, editable = true }: TiptapEditorProps) {
+export function TiptapEditor({ noteId, initialContent, onChange, editable = true }: TiptapEditorProps) {
+  const upload = useUploadAttachment(noteId)
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
       StarterKit.configure({ codeBlock: false }),
-      Image.configure({ inline: false, allowBase64: false }),
+      AttachmentAwareImage.configure({ inline: false, allowBase64: false }),
       CodeBlockLowlight.configure({ lowlight }),
     ],
     editable,
@@ -36,9 +39,26 @@ export function TiptapEditor({ initialContent, onChange, editable = true }: Tipt
 
   if (!editor) return <div style={{ padding: 24, opacity: 0.5 }}>Chargement de l'éditeur…</div>
 
+  const handleUpload = async (file: File) => {
+    try {
+      const attachment = await upload.mutateAsync(file)
+      editor
+        .chain()
+        .focus()
+        .setImage({ src: attachmentFileUrl(attachment.id), alt: attachment.filename })
+        .run()
+    } catch (e) {
+      const msg =
+        e && typeof e === 'object' && 'payload' in e
+          ? JSON.stringify((e as { payload: unknown }).payload)
+          : 'Échec de l’envoi'
+      alert(`Upload refusé: ${msg}`)
+    }
+  }
+
   return (
     <div className="tiptap-wrapper" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      <Toolbar editor={editor} />
+      <Toolbar editor={editor} onUpload={handleUpload} uploading={upload.isPending} />
       <EditorContent editor={editor} className="tiptap-content" />
     </div>
   )
@@ -48,7 +68,16 @@ function defaultDoc(): TiptapDoc {
   return { type: 'doc', content: [{ type: 'paragraph' }] }
 }
 
-function Toolbar({ editor }: { editor: Editor }) {
+function Toolbar({
+  editor,
+  onUpload,
+  uploading,
+}: {
+  editor: Editor
+  onUpload: (file: File) => void
+  uploading: boolean
+}) {
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const btn = (label: string, isActive: boolean, onClick: () => void): React.ReactNode => (
     <button
       type="button"
@@ -93,6 +122,34 @@ function Toolbar({ editor }: { editor: Editor }) {
       {btn('Code', editor.isActive('codeBlock'), () =>
         editor.chain().focus().toggleCodeBlock().run(),
       )}
+      <span style={separatorStyle} />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
+        style={{ display: 'none' }}
+        onChange={(e) => {
+          const file = e.target.files?.[0]
+          if (file) onUpload(file)
+          e.target.value = ''
+        }}
+      />
+      <button
+        type="button"
+        onClick={() => fileInputRef.current?.click()}
+        disabled={uploading}
+        style={{
+          background: 'rgba(255,255,255,0.04)',
+          color: 'inherit',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: 4,
+          padding: '4px 8px',
+          fontSize: 12,
+          cursor: uploading ? 'wait' : 'pointer',
+        }}
+      >
+        {uploading ? '…' : '+ Image'}
+      </button>
     </div>
   )
 }

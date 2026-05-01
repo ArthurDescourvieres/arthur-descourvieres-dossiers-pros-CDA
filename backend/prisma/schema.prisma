@@ -8,14 +8,15 @@ datasource db {
 }
 
 model User {
-  id         String            @id @default(cuid())
-  email      String            @unique
-  name       String
-  password   String
-  createdAt  DateTime          @default(now())
-  updatedAt  DateTime          @updatedAt
-  workspaces WorkspaceMember[]
-  notes      Note[]
+  id          String            @id @default(cuid())
+  email       String            @unique
+  name        String
+  password    String
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  workspaces  WorkspaceMember[]
+  notes       Note[]
+  attachments Attachment[]
 }
 
 enum WorkspaceRole {
@@ -61,15 +62,31 @@ model Folder {
 }
 
 model Note {
-  id          String    @id @default(cuid())
+  id          String       @id @default(cuid())
   title       String
   content     Json
   contentText String?
   deletedAt   DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
   folderId    String
   createdById String
-  folder      Folder    @relation(fields: [folderId], references: [id], onDelete: Cascade)
-  createdBy   User      @relation(fields: [createdById], references: [id])
+  folder      Folder       @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  createdBy   User         @relation(fields: [createdById], references: [id])
+  attachments Attachment[]
+}
+
+model Attachment {
+  id           String   @id @default(cuid())
+  filename     String
+  storedName   String
+  mimeType     String
+  size         Int
+  noteId       String
+  uploadedById String
+  createdAt    DateTime @default(now())
+  note         Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+
+  @@index([noteId])
 }

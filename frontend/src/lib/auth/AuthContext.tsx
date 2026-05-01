@@ -17,9 +17,10 @@ export type AuthUser = {
   updatedAt: string
 }
 
-type LoginResponse = { token: string; user: AuthUser }
+type LoginResponse = { accessToken: string; user: AuthUser }
 type RegisterResponse = LoginResponse
 type MeResponse = { user: AuthUser }
+type RefreshResponse = { accessToken: string }
 
 type AuthState =
   | { status: 'loading' }
@@ -29,7 +30,7 @@ type AuthState =
 type AuthContextValue = AuthState & {
   login: (email: string, password: string) => Promise<void>
   register: (name: string, email: string, password: string) => Promise<void>
-  logout: () => void
+  logout: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -38,17 +39,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({ status: 'loading' })
 
   useEffect(() => {
-    const token = getAccessToken()
-    if (!token) {
-      setState({ status: 'guest' })
-      return
-    }
-    api<MeResponse>('/api/auth/me')
-      .then((res) => setState({ status: 'authenticated', user: res.user }))
-      .catch(() => {
+    let cancelled = false
+    const tryBoot = async () => {
+      let token = getAccessToken()
+      if (!token) {
+        // Attempt silent refresh from cookie before falling back to guest.
+        try {
+          const res = await fetch('/api/auth/refresh', {
+            method: 'POST',
+            credentials: 'include',
+          })
+          if (res.ok) {
+            const data = (await res.json()) as RefreshResponse
+            setAccessToken(data.accessToken)
+            token = data.accessToken
+          }
+        } catch {
+          /* fall through */
+        }
+      }
+      if (!token) {
+        if (!cancelled) setState({ status: 'guest' })
+        return
+      }
+      try {
+        const me = await api<MeResponse>('/api/auth/me')
+        if (!cancelled) setState({ status: 'authenticated', user: me.user })
+      } catch {
         setAccessToken(null)
-        setState({ status: 'guest' })
-      })
+        if (!cancelled) setState({ status: 'guest' })
+      }
+    }
+    void tryBoot()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   const login = useCallback(async (email: string, password: string) => {
@@ -56,7 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       method: 'POST',
       json: { email, password },
     })
-    setAccessToken(res.token)
+    setAccessToken(res.accessToken)
     setState({ status: 'authenticated', user: res.user })
   }, [])
 
@@ -65,11 +90,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       method: 'POST',
       json: { name, email, password },
     })
-    setAccessToken(res.token)
+    setAccessToken(res.accessToken)
     setState({ status: 'authenticated', user: res.user })
   }, [])
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' })
+    } catch {
+      /* ignore */
+    }
     setAccessToken(null)
     setState({ status: 'guest' })
   }, [])
