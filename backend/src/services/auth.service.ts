@@ -1,7 +1,12 @@
 import bcrypt from 'bcryptjs'
-import { sign } from 'hono/jwt'
+import { sign, verify } from 'hono/jwt'
 import { prisma } from '../lib/prisma.js'
+import { redis } from '../lib/redis.js'
 import type { RegisterInput, LoginInput } from '../schemas/auth.schema.js'
+
+const JWT_SECRET = process.env.JWT_SECRET ?? 'secret'
+const ACCESS_TTL = 60 * 15          // 15 minutes
+const REFRESH_TTL = 60 * 60 * 24 * 7 // 7 days
 
 type SafeUser = {
   id: string
@@ -17,12 +22,11 @@ function sanitizeUser(user: SafeUser & { password: string }): SafeUser {
   return safe
 }
 
-async function generateToken(userId: string): Promise<string> {
-  return sign(
-    { sub: userId, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 },
-    process.env.JWT_SECRET ?? 'secret',
-    'HS256',
-  )
+async function generateTokens(userId: string) {
+  const now = Math.floor(Date.now() / 1000)
+  const accessToken = await sign({ sub: userId, exp: now + ACCESS_TTL }, JWT_SECRET, 'HS256')
+  const refreshToken = await sign({ sub: userId, exp: now + REFRESH_TTL }, JWT_SECRET, 'HS256')
+  return { accessToken, refreshToken }
 }
 
 export const authService = {
@@ -37,8 +41,8 @@ export const authService = {
       data: { name: input.name, email: input.email, password: hashed },
     })
 
-    const token = await generateToken(user.id)
-    return { token, user: sanitizeUser(user) }
+    const tokens = await generateTokens(user.id)
+    return { ...tokens, user: sanitizeUser(user) }
   },
 
   async login(input: LoginInput) {
@@ -52,8 +56,41 @@ export const authService = {
       throw Object.assign(new Error('Invalid credentials'), { code: 'UNAUTHORIZED' })
     }
 
-    const token = await generateToken(user.id)
-    return { token, user: sanitizeUser(user) }
+    const tokens = await generateTokens(user.id)
+    return { ...tokens, user: sanitizeUser(user) }
+  },
+
+  async refresh(refreshToken: string) {
+    let payload: { sub: string; exp: number }
+    try {
+      payload = (await verify(refreshToken, JWT_SECRET, 'HS256')) as typeof payload
+    } catch {
+      throw Object.assign(new Error('Unauthorized'), { code: 'UNAUTHORIZED' })
+    }
+
+    const blacklisted = await redis.get(`bl:${refreshToken}`)
+    if (blacklisted) {
+      throw Object.assign(new Error('Unauthorized'), { code: 'UNAUTHORIZED' })
+    }
+
+    const now = Math.floor(Date.now() / 1000)
+    const accessToken = await sign({ sub: payload.sub, exp: now + ACCESS_TTL }, JWT_SECRET, 'HS256')
+    return { accessToken }
+  },
+
+  async logout(refreshToken: string) {
+    let payload: { sub: string; exp: number }
+    try {
+      payload = (await verify(refreshToken, JWT_SECRET, 'HS256')) as typeof payload
+    } catch {
+      return // token already invalid, nothing to blacklist
+    }
+
+    const now = Math.floor(Date.now() / 1000)
+    const ttl = payload.exp - now
+    if (ttl > 0) {
+      await redis.setex(`bl:${refreshToken}`, ttl, '1')
+    }
   },
 
   async getMe(userId: string) {
