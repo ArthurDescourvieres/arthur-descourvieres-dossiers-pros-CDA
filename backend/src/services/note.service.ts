@@ -1,5 +1,6 @@
 import type { Prisma } from '@prisma/client'
 import { prisma } from '../lib/prisma.js'
+import { extractText } from '../lib/tiptap.js'
 import type { CreateNoteInput, UpdateNoteInput } from '../schemas/note.schema.js'
 
 export const noteService = {
@@ -8,6 +9,7 @@ export const noteService = {
       data: {
         title: data.title,
         content: data.content as Prisma.InputJsonValue,
+        contentText: extractText(data.content),
         folderId: data.folderId,
         createdById,
       },
@@ -27,7 +29,10 @@ export const noteService = {
       where: { id: noteId },
       data: {
         ...(data.title !== undefined && { title: data.title }),
-        ...(data.content !== undefined && { content: data.content as Prisma.InputJsonValue }),
+        ...(data.content !== undefined && {
+          content: data.content as Prisma.InputJsonValue,
+          contentText: extractText(data.content),
+        }),
       },
     })
   },

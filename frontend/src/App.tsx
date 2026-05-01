@@ -1,4 +1,4 @@
-import { LuminaApp } from './lumina/LuminaApp';
+import { WorkspaceShell } from './lumina/WorkspaceShell';
 import { Login } from './lumina/Login';
 import { useAuth } from './lib/auth/AuthContext';
 
@@ -27,5 +27,5 @@ export function App() {
     return <Login />;
   }
 
-  return <LuminaApp />;
+  return <WorkspaceShell />;
 }

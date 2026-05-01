@@ -64,6 +64,7 @@ model Note {
   id          String    @id @default(cuid())
   title       String
   content     Json
+  contentText String?
   deletedAt   DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
