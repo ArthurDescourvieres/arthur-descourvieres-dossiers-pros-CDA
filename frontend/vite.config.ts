@@ -15,6 +15,11 @@ export default defineConfig({
         target: process.env.API_URL ?? 'http://localhost:3000',
         changeOrigin: true,
       },
+      '/socket.io': {
+        target: process.env.API_URL ?? 'http://localhost:3000',
+        changeOrigin: true,
+        ws: true,
+      },
     },
   },
 })

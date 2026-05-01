@@ -12,11 +12,18 @@ const lowlight = createLowlight(common)
 export type TiptapEditorProps = {
   noteId: string
   initialContent: TiptapDoc | null
+  remoteContent?: TiptapDoc | null
   onChange: (doc: TiptapDoc) => void
   editable?: boolean
 }
 
-export function TiptapEditor({ noteId, initialContent, onChange, editable = true }: TiptapEditorProps) {
+export function TiptapEditor({
+  noteId,
+  initialContent,
+  remoteContent,
+  onChange,
+  editable = true,
+}: TiptapEditorProps) {
   const upload = useUploadAttachment(noteId)
   const editor = useEditor({
     immediatelyRender: false,
@@ -36,6 +43,14 @@ export function TiptapEditor({ noteId, initialContent, onChange, editable = true
     if (!editor) return
     editor.setEditable(editable)
   }, [editor, editable])
+
+  // Apply remote updates without re-firing onUpdate (avoid feedback loops).
+  useEffect(() => {
+    if (!editor || !remoteContent) return
+    const current = editor.getJSON() as TiptapDoc
+    if (JSON.stringify(current) === JSON.stringify(remoteContent)) return
+    editor.commands.setContent(remoteContent, { emitUpdate: false })
+  }, [editor, remoteContent])
 
   if (!editor) return <div style={{ padding: 24, opacity: 0.5 }}>Chargement de l'éditeur…</div>
 
