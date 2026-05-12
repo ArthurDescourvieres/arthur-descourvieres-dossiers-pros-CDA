@@ -10,10 +10,22 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true,
+    watch: {
+      usePolling: true,
+      interval: 300,
+    },
+    hmr: {
+      clientPort: 5173,
+    },
     proxy: {
       '/api': {
         target: process.env.API_URL ?? 'http://localhost:3000',
         changeOrigin: true,
+      },
+      '/socket.io': {
+        target: process.env.API_URL ?? 'http://localhost:3000',
+        changeOrigin: true,
+        ws: true,
       },
     },
   },

@@ -17,7 +17,6 @@ body {
   color: var(--color-text);
   background: var(--color-bg);
   overflow: hidden;
-  cursor: none;
   background-image:
     radial-gradient(
       1200px 600px at 80% -10%,
@@ -36,7 +35,7 @@ button {
   background: none;
   border: 0;
   padding: 0;
-  cursor: none;
+  cursor: pointer;
 }
 input,
 textarea {
@@ -45,15 +44,12 @@ textarea {
   background: none;
   border: 0;
   outline: none;
-  cursor: none;
 }
 [contenteditable] {
   outline: none;
-  cursor: none;
 }
 a {
   color: inherit;
-  cursor: none;
 }
 
 ::selection {
@@ -61,55 +57,6 @@ a {
   color: var(--color-text);
 }
 
-/* ============================================================
-   Custom cursor
-   ============================================================ */
-.cursor-dot,
-.cursor-trail {
-  position: fixed;
-  top: 0;
-  left: 0;
-  pointer-events: none;
-  z-index: 9999;
-  border-radius: 50%;
-  mix-blend-mode: difference;
-  transform: translate3d(-50%, -50%, 0);
-  will-change: transform, width, height, opacity;
-}
-.cursor-dot {
-  width: 12px;
-  height: 12px;
-  background: oklch(0.85 0.15 42);
-  transition:
-    width 260ms var(--ease-out-expo),
-    height 260ms var(--ease-out-expo),
-    background-color 260ms var(--ease-out-expo),
-    opacity 260ms var(--ease-out-expo);
-}
-.cursor-trail {
-  width: 36px;
-  height: 36px;
-  border: 1px solid oklch(0.85 0.15 42 / 0.5);
-  opacity: 0.5;
-}
-body.cursor-hover .cursor-dot {
-  width: 30px;
-  height: 30px;
-  background: oklch(0.85 0.15 42 / 0.15);
-  border: 1px solid oklch(0.85 0.15 42 / 0.6);
-}
-body.cursor-hover .cursor-trail {
-  opacity: 0;
-}
-body.cursor-text .cursor-dot {
-  width: 2px;
-  height: 22px;
-  border-radius: 1px;
-  background: oklch(0.92 0.06 42);
-}
-body.cursor-text .cursor-trail {
-  opacity: 0;
-}
 
 /* ============================================================
    Layout

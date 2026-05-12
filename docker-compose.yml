@@ -43,9 +43,11 @@ services:
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-notion}:${POSTGRES_PASSWORD:-notion}@db:5432/${POSTGRES_DB:-notion}
       REDIS_URL: redis://redis:6379
+      UPLOADS_DIR: /app/uploads
     volumes:
       - ./backend:/app
       - /app/node_modules
+      - uploads:/app/uploads
     depends_on:
       db:
         condition: service_healthy
@@ -75,6 +77,7 @@ services:
 
 volumes:
   pgdata:
+  uploads:
 
 networks:
   app:

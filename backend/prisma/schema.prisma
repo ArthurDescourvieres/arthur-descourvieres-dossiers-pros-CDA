@@ -8,10 +8,89 @@ datasource db {
 }
 
 model User {
-  id           String          @id @default(cuid())
-  email        String          @unique
-  name         String
-  password     String
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
+  id          String            @id @default(cuid())
+  email       String            @unique
+  name        String
+  password    String
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  workspaces  WorkspaceMember[]
+  notes       Note[]
+  attachments Attachment[]
+}
+
+enum WorkspaceRole {
+  OWNER
+  EDITOR
+  VIEWER
+}
+
+model Workspace {
+  id          String            @id @default(cuid())
+  name        String
+  slug        String            @unique
+  description String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  members     WorkspaceMember[]
+  folders     Folder[]
+}
+
+model WorkspaceMember {
+  id          String        @id @default(cuid())
+  role        WorkspaceRole @default(VIEWER)
+  joinedAt    DateTime      @default(now())
+  userId      String
+  workspaceId String
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workspaceId])
+}
+
+model Folder {
+  id          String    @id @default(cuid())
+  name        String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  workspaceId String
+  parentId    String?
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  parent      Folder?   @relation("FolderTree", fields: [parentId], references: [id])
+  children    Folder[]  @relation("FolderTree")
+  notes       Note[]
+}
+
+model Note {
+  id           String                  @id @default(cuid())
+  title        String
+  content      Json
+  contentText  String?
+  // searchVector is GENERATED ALWAYS AS (...) STORED — managed entirely
+  // by Postgres (see migration add_note_search_vector). Declared here so
+  // Prisma doesn't try to drop it on drift detection.
+  searchVector Unsupported("tsvector")?
+  deletedAt    DateTime?
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime                @updatedAt
+  folderId     String
+  createdById  String
+  folder       Folder                  @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  createdBy    User                    @relation(fields: [createdById], references: [id])
+  attachments  Attachment[]
+}
+
+model Attachment {
+  id           String   @id @default(cuid())
+  filename     String
+  storedName   String
+  mimeType     String
+  size         Int
+  noteId       String
+  uploadedById String
+  createdAt    DateTime @default(now())
+  note         Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+
+  @@index([noteId])
 }
