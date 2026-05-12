@@ -5,8 +5,6 @@ import { Editor } from './Editor';
 import { Panel } from './Panel';
 import {
   ContextMenu,
-  Cursor,
-  MagneticManager,
   Modal,
   ToastLayer,
 } from './Overlays';
@@ -58,11 +56,9 @@ function AppShell() {
 
   return (
     <>
-      <Cursor />
       <ToastLayer />
       <Modal />
       <ContextMenu />
-      <MagneticManager />
       <GlobalShortcuts />
       <div className={cls} id="app">
         <Sidebar />
