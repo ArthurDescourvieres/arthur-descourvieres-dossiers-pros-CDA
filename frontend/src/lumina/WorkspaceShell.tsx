@@ -15,6 +15,7 @@ import { useNoteRealtime, type Presence } from '../hooks/useNoteRealtime'
 import { TiptapEditor } from './TiptapEditor'
 import { AttachmentsPanel } from './AttachmentsPanel'
 import type { TiptapDoc } from '../lib/types'
+import { sanitizeHtml } from '../lib/sanitizeHtml'
 
 export function WorkspaceShell() {
   const auth = useAuth()
@@ -706,7 +707,7 @@ function SearchBox({
                     style={{ fontSize: 11, opacity: 0.5 }}
                     // The server returns << / >> markers around matches.
                     dangerouslySetInnerHTML={{
-                      __html: highlightSnippet(hit.snippet),
+                      __html: sanitizeHtml(highlightSnippet(hit.snippet)),
                     }}
                   />
                 )}

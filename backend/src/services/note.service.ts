@@ -1,15 +1,17 @@
 import type { Prisma } from '@prisma/client'
 import { prisma } from '../lib/prisma.js'
 import { extractText } from '../lib/tiptap.js'
+import { sanitizeTiptapContent } from '../lib/tiptap-sanitize.js'
 import type { CreateNoteInput, UpdateNoteInput } from '../schemas/note.schema.js'
 
 export const noteService = {
   async createNote(data: CreateNoteInput, createdById: string) {
+    const content = sanitizeTiptapContent(data.content)
     return prisma.note.create({
       data: {
         title: data.title,
-        content: data.content as Prisma.InputJsonValue,
-        contentText: extractText(data.content),
+        content,
+        contentText: extractText(content),
         folderId: data.folderId,
         createdById,
       },
@@ -25,16 +27,14 @@ export const noteService = {
   },
 
   async updateNote(noteId: string, data: UpdateNoteInput) {
-    return prisma.note.update({
-      where: { id: noteId },
-      data: {
-        ...(data.title !== undefined && { title: data.title }),
-        ...(data.content !== undefined && {
-          content: data.content as Prisma.InputJsonValue,
-          contentText: extractText(data.content),
-        }),
-      },
-    })
+    const patch: Prisma.NoteUpdateInput = {}
+    if (data.title !== undefined) patch.title = data.title
+    if (data.content !== undefined) {
+      const content = sanitizeTiptapContent(data.content)
+      patch.content = content
+      patch.contentText = extractText(content)
+    }
+    return prisma.note.update({ where: { id: noteId }, data: patch })
   },
 
   async softDeleteNote(noteId: string) {

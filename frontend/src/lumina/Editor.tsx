@@ -11,6 +11,7 @@ import {
 import { useLumina, virtualPages } from './LuminaContext';
 import { LuminaIcon } from './LuminaIcon';
 import { spawnParticles } from '../lib/particles';
+import { sanitizeHtml } from '../lib/sanitizeHtml';
 import type {
   Block,
   BlockTodo as BlockTodoT,
@@ -394,7 +395,7 @@ function BlockBody({ block }: { block: Block }) {
       return (
         <div className="block-callout">
           <span className="callout-icon">{b.icon}</span>
-          <div className="callout-body" dangerouslySetInnerHTML={{ __html: b.body }} />
+          <div className="callout-body" dangerouslySetInnerHTML={{ __html: sanitizeHtml(b.body) }} />
         </div>
       );
     }
@@ -411,7 +412,7 @@ function BlockBody({ block }: { block: Block }) {
       return (
         <div
           className="block-p"
-          dangerouslySetInnerHTML={{ __html: b.html ?? b.text ?? '' }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(b.html ?? b.text ?? '') }}
         />
       );
     }
@@ -489,7 +490,7 @@ function PageView({ page, initialDelay }: { page: Page; initialDelay: number }) 
       <div className="page-emoji">{page.emoji}</div>
       <h1
         className="page-title"
-        dangerouslySetInnerHTML={{ __html: page.titleHTML || page.title }}
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(page.titleHTML || page.title) }}
       />
       <div className="page-subtitle">
         <span>Edited {page.meta.edited}</span>
