@@ -22,10 +22,14 @@ function sanitizeUser(user: SafeUser & { password: string }): SafeUser {
   return safe
 }
 
-async function generateTokens(userId: string) {
+async function generateTokens(userId: string, tokenVersion: number) {
   const now = Math.floor(Date.now() / 1000)
   const accessToken = await sign({ sub: userId, exp: now + ACCESS_TTL }, JWT_SECRET, 'HS256')
-  const refreshToken = await sign({ sub: userId, exp: now + REFRESH_TTL }, JWT_SECRET, 'HS256')
+  const refreshToken = await sign(
+    { sub: userId, tokenVersion, exp: now + REFRESH_TTL },
+    JWT_SECRET,
+    'HS256',
+  )
   return { accessToken, refreshToken }
 }
 
@@ -46,7 +50,7 @@ export const authService = {
       data: { name: input.name, email: input.email, password: hashed },
     })
 
-    const tokens = await generateTokens(user.id)
+    const tokens = await generateTokens(user.id, user.tokenVersion)
     return { ...tokens, user: sanitizeUser(user) }
   },
 
@@ -67,12 +71,12 @@ export const authService = {
       await prisma.user.update({ where: { id: user.id }, data: { password: upgraded } })
     }
 
-    const tokens = await generateTokens(user.id)
+    const tokens = await generateTokens(user.id, user.tokenVersion)
     return { ...tokens, user: sanitizeUser(user) }
   },
 
   async refresh(refreshToken: string) {
-    let payload: { sub: string; exp: number }
+    let payload: { sub: string; tokenVersion?: number; exp: number }
     try {
       payload = (await verify(refreshToken, JWT_SECRET, 'HS256')) as typeof payload
     } catch {
@@ -81,6 +85,13 @@ export const authService = {
 
     const blacklisted = await redis.get(`bl:${refreshToken}`)
     if (blacklisted) {
+      throw Object.assign(new Error('Unauthorized'), { code: 'UNAUTHORIZED' })
+    }
+
+    // Global invalidation (§5.5): the token's version must still match the
+    // user's current tokenVersion, otherwise all their sessions were revoked.
+    const user = await prisma.user.findUnique({ where: { id: payload.sub } })
+    if (!user || user.tokenVersion !== payload.tokenVersion) {
       throw Object.assign(new Error('Unauthorized'), { code: 'UNAUTHORIZED' })
     }
 

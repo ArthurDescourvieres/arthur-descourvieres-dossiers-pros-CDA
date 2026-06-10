@@ -22,7 +22,7 @@ export const workspaceService = {
     const slug = await generateUniqueSlug(data.name)
     return prisma.$transaction(async (tx) => {
       const workspace = await tx.workspace.create({
-        data: { name: data.name, slug, description: data.description },
+        data: { name: data.name, slug, description: data.description, ownerId },
       })
       await tx.workspaceMember.create({
         data: { workspaceId: workspace.id, userId: ownerId, role: WorkspaceRole.OWNER },
@@ -90,8 +90,11 @@ export const workspaceService = {
     if (member.role === WorkspaceRole.OWNER) {
       throw Object.assign(new Error('Cannot remove workspace owner'), { code: 'FORBIDDEN' })
     }
-    return prisma.workspaceMember.delete({
-      where: { userId_workspaceId: { userId, workspaceId } },
-    })
+    // Remove the member and bump their tokenVersion so their existing sessions
+    // are revoked on the next refresh (§5.5).
+    await prisma.$transaction([
+      prisma.workspaceMember.delete({ where: { userId_workspaceId: { userId, workspaceId } } }),
+      prisma.user.update({ where: { id: userId }, data: { tokenVersion: { increment: 1 } } }),
+    ])
   },
 }

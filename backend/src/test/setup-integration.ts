@@ -4,7 +4,16 @@ import { redis } from '../lib/redis.js'
 
 // Truncated in FK-safe order via CASCADE before every test, so each case is
 // independent (§18.2). Redis is flushed too, resetting rate-limit counters.
-const TABLES = ['Attachment', 'Note', 'Folder', 'WorkspaceMember', 'Workspace', 'User']
+const TABLES = [
+  'Permission',
+  'Invitation',
+  'Attachment',
+  'Note',
+  'Folder',
+  'WorkspaceMember',
+  'Workspace',
+  'User',
+]
 
 beforeEach(async () => {
   await prisma.$executeRawUnsafe(
