@@ -48,7 +48,7 @@ export const attachmentController = {
           detail: detected ? `Detected: ${detected.mime}` : 'Could not detect file type',
           allowed: Array.from(ALLOWED_MIMES),
         },
-        400,
+        415,
       )
     }
 
