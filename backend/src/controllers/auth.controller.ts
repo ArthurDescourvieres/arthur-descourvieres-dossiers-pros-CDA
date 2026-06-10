@@ -37,6 +37,12 @@ export const authController = {
       return c.json({ accessToken, user }, 201)
     } catch (e) {
       if (hasCode(e, 'CONFLICT')) return c.json({ error: 'Email already in use' }, 409)
+      if (hasCode(e, 'PWNED')) {
+        return c.json(
+          { error: 'Ce mot de passe figure dans une fuite de données connue. Choisissez-en un autre.' },
+          400,
+        )
+      }
       throw e
     }
   },

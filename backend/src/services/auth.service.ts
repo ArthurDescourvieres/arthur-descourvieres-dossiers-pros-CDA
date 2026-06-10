@@ -1,10 +1,10 @@
-import bcrypt from 'bcryptjs'
 import { sign, verify } from 'hono/jwt'
 import { prisma } from '../lib/prisma.js'
 import { redis } from '../lib/redis.js'
+import { JWT_SECRET } from '../lib/env.js'
+import { hashPassword, verifyPassword, needsRehash } from '../lib/password.js'
+import { isPasswordPwned } from '../lib/hibp.js'
 import type { RegisterInput, LoginInput } from '../schemas/auth.schema.js'
-
-const JWT_SECRET = process.env.JWT_SECRET ?? 'secret'
 const ACCESS_TTL = 60 * 15          // 15 minutes
 const REFRESH_TTL = 60 * 60 * 24 * 7 // 7 days
 
@@ -36,7 +36,12 @@ export const authService = {
       throw Object.assign(new Error('Email already in use'), { code: 'CONFLICT' })
     }
 
-    const hashed = await bcrypt.hash(input.password, 10)
+    // Reject passwords known to be compromised (HIBP k-anonymity, §5.3).
+    if (await isPasswordPwned(input.password)) {
+      throw Object.assign(new Error('Password found in a known data breach'), { code: 'PWNED' })
+    }
+
+    const hashed = await hashPassword(input.password)
     const user = await prisma.user.create({
       data: { name: input.name, email: input.email, password: hashed },
     })
@@ -51,9 +56,15 @@ export const authService = {
       throw Object.assign(new Error('Invalid credentials'), { code: 'UNAUTHORIZED' })
     }
 
-    const valid = await bcrypt.compare(input.password, user.password)
+    const valid = await verifyPassword(user.password, input.password)
     if (!valid) {
       throw Object.assign(new Error('Invalid credentials'), { code: 'UNAUTHORIZED' })
+    }
+
+    // Transparently upgrade legacy bcrypt hashes to argon2id on login (§5.2).
+    if (needsRehash(user.password)) {
+      const upgraded = await hashPassword(input.password)
+      await prisma.user.update({ where: { id: user.id }, data: { password: upgraded } })
     }
 
     const tokens = await generateTokens(user.id)

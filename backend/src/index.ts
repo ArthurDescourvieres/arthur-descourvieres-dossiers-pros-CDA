@@ -5,13 +5,14 @@ import type { Server as HttpServer } from 'node:http'
 import { app } from './app.js'
 import { redis } from './lib/redis.js'
 import { registerRealtime } from './realtime/index.js'
+import { CORS_ORIGINS } from './lib/env.js'
 
 const httpServer = serve({ fetch: app.fetch, port: 3000 }, () => {
   console.log('Server running on http://localhost:3000')
 }) as unknown as HttpServer
 
 const io = new IOServer(httpServer, {
-  cors: { origin: '*', credentials: true },
+  cors: { origin: CORS_ORIGINS, credentials: true },
 })
 
 const pubClient = redis.duplicate()

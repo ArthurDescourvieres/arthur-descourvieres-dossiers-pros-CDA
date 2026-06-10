@@ -1,17 +1,13 @@
+// Access token is held in memory only — never in localStorage/sessionStorage
+// or a JS-readable cookie (§5.1). It is re-hydrated on app boot via the silent
+// refresh against the httpOnly refresh-token cookie (see AuthContext).
 let accessToken: string | null = null
-
-const TOKEN_STORAGE_KEY = 'lumina.accessToken'
 
 export function setAccessToken(token: string | null) {
   accessToken = token
-  if (token) sessionStorage.setItem(TOKEN_STORAGE_KEY, token)
-  else sessionStorage.removeItem(TOKEN_STORAGE_KEY)
 }
 
 export function getAccessToken(): string | null {
-  if (accessToken) return accessToken
-  const stored = sessionStorage.getItem(TOKEN_STORAGE_KEY)
-  if (stored) accessToken = stored
   return accessToken
 }
 

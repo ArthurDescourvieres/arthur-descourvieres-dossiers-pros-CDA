@@ -23,7 +23,10 @@ export function Login() {
       if (err instanceof ApiError) {
         if (err.status === 401) setError('Email ou mot de passe invalide.')
         else if (err.status === 409) setError('Cet email est déjà utilisé.')
-        else if (err.status === 400) setError('Champs invalides.')
+        else if (err.status === 400) {
+          const payload = err.payload as { error?: unknown }
+          setError(typeof payload?.error === 'string' ? payload.error : 'Champs invalides.')
+        }
         else setError('Une erreur est survenue.')
       } else {
         setError('Impossible de joindre le serveur.')
@@ -94,10 +97,13 @@ export function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            minLength={8}
+            minLength={mode === 'register' ? 12 : undefined}
             autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
             style={inputStyle}
           />
+          {mode === 'register' && (
+            <span style={{ fontSize: 11, opacity: 0.55 }}>12 caractères minimum.</span>
+          )}
         </label>
 
         {error && (
