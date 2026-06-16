@@ -1,0 +1,17 @@
+# Never ship the host's node_modules (native binaries are platform-specific,
+# e.g. argon2 / Prisma engines) — they are reinstalled inside the image.
+node_modules
+dist
+
+# Secrets must never enter the build context or the image layers.
+.env
+.env.*
+
+# Misc
+coverage
+*.log
+npm-debug.log*
+.git
+.gitignore
+Dockerfile
+.dockerignore

@@ -13,22 +13,22 @@ services:
       POSTGRES_PASSWORD: test
       POSTGRES_DB: notion_test
     ports:
-      - "5434:5432"
+      - '5434:5432'
     tmpfs:
       - /var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U test -d notion_test"]
+      test: ['CMD-SHELL', 'pg_isready -U test -d notion_test']
       interval: 2s
       timeout: 3s
       retries: 25
 
   test-redis:
     image: redis:7-alpine
-    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    command: ['redis-server', '--save', '', '--appendonly', 'no']
     ports:
-      - "6380:6379"
+      - '6380:6379'
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 2s
       timeout: 3s
       retries: 25

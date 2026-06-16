@@ -1,0 +1,34 @@
+# Caddyfile — single public entry point for Memo in production.
+#
+# Caddy terminates TLS (automatic Let's Encrypt certificates), serves the
+# compiled Vite build (baked into the image at /srv) and reverse-proxies the
+# API + WebSocket traffic to the Hono container. Postgres and Redis are never
+# exposed: only ports 80/443 of this container are published to the host.
+#
+# DOMAIN and ACME_EMAIL are injected as environment variables by
+# docker-compose.prod.yml.
+
+{
+	# Contact address for Let's Encrypt (expiry notices, account recovery).
+	email {$ACME_EMAIL}
+}
+
+{$DOMAIN} {
+	# Negotiated compression for text assets.
+	encode zstd br gzip
+
+	# API and real-time WebSocket share the same origin and are proxied to
+	# the Hono backend. Caddy upgrades WebSocket connections automatically.
+	@backend path /api/* /socket.io/*
+	handle @backend {
+		reverse_proxy api:3000
+	}
+
+	# Everything else is the React single-page app: serve the static build
+	# and fall back to index.html so client-side routing works on reload.
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+}

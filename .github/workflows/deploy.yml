@@ -1,0 +1,79 @@
+name: Deploy
+
+# Continuous delivery to the production VPS.
+#   - automatic: after a successful CI run on main (images are on GHCR);
+#   - manual:    workflow_dispatch, optionally pinning a tag to roll back.
+on:
+  workflow_run:
+    workflows: ['CI']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Tag to deploy (e.g. sha-<commit> to roll back). Empty = latest.'
+        required: false
+        default: ''
+
+# Never run two production deploys at once; don't cancel one in flight.
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Release to VPS
+    runs-on: ubuntu-latest
+    # On a CI-triggered run, only deploy if CI passed. Manual runs always go.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve image tag & repository
+        id: tag
+        run: |
+          REPO_LC=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')
+          echo "repo_lc=$REPO_LC" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then
+            echo "tag=sha-${{ github.event.workflow_run.head_sha }}" >> "$GITHUB_OUTPUT"
+          elif [ -n "${{ github.event.inputs.image_tag }}" ]; then
+            echo "tag=${{ github.event.inputs.image_tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=latest" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploy over SSH
+        env:
+          SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          REPO_LC: ${{ steps.tag.outputs.repo_lc }}
+          IMAGE_TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          set -euo pipefail
+
+          # Load the deploy key.
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+          # Push the infra files so the server always matches this revision.
+          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes \
+            docker-compose.prod.yml Caddyfile "$VPS_USER@$VPS_HOST:/opt/memo/"
+
+          # Release sequence on the VPS: pull immutable images, migrate, roll over.
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes "$VPS_USER@$VPS_HOST" "
+            set -e
+            cd /opt/memo
+            export BACKEND_IMAGE='ghcr.io/${REPO_LC}-backend:${IMAGE_TAG}'
+            export WEB_IMAGE='ghcr.io/${REPO_LC}-web:${IMAGE_TAG}'
+            echo \"Deploying \$BACKEND_IMAGE\"
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml --profile migrate run --rm migrate
+            docker compose -f docker-compose.prod.yml up -d
+            docker image prune -f
+          "
