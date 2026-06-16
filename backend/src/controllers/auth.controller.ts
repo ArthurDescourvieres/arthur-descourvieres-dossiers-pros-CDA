@@ -39,7 +39,10 @@ export const authController = {
       if (hasCode(e, 'CONFLICT')) return c.json({ error: 'Email already in use' }, 409)
       if (hasCode(e, 'PWNED')) {
         return c.json(
-          { error: 'Ce mot de passe figure dans une fuite de données connue. Choisissez-en un autre.' },
+          {
+            error:
+              'Ce mot de passe figure dans une fuite de données connue. Choisissez-en un autre.',
+          },
           400,
         )
       }
@@ -59,6 +62,8 @@ export const authController = {
       setRefreshCookie(c, refreshToken)
       return c.json({ accessToken, user }, 200)
     } catch (e) {
+      if (hasCode(e, 'DEACTIVATED'))
+        return c.json({ error: 'Ce compte a été désactivé.', code: 'DEACTIVATED' }, 403)
       if (hasCode(e, 'UNAUTHORIZED')) return c.json({ error: 'Unauthorized' }, 401)
       throw e
     }

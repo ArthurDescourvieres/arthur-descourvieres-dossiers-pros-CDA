@@ -6,6 +6,7 @@ import { noteWorkspaceRouter, noteRouter } from './note.routes.js'
 import { noteAttachmentsRouter, attachmentRouter } from './attachment.routes.js'
 import { searchRouter } from './search.routes.js'
 import { workspaceInvitationRouter, invitationRouter } from './invitation.routes.js'
+import { meRouter } from './user.routes.js'
 
 export const router = new Hono()
 
@@ -20,3 +21,4 @@ router.route('/notes', noteRouter)
 router.route('/notes', noteAttachmentsRouter)
 router.route('/attachments', attachmentRouter)
 router.route('/invitations', invitationRouter)
+router.route('/me', meRouter)

@@ -4,8 +4,9 @@ import { redis } from '../lib/redis.js'
 import { JWT_SECRET } from '../lib/env.js'
 import { hashPassword, verifyPassword, needsRehash } from '../lib/password.js'
 import { isPasswordPwned } from '../lib/hibp.js'
+import { securityLog } from '../lib/logger.js'
 import type { RegisterInput, LoginInput } from '../schemas/auth.schema.js'
-const ACCESS_TTL = 60 * 15          // 15 minutes
+const ACCESS_TTL = 60 * 15 // 15 minutes
 const REFRESH_TTL = 60 * 60 * 24 * 7 // 7 days
 
 type SafeUser = {
@@ -57,12 +58,21 @@ export const authService = {
   async login(input: LoginInput) {
     const user = await prisma.user.findUnique({ where: { email: input.email } })
     if (!user) {
+      securityLog('login_failed', { email: input.email, reason: 'unknown_email' })
       throw Object.assign(new Error('Invalid credentials'), { code: 'UNAUTHORIZED' })
     }
 
     const valid = await verifyPassword(user.password, input.password)
     if (!valid) {
+      securityLog('login_failed', { email: input.email, reason: 'bad_password' })
       throw Object.assign(new Error('Invalid credentials'), { code: 'UNAUTHORIZED' })
+    }
+
+    // Un compte désactivé (suppression RGPD en cours, période de grâce 30 j) ne
+    // peut plus se reconnecter (§ RGPD — droit à l'effacement).
+    if (user.deactivatedAt) {
+      securityLog('login_deactivated', { userId: user.id })
+      throw Object.assign(new Error('Account deactivated'), { code: 'DEACTIVATED' })
     }
 
     // Transparently upgrade legacy bcrypt hashes to argon2id on login (§5.2).
@@ -80,18 +90,23 @@ export const authService = {
     try {
       payload = (await verify(refreshToken, JWT_SECRET, 'HS256')) as typeof payload
     } catch {
+      // Bad signature / expired / malformed — includes tokens signed with a
+      // foreign key (§10).
+      securityLog('refresh_invalid')
       throw Object.assign(new Error('Unauthorized'), { code: 'UNAUTHORIZED' })
     }
 
     const blacklisted = await redis.get(`bl:${refreshToken}`)
     if (blacklisted) {
+      securityLog('refresh_blacklisted', { userId: payload.sub })
       throw Object.assign(new Error('Unauthorized'), { code: 'UNAUTHORIZED' })
     }
 
     // Global invalidation (§5.5): the token's version must still match the
     // user's current tokenVersion, otherwise all their sessions were revoked.
     const user = await prisma.user.findUnique({ where: { id: payload.sub } })
-    if (!user || user.tokenVersion !== payload.tokenVersion) {
+    if (!user || user.tokenVersion !== payload.tokenVersion || user.deactivatedAt) {
+      securityLog('refresh_version_mismatch', { userId: payload.sub })
       throw Object.assign(new Error('Unauthorized'), { code: 'UNAUTHORIZED' })
     }
 
