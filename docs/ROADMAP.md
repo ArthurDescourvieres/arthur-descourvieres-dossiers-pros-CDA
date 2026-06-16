@@ -1,7 +1,7 @@
 # Roadmap de mise en conformité — Dossier CDA ↔ Code
 
 > **Objectif** : aligner le code réel sur ce que le *Dossier Projet* affirme, pour que tout soit **réel et démontrable** à l'oral.
-> **Échéance** : oral fin juillet 2026. **Point de départ** : 11/06/2026. **Dernière MAJ : 15/06/2026** (après le lot `feature/security-p0`).
+> **Échéance** : oral fin juillet 2026. **Point de départ** : 11/06/2026. **Dernière MAJ : 16/06/2026** (remesure après lot P0+P1).
 > **Méthode** : cocher au fil de l'eau. Chaque feature codée vient avec ses tests (cas nominal + cas d'erreur).
 
 ## Principe de priorisation
@@ -16,14 +16,14 @@ Le jour de la rédaction finale (S7), chaque chiffre du dossier = celui d'un rap
 
 | Chiffre annoncé dans le dossier | Cible | Dernière mesure | Statut |
 |---|---|---|---|
-| Couverture back-end (lignes) | 78 % (seuil ≥ 70 %) | 58,1 % (11/06) — **à remesurer** après les tests du 10–11/06 | ⏳ remesurer |
-| Couverture composants sensibles | 91 % (seuil ≥ 85 %) | rbac 91,7 ✅ · auth 82,3 · workspace 60,7 · attachment 18,2 (11/06) | ❌ partiel |
-| Couverture front (lignes) | 62 % | quasi nul — seuls `lib/api` + `lib/sanitizeHtml` testés (2 modules) | ❌ loin |
-| P95 API REST | < 200 ms | — (aucun outil de mesure) | ⏳ |
-| P95 propagation temps réel | < 500 ms | — (k6 absent) | ⏳ |
-| Nombre de cas de test « tous au vert » | 64 | **~68** (49 unit back ✅ + 12 intég + 7 front, 16/06) | ✅ cible atteinte |
+| Couverture back-end (lignes) | ≥ 70 % (dossier annonce 78 %) | **61,52 %** — 88 tests · 24 fichiers (16/06) | ❌ sous seuil |
+| Couverture composants sensibles | ≥ 85 % | rbac **91,7** ✅ · auth **81,4** ❌ · workspace **82,8** ❌ · attachment **18,2** ❌ (16/06) | ❌ partiel |
+| Couverture front (lignes) | 62 % (dossier) | **8,5 %** — autosave 100, realtime 97, AuthContext 88, reste 0 (16/06) | ❌ loin |
+| P95 API REST | < 200 ms | — (k6 à lancer) | ⏳ |
+| P95 propagation temps réel | < 500 ms | — (k6 à lancer) | ⏳ |
+| Nombre de cas de test « tous au vert » | 64 | **113** (88 back + 25 front, 16/06) | ✅ dépassé |
 
-> **Constat 15/06** : la couverture n'est plus à jour — les commits du 10–11/06 ont ajouté ~30 cas (hibp, password, env, schemas, sécurité middlewares, intégration auth/notes/workspaces/invitations). Reste à 0 % : `src/realtime/` (aucun test socket), et le front hors `lib/` (hooks, composants, AuthContext). **Action S1 : relancer `npm run test:coverage` et réécrire ce tableau.**
+> **Constat 16/06** : 88 tests back au vert (vs 68 estimés), 25 front. La couverture globale back est à 61,5 % — sous le seuil 70 %. Zones à 0 % : `src/realtime/` (socket) et `src/jobs/` (purge). Zones faibles : `src/controllers/` 42 %, `attachment.service.ts` 18 %, `note.service.ts` 38 %, `storage.ts` 18 %. **Action P3 : monter la couverture back au-dessus de 70 % en ciblant en priorité attachment.service + note.service + 1-2 contrôleurs. Mettre à jour le chiffre dans le dossier (78 % est inatteignable avant l'oral sans travail significatif — ajuster à la valeur réelle ou viser 70 %).**
 
 ---
 

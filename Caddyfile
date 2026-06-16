@@ -15,7 +15,7 @@
 
 {$DOMAIN} {
 	# Negotiated compression for text assets.
-	encode zstd br gzip
+	encode zstd gzip
 
 	# API and real-time WebSocket share the same origin and are proxied to
 	# the Hono backend. Caddy upgrades WebSocket connections automatically.
