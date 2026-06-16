@@ -11,9 +11,12 @@
     "test:watch": "vitest",
     "test:integration": "docker compose -f ../docker-compose.test.yml up -d --wait && vitest run --config vitest.integration.config.ts",
     "test:integration:down": "docker compose -f ../docker-compose.test.yml down",
+    "test:coverage": "docker compose -f ../docker-compose.test.yml up -d --wait && vitest run --config vitest.coverage.config.ts --coverage",
+    "test:coverage:down": "docker compose -f ../docker-compose.test.yml down",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "purge": "tsx src/jobs/purge-deactivated.ts"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.7",
@@ -24,13 +27,15 @@
     "file-type": "^21.3.4",
     "hono": "^4.7.7",
     "ioredis": "^5.4.2",
+    "pino": "^10.3.1",
+    "prisma": "^6.6.0",
     "socket.io": "^4.8.3",
     "zod": "^3.24.3"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.14.1",
-    "prisma": "^6.6.0",
+    "@vitest/coverage-v8": "^4.1.8",
     "tsx": "^4.19.3",
     "typescript": "^5.8.3",
     "vitest": "^4.1.8"

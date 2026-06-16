@@ -1,0 +1,9 @@
+**/node_modules/**
+**/dist/**
+**/coverage/**
+**/package-lock.json
+**/*.prisma
+backend/prisma/migrations/**
+.claude/**
+docs/claude/**
+**/*.md

@@ -1,0 +1,27 @@
+# Surveillance automatique des dépendances (OWASP A06 — Vulnerable Components).
+# Dependabot ouvre une pull request dès qu'une mise à jour est disponible,
+# en priorité pour les correctifs de sécurité.
+version: 2
+updates:
+  - package-ecosystem: 'npm'
+    directory: '/backend'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: 'chore(deps)'
+
+  - package-ecosystem: 'npm'
+    directory: '/frontend'
+    schedule:
+      interval: 'weekly'
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: 'chore(deps)'
+
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    commit-message:
+      prefix: 'chore(ci)'

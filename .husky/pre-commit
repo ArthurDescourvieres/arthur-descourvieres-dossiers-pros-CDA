@@ -1,0 +1,6 @@
+npx lint-staged
+
+# Détection de secrets locale si gitleaks est installé (le CI la rejoue de toute façon).
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks protect --staged --redact --config .gitleaks.toml
+fi
