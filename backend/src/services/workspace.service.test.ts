@@ -21,6 +21,16 @@ vi.mock('../lib/prisma.js', () => ({
   },
 }))
 
+// invalidateWorkspaceCache touche Redis : on le mocke pour isoler le test du
+// service (sinon il pend faute de Redis, p. ex. sur le job `quality` de la CI).
+vi.mock('../lib/cache.js', () => ({
+  invalidateWorkspaceCache: vi.fn(),
+  cachedJson: vi.fn(),
+  workspaceCacheKey: vi.fn(),
+  WORKSPACE_CACHE_TTL: 60,
+}))
+vi.mock('../lib/logger.js', () => ({ securityLog: vi.fn() }))
+
 import { workspaceService } from './workspace.service'
 
 beforeEach(() => {
