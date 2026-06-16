@@ -36,3 +36,6 @@ export function rateLimit(opts: RateLimitOptions): MiddlewareHandler {
 
 // Anti-brute-force on login: 5 attempts / minute / IP (§5.6, T-AUTH-02).
 export const loginRateLimit = rateLimit({ keyPrefix: 'login', limit: 5, windowSec: 60 })
+
+// Throttle attachment uploads: 20 / minute / IP — limite l'abus du stockage (§7.3).
+export const uploadRateLimit = rateLimit({ keyPrefix: 'upload', limit: 20, windowSec: 60 })

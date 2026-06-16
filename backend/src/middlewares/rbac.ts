@@ -11,7 +11,8 @@ const ROLE_WEIGHT: Record<WorkspaceRole, number> = {
   [WorkspaceRole.OWNER]: 2,
 }
 
-export const requireRole = (minRole: WorkspaceRole): MiddlewareHandler<AppEnv> =>
+export const requireRole =
+  (minRole: WorkspaceRole): MiddlewareHandler<AppEnv> =>
   async (c, next) => {
     const payload = c.get('jwtPayload') as { sub: string }
     const userId = payload.sub

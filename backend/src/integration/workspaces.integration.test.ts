@@ -4,7 +4,9 @@ vi.mock('../lib/hibp.js', () => ({ isPasswordPwned: vi.fn(async () => false) }))
 
 import { app } from '../app.js'
 
-async function registerFull(email: string): Promise<{ token: string; userId: string; cookie: string }> {
+async function registerFull(
+  email: string,
+): Promise<{ token: string; userId: string; cookie: string }> {
   const res = await app.request('/api/auth/register', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },

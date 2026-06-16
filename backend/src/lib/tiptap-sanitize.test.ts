@@ -1,7 +1,13 @@
 import { describe, it, expect } from 'vitest'
 import { sanitizeTiptapContent } from './tiptap-sanitize'
 
-type AnyNode = { type: string; attrs?: Record<string, unknown>; content?: AnyNode[]; marks?: { type: string; attrs?: Record<string, unknown> }[]; text?: string }
+type AnyNode = {
+  type: string
+  attrs?: Record<string, unknown>
+  content?: AnyNode[]
+  marks?: { type: string; attrs?: Record<string, unknown> }[]
+  text?: string
+}
 
 describe('sanitizeTiptapContent (§8.1 / T-NOTE-02)', () => {
   it('strips on* attributes from a forged node but keeps its content', () => {
@@ -34,7 +40,11 @@ describe('sanitizeTiptapContent (§8.1 / T-NOTE-02)', () => {
     const clean = sanitizeTiptapContent({
       type: 'doc',
       content: [
-        { type: 'text', text: 'x', marks: [{ type: 'link', attrs: { href: 'javascript:alert(1)' } }] },
+        {
+          type: 'text',
+          text: 'x',
+          marks: [{ type: 'link', attrs: { href: 'javascript:alert(1)' } }],
+        },
       ],
     }) as AnyNode
 

@@ -30,7 +30,10 @@ async function seedNote(token: string): Promise<{ noteId: string }> {
     await authed('/api/workspaces', token, { method: 'POST', body: { name: 'Workspace' } })
   ).json()) as { id: string }
   const folder = (await (
-    await authed(`/api/workspaces/${ws.id}/folders`, token, { method: 'POST', body: { name: 'Folder' } })
+    await authed(`/api/workspaces/${ws.id}/folders`, token, {
+      method: 'POST',
+      body: { name: 'Folder' },
+    })
   ).json()) as { id: string }
   const note = (await (
     await authed(`/api/workspaces/${ws.id}/folders/${folder.id}/notes`, token, {
@@ -63,7 +66,9 @@ describe('notes integration (RBAC + uploads)', () => {
 
     const fd = new FormData()
     // PE/DOS "MZ" header — a real executable, not the declared image/png.
-    const exeBytes = new Uint8Array([0x4d, 0x5a, 0x90, 0x00, 0x03, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00])
+    const exeBytes = new Uint8Array([
+      0x4d, 0x5a, 0x90, 0x00, 0x03, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00,
+    ])
     fd.append('file', new File([exeBytes], 'evil.png', { type: 'image/png' }))
 
     const res = await app.request(`/api/notes/${noteId}/attachments`, {
@@ -73,7 +78,9 @@ describe('notes integration (RBAC + uploads)', () => {
     })
     expect(res.status).toBe(415)
 
-    const list = (await (await authed(`/api/notes/${noteId}/attachments`, owner)).json()) as unknown[]
+    const list = (await (
+      await authed(`/api/notes/${noteId}/attachments`, owner)
+    ).json()) as unknown[]
     expect(list).toHaveLength(0)
   })
 })
