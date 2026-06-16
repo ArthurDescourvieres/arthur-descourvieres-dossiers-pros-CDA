@@ -32,6 +32,13 @@ export const storage = {
     }
   },
 
+  // Supprime un lot de fichiers (déclenché quand on efface un workspace ou un
+  // compte : la cascade BDD ne touche pas le disque). Les échecs unitaires sont
+  // absorbés par `remove`.
+  async removeMany(storedNames: string[]): Promise<void> {
+    await Promise.all(storedNames.map((name) => storage.remove(name)))
+  },
+
   stream(storedName: string): NodeJS.ReadableStream {
     if (!isSafeName(storedName)) throw new Error('Invalid stored name')
     return createReadStream(join(UPLOADS_DIR, storedName))
