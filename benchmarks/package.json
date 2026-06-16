@@ -1,0 +1,13 @@
+{
+  "name": "benchmarks",
+  "private": true,
+  "type": "module",
+  "description": "Charge & performance — scénario REST (k6) + harness temps réel (Socket.IO).",
+  "scripts": {
+    "rest": "k6 run k6/rest-workspace.js",
+    "realtime": "node realtime/note-live-load.mjs"
+  },
+  "dependencies": {
+    "socket.io-client": "^4.8.3"
+  }
+}
