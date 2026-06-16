@@ -12,7 +12,11 @@ export function getAccessToken(): string | null {
 }
 
 export class ApiError extends Error {
-  constructor(public status: number, public payload: unknown, message?: string) {
+  constructor(
+    public status: number,
+    public payload: unknown,
+    message?: string,
+  ) {
     super(message ?? `Request failed: ${status}`)
   }
 }
@@ -40,11 +44,7 @@ async function tryRefresh(): Promise<string | null> {
   }
 }
 
-async function rawFetch(
-  path: string,
-  init: ApiInit,
-  token: string | null,
-): Promise<Response> {
+async function rawFetch(path: string, init: ApiInit, token: string | null): Promise<Response> {
   const { json, body, headers, ...rest } = init
   const finalHeaders = new Headers(headers ?? {})
   let finalBody: BodyInit | undefined

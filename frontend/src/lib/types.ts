@@ -1,3 +1,11 @@
+// Envelope returned by paginated list endpoints (notes, workspaces, trash).
+export type Paginated<T> = {
+  items: T[]
+  total: number
+  limit: number
+  offset: number
+}
+
 export type Workspace = {
   id: string
   name: string
@@ -7,7 +15,34 @@ export type Workspace = {
   updatedAt: string
 }
 
-export type WorkspaceWithRole = Workspace & { role: 'OWNER' | 'EDITOR' | 'VIEWER' }
+export type WorkspaceRole = 'OWNER' | 'EDITOR' | 'VIEWER'
+
+export type WorkspaceWithRole = Workspace & { role: WorkspaceRole }
+
+export type WorkspaceMember = {
+  id: string
+  role: WorkspaceRole
+  joinedAt: string
+  userId: string
+  workspaceId: string
+  user: { id: string; name: string; email: string; createdAt: string; updatedAt: string }
+}
+
+export type WorkspaceDetail = Workspace & { members: WorkspaceMember[] }
+
+export type InvitationStatus = 'PENDING' | 'ACCEPTED' | 'REVOKED' | 'EXPIRED'
+
+export type Invitation = {
+  id: string
+  workspaceId: string
+  email: string
+  role: WorkspaceRole
+  token: string
+  status: InvitationStatus
+  expiresAt: string
+  invitedById: string
+  createdAt: string
+}
 
 export type Folder = {
   id: string

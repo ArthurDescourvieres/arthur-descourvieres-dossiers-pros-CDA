@@ -98,9 +98,9 @@ function Toolbar({
       type="button"
       onClick={onClick}
       style={{
-        background: isActive ? 'rgba(91, 140, 255, 0.18)' : 'rgba(255,255,255,0.04)',
+        background: isActive ? 'var(--color-accent-soft)' : 'var(--color-surface)',
         color: 'inherit',
-        border: '1px solid rgba(255,255,255,0.08)',
+        border: '1px solid var(--color-line)',
         borderRadius: 4,
         padding: '4px 8px',
         fontSize: 12,
@@ -154,9 +154,9 @@ function Toolbar({
         onClick={() => fileInputRef.current?.click()}
         disabled={uploading}
         style={{
-          background: 'rgba(255,255,255,0.04)',
+          background: 'var(--color-surface)',
           color: 'inherit',
-          border: '1px solid rgba(255,255,255,0.08)',
+          border: '1px solid var(--color-line)',
           borderRadius: 4,
           padding: '4px 8px',
           fontSize: 12,
@@ -171,6 +171,6 @@ function Toolbar({
 
 const separatorStyle: React.CSSProperties = {
   width: 1,
-  background: 'rgba(255,255,255,0.1)',
+  background: 'var(--color-line-strong)',
   margin: '0 4px',
 }

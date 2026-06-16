@@ -1,4 +1,4 @@
-import type { NavNode } from './types';
+import type { NavNode } from './types'
 
 export const initialNavTree: NavNode[] = [
   { id: null, label: 'Inbox', icon: 'inbox', mapId: 'inbox' },
@@ -63,14 +63,14 @@ export const initialNavTree: NavNode[] = [
   },
   { id: null, label: 'Archive', icon: 'archive' },
   { id: null, label: 'Trash', icon: 'trash-2' },
-];
+]
 
-let _uidSeq = 1;
+let _uidSeq = 1
 export function ensureUids(list: NavNode[]): void {
   list.forEach((n) => {
-    if (!n.uid) n.uid = 'n' + _uidSeq++;
-    if (Array.isArray(n.children)) ensureUids(n.children);
-  });
+    if (!n.uid) n.uid = 'n' + _uidSeq++
+    if (Array.isArray(n.children)) ensureUids(n.children)
+  })
 }
 
 export function findNodeByUid(
@@ -78,28 +78,28 @@ export function findNodeByUid(
   uid: string,
 ): { node: NavNode; parent: NavNode[]; index: number } | null {
   for (const n of list) {
-    if (n.uid === uid) return { node: n, parent: list, index: list.indexOf(n) };
+    if (n.uid === uid) return { node: n, parent: list, index: list.indexOf(n) }
     if (Array.isArray(n.children)) {
-      const r = findNodeByUid(n.children, uid);
-      if (r) return r;
+      const r = findNodeByUid(n.children, uid)
+      if (r) return r
     }
   }
-  return null;
+  return null
 }
 
 export function removeNodeByUid(list: NavNode[], uid: string): NavNode | null {
-  const r = findNodeByUid(list, uid);
-  if (r) r.parent.splice(r.index, 1);
-  return r ? r.node : null;
+  const r = findNodeByUid(list, uid)
+  if (r) r.parent.splice(r.index, 1)
+  return r ? r.node : null
 }
 
 export function isDescendant(ancestor: NavNode, uid: string): boolean {
-  if (ancestor.uid === uid) return true;
-  if (!Array.isArray(ancestor.children)) return false;
-  return ancestor.children.some((c) => isDescendant(c, uid));
+  if (ancestor.uid === uid) return true
+  if (!Array.isArray(ancestor.children)) return false
+  return ancestor.children.some((c) => isDescendant(c, uid))
 }
 
 export function clearUids(n: NavNode): void {
-  delete n.uid;
-  if (Array.isArray(n.children)) n.children.forEach(clearUids);
+  delete n.uid
+  if (Array.isArray(n.children)) n.children.forEach(clearUids)
 }

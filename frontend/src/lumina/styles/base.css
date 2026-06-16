@@ -9,7 +9,11 @@ body {
 }
 body {
   margin: 0;
-  font-family: 'Satoshi', -apple-system, system-ui, sans-serif;
+  font-family:
+    'Satoshi',
+    -apple-system,
+    system-ui,
+    sans-serif;
   font-weight: 300;
   font-size: 15px;
   line-height: 1.55;
@@ -18,16 +22,8 @@ body {
   background: var(--color-bg);
   overflow: hidden;
   background-image:
-    radial-gradient(
-      1200px 600px at 80% -10%,
-      var(--ambient-a),
-      transparent 60%
-    ),
-    radial-gradient(
-      800px 500px at 10% 110%,
-      var(--ambient-b),
-      transparent 60%
-    );
+    radial-gradient(1200px 600px at 80% -10%, var(--ambient-a), transparent 60%),
+    radial-gradient(800px 500px at 10% 110%, var(--ambient-b), transparent 60%);
 }
 button {
   font: inherit;
@@ -36,6 +32,19 @@ button {
   border: 0;
   padding: 0;
   cursor: pointer;
+}
+/* Interactive elements show the pointer on hover across the whole app. */
+button,
+[role='button'],
+a[href],
+label[for],
+summary,
+select {
+  cursor: pointer;
+}
+button:disabled,
+[role='button'][aria-disabled='true'] {
+  cursor: not-allowed;
 }
 input,
 textarea {
@@ -52,11 +61,19 @@ a {
   color: inherit;
 }
 
+/* RGAA AA (critère 10.7) — indicateur de focus visible au clavier.
+   :focus-visible n'est déclenché que par le clavier (ou focus programmatique),
+   donc l'interaction souris reste sans contour. Placé après les resets
+   `outline: none` ci-dessus pour gagner en cascade (pseudo-classe > élément). */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
 ::selection {
   background: var(--color-teal-soft);
   color: var(--color-text);
 }
-
 
 /* ============================================================
    Layout

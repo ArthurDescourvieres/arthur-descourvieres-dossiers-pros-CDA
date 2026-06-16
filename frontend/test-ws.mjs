@@ -103,7 +103,10 @@ async function main() {
   console.log('--- A sends note:live, B should receive')
   sa.emit('note:live', {
     noteId: note.id,
-    content: { type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'hello live' }] }] },
+    content: {
+      type: 'doc',
+      content: [{ type: 'paragraph', content: [{ type: 'text', text: 'hello live' }] }],
+    },
   })
   await new Promise((r) => setTimeout(r, 200))
   console.log('   B received note:live =', bGotLive ? 'yes' : 'no')

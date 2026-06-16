@@ -1,58 +1,54 @@
-import { useEffect } from 'react';
-import { LuminaProvider, useLumina, findNodeByUid } from './LuminaContext';
-import { Sidebar } from './Sidebar';
-import { Editor } from './Editor';
-import { Panel } from './Panel';
-import {
-  ContextMenu,
-  Modal,
-  ToastLayer,
-} from './Overlays';
+import { useEffect } from 'react'
+import { LuminaProvider, useLumina, findNodeByUid } from './LuminaContext'
+import { Sidebar } from './Sidebar'
+import { Editor } from './Editor'
+import { Panel } from './Panel'
+import { ContextMenu, Modal, ToastLayer } from './Overlays'
 
 function GlobalShortcuts() {
-  const lumina = useLumina();
+  const lumina = useLumina()
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault();
+        e.preventDefault()
         // dispatch open-search; Sidebar exposes it via the brand-search button.
-        document.dispatchEvent(new CustomEvent('lumina:open-search'));
+        document.dispatchEvent(new CustomEvent('lumina:open-search'))
       }
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'n' && !e.shiftKey) {
-        e.preventDefault();
-        document.dispatchEvent(new CustomEvent('lumina:new-note-root'));
+        e.preventDefault()
+        document.dispatchEvent(new CustomEvent('lumina:new-note-root'))
       }
       if (e.key === 'F2') {
-        const active = document.querySelector<HTMLElement>('.nav-item.active');
+        const active = document.querySelector<HTMLElement>('.nav-item.active')
         if (active) {
-          const uid = active.dataset.uid;
+          const uid = active.dataset.uid
           if (uid) {
-            const r = findNodeByUid(lumina.navTree, uid);
+            const r = findNodeByUid(lumina.navTree, uid)
             if (r) {
-              e.preventDefault();
-              lumina.setPendingRename(uid);
+              e.preventDefault()
+              lumina.setPendingRename(uid)
             }
           }
         }
       }
-    };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [lumina]);
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [lumina])
 
-  return null;
+  return null
 }
 
 function AppShell() {
-  const lumina = useLumina();
+  const lumina = useLumina()
   const cls = [
     'app',
     lumina.panelCollapsed ? 'panel-collapsed' : '',
     lumina.sidebarOpen ? 'sidebar-open' : '',
   ]
     .filter(Boolean)
-    .join(' ');
+    .join(' ')
 
   return (
     <>
@@ -66,7 +62,7 @@ function AppShell() {
         <Panel />
       </div>
     </>
-  );
+  )
 }
 
 export function LuminaApp() {
@@ -74,5 +70,5 @@ export function LuminaApp() {
     <LuminaProvider>
       <AppShell />
     </LuminaProvider>
-  );
+  )
 }

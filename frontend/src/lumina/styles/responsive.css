@@ -57,12 +57,6 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
-  body {
-    cursor: auto;
-  }
-  body *:not(input):not(textarea) {
-    cursor: auto !important;
-  }
   .cursor-dot,
   .cursor-trail {
     display: none;

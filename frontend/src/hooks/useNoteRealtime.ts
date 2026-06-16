@@ -77,14 +77,18 @@ export function useNoteRealtime(noteId: string | null, opts: Options = {}) {
 
     if (socket.connected) onConnect()
 
-    socket.emit('note:join', { noteId }, (res: { ok: boolean; presence?: Presence[]; error?: string }) => {
-      if (cancelled) return
-      if (!res?.ok) {
-        setError(res?.error ?? 'JOIN_FAILED')
-        return
-      }
-      setPresence(res.presence ?? [])
-    })
+    socket.emit(
+      'note:join',
+      { noteId },
+      (res: { ok: boolean; presence?: Presence[]; error?: string }) => {
+        if (cancelled) return
+        if (!res?.ok) {
+          setError(res?.error ?? 'JOIN_FAILED')
+          return
+        }
+        setPresence(res.presence ?? [])
+      },
+    )
 
     return () => {
       cancelled = true

@@ -3,9 +3,26 @@ import DOMPurify from 'dompurify'
 // Tag whitelist aligned with §8.1, plus <mark> for search highlighting and
 // <span> for the design-system demo blocks.
 const ALLOWED_TAGS = [
-  'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-  'p', 'br', 'ul', 'ol', 'li', 'blockquote',
-  'strong', 'em', 'a', 'img', 'code', 'pre', 'mark', 'span',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'p',
+  'br',
+  'ul',
+  'ol',
+  'li',
+  'blockquote',
+  'strong',
+  'em',
+  'a',
+  'img',
+  'code',
+  'pre',
+  'mark',
+  'span',
 ]
 const ALLOWED_ATTR = ['href', 'src', 'alt', 'title', 'class', 'style']
 

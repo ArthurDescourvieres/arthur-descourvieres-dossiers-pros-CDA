@@ -4,6 +4,9 @@
 @import './lumina/styles/base.css';
 @import './lumina/styles/sidebar.css';
 @import './lumina/styles/editor.css';
+@import './lumina/styles/tiptap.css';
 @import './lumina/styles/panel.css';
 @import './lumina/styles/overlays.css';
 @import './lumina/styles/responsive.css';
+@import './lumina/styles/landing.css';
+@import './lumina/styles/landing-sections.css';

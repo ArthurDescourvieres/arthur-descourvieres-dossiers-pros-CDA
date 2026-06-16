@@ -1,10 +1,10 @@
-import { useMemo } from 'react';
-import { useLumina, virtualPages } from './LuminaContext';
-import { LuminaIcon } from './LuminaIcon';
-import type { Page } from '../data/types';
+import { useMemo } from 'react'
+import { useLumina, virtualPages } from './LuminaContext'
+import { LuminaIcon } from './LuminaIcon'
+import type { Page } from '../data/types'
 
 function Properties({ page }: { page: Page }) {
-  const m = page.meta;
+  const m = page.meta
   return (
     <div>
       <div className="panel-title">
@@ -59,10 +59,7 @@ function Properties({ page }: { page: Page }) {
           <LuminaIcon name="user" /> By
         </div>
         <div className="prop-value">
-          <span
-            className="activity-avatar a"
-            style={{ width: 16, height: 16, fontSize: 8 }}
-          >
+          <span className="activity-avatar a" style={{ width: 16, height: 16, fontSize: 8 }}>
             E
           </span>{' '}
           {m.by}
@@ -77,15 +74,18 @@ function Properties({ page }: { page: Page }) {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 function Backlinks({ page }: { page: Page }) {
-  const lumina = useLumina();
+  const lumina = useLumina()
   const items = useMemo(
-    () => Object.values(lumina.pages).filter((p) => p.id !== page.id).slice(0, 2),
+    () =>
+      Object.values(lumina.pages)
+        .filter((p) => p.id !== page.id)
+        .slice(0, 2),
     [lumina.pages, page.id],
-  );
+  )
   return (
     <div>
       <div className="panel-section-title">
@@ -108,7 +108,7 @@ function Backlinks({ page }: { page: Page }) {
         </button>
       ))}
     </div>
-  );
+  )
 }
 
 function Activity({ edited }: { edited: string }) {
@@ -139,11 +139,11 @@ function Activity({ edited }: { edited: string }) {
         </div>
       </div>
     </div>
-  );
+  )
 }
 
 function VirtualAbout({ vkey }: { vkey: keyof typeof virtualPages }) {
-  const v = virtualPages[vkey];
+  const v = virtualPages[vkey]
   return (
     <div>
       <div className="panel-title">
@@ -164,13 +164,13 @@ function VirtualAbout({ vkey }: { vkey: keyof typeof virtualPages }) {
         <div className="prop-value">0</div>
       </div>
     </div>
-  );
+  )
 }
 
 export function Panel() {
-  const lumina = useLumina();
-  const page = lumina.currentPageId ? lumina.pages[lumina.currentPageId] : null;
-  const vkey = lumina.currentVirtual;
+  const lumina = useLumina()
+  const page = lumina.currentPageId ? lumina.pages[lumina.currentPageId] : null
+  const vkey = lumina.currentVirtual
 
   return (
     <aside className="panel" id="panel">
@@ -186,5 +186,5 @@ export function Panel() {
         ) : null}
       </div>
     </aside>
-  );
+  )
 }

@@ -38,8 +38,7 @@ export function useUploadAttachment(noteId: string | null) {
 export function useDeleteAttachment(noteId: string | null) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (id: string) =>
-      api<void>(`/api/attachments/${id}`, { method: 'DELETE' }),
+    mutationFn: (id: string) => api<void>(`/api/attachments/${id}`, { method: 'DELETE' }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['attachments', noteId] }),
   })
 }

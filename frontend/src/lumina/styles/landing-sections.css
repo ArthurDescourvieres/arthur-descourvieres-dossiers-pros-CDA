@@ -1,0 +1,226 @@
+/* ============================================================
+   Lumina — landing page (sections: features, showcase, cta, footer)
+   ============================================================ */
+
+/* ---- shared section heading ---- */
+.lp-section-head {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto 48px;
+}
+.lp-h2 {
+  margin: 14px 0 0;
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.lp-section-text {
+  margin: 16px 0 0;
+  color: var(--color-text-muted);
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+/* ---- features ---- */
+.lp-features {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 48px 24px 24px;
+}
+.lp-grid-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+.lp-card {
+  padding: 26px;
+  border-radius: var(--r-lg);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-line);
+  transition:
+    transform 0.3s var(--ease-out-expo),
+    border-color 0.3s ease,
+    background 0.3s ease;
+}
+.lp-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--color-line-strong);
+  background: var(--color-surface-3);
+}
+.lp-card-icon {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-md);
+  background: var(--color-accent-soft);
+  color: var(--color-accent-hi);
+  margin-bottom: 16px;
+}
+.lp-card h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 600;
+}
+.lp-card p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+/* ---- showcase ---- */
+.lp-showcase {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 80px 24px;
+  text-align: center;
+}
+.lp-mock {
+  margin-top: 8px;
+  border-radius: var(--r-xl);
+  border: 1px solid var(--color-line-strong);
+  background: var(--color-surface-1);
+  box-shadow: 0 50px 90px -50px var(--color-ink-shadow);
+  overflow: hidden;
+  text-align: left;
+}
+.lp-mock-bar {
+  display: flex;
+  gap: 8px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--color-line);
+  background: var(--color-surface-2);
+}
+.lp-mock-bar span {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--color-surface-4);
+}
+.lp-mock-body {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  min-height: 320px;
+}
+.lp-mock-side {
+  border-right: 1px solid var(--color-line);
+  padding: 22px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--color-surface-1);
+}
+.lp-mock-side i {
+  display: block;
+  height: 12px;
+  border-radius: 4px;
+  background: var(--color-overlay);
+}
+.lp-mock-side i.act {
+  background: var(--color-accent-soft);
+  width: 78%;
+}
+.lp-mock-main {
+  padding: 30px 34px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.lp-mock-title {
+  height: 26px;
+  width: 55%;
+  border-radius: 6px;
+  background: var(--color-overlay-hi);
+}
+.lp-mock-line {
+  height: 11px;
+  border-radius: 4px;
+  background: var(--color-overlay);
+}
+.lp-mock-line.s {
+  width: 92%;
+}
+.lp-mock-line.m {
+  width: 74%;
+}
+.lp-mock-line.x {
+  width: 40%;
+}
+.lp-mock-chip {
+  height: 84px;
+  margin: 6px 0;
+  border-radius: var(--r-md);
+  border: 1px solid var(--color-line);
+  background: linear-gradient(120deg, var(--color-accent-soft), var(--color-gold-soft));
+}
+
+/* ---- final cta ---- */
+.lp-cta {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 24px 100px;
+}
+.lp-cta-inner {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--r-xl);
+  border: 1px solid var(--color-line-strong);
+  background:
+    radial-gradient(600px 240px at 30% 0%, var(--color-accent-soft), transparent 70%),
+    radial-gradient(500px 220px at 100% 120%, var(--color-gold-soft), transparent 70%),
+    var(--color-surface-2);
+  padding: 64px 32px;
+  text-align: center;
+}
+.lp-cta-inner .lp-h2 {
+  margin-bottom: 28px;
+}
+
+/* ---- footer ---- */
+.lp-footer {
+  border-top: 1px solid var(--color-line);
+  padding: 28px 24px 48px;
+}
+.lp-footer-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  color: var(--color-text-faint);
+  font-size: 13px;
+}
+
+/* ---- responsive ---- */
+@media (max-width: 860px) {
+  .lp-grid-cards {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 620px) {
+  .lp-grid-cards {
+    grid-template-columns: 1fr;
+  }
+  .lp-mock-body {
+    grid-template-columns: 1fr;
+  }
+  .lp-mock-side {
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-right: 0;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .lp-mock-side i {
+    width: 64px;
+  }
+  .lp-mock-side i.act {
+    width: 90px;
+  }
+  .lp-nav-actions .lp-btn-ghost {
+    display: none;
+  }
+}

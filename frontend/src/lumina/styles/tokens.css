@@ -18,37 +18,54 @@
 }
 
 :root {
-  --color-bg: #1a1714;
-  --color-surface-1: #201c18;
-  --color-surface-2: #272320;
-  --color-surface-3: #2f2a26;
-  --color-surface-4: #38322c;
-  --color-line: oklch(1 0 0 / 0.065);
-  --color-line-strong: oklch(1 0 0 / 0.11);
-  --color-overlay-weak: oklch(1 0 0 / 0.025);
-  --color-overlay: oklch(1 0 0 / 0.05);
-  --color-overlay-hi: oklch(1 0 0 / 0.1);
-  --color-ink-shadow: oklch(0 0 0 / 0.25);
+  /* Canvas gris-bleu (zone d'écriture) + sidebar bleue avec halo marqué en haut */
+  --color-bg: oklch(0.3 0.03 256);
+  --color-sidebar:
+    radial-gradient(120% 55% at 50% 0%, oklch(0.52 0.1 264), transparent 65%), oklch(0.33 0.06 264);
+  --color-surface-1: oklch(0.36 0.036 256);
+  --color-surface-2: oklch(0.4 0.035 255);
+  --color-surface-3: oklch(0.44 0.034 255);
+  --color-surface-4: oklch(0.49 0.032 255);
 
-  --color-text: oklch(0.94 0.012 75);
-  --color-text-muted: oklch(0.78 0.014 70);
-  --color-text-dim: oklch(0.6 0.015 65);
-  --color-text-faint: oklch(0.46 0.012 65);
+  /* Voiles blancs translucides (relevés car le fond est plus clair) */
+  --color-surface: oklch(1 0 0 / 0.05);
+  --color-surface-strong: oklch(1 0 0 / 0.08);
+  --color-line: oklch(1 0 0 / 0.1);
+  --color-line-strong: oklch(1 0 0 / 0.15);
+  --color-overlay-weak: oklch(1 0 0 / 0.04);
+  --color-overlay: oklch(1 0 0 / 0.06);
+  --color-overlay-hi: oklch(1 0 0 / 0.12);
+  --color-ink-shadow: oklch(0 0 0 / 0.32);
+  --color-shadow: oklch(0 0 0 / 0.35);
 
-  --color-teal: oklch(0.66 0.14 42);
-  --color-teal-soft: oklch(0.66 0.14 42 / 0.22);
-  --color-teal-ghost: oklch(0.66 0.14 42 / 0.08);
-  --color-teal-hi: oklch(0.76 0.15 40);
+  --color-text: oklch(0.97 0.006 250);
+  --color-text-muted: oklch(0.82 0.012 250);
+  --color-text-dim: oklch(0.66 0.016 252);
+  --color-text-faint: oklch(0.55 0.018 252);
 
-  --color-gold: oklch(0.66 0.09 125);
-  --color-gold-soft: oklch(0.66 0.09 125 / 0.22);
-  --color-gold-hi: oklch(0.8 0.1 125);
+  /* Accent bleu (un cran plus doux que le cornflower générique) */
+  --color-accent: oklch(0.62 0.16 252);
+  --color-accent-hi: oklch(0.7 0.15 250);
+  --color-accent-soft: oklch(0.62 0.16 252 / 0.28);
+  --color-accent-border: oklch(0.62 0.16 252 / 0.45);
+  --color-on-accent: oklch(0.99 0 0);
 
-  --color-danger: oklch(0.62 0.18 25);
+  /* Alias de compatibilité (ancien thème) -> mappés sur l'accent bleu */
+  --color-teal: oklch(0.62 0.16 252);
+  --color-teal-soft: oklch(0.62 0.16 252 / 0.28);
+  --color-teal-ghost: oklch(0.62 0.16 252 / 0.1);
+  --color-teal-hi: oklch(0.7 0.15 250);
 
-  --color-backdrop: oklch(0.1 0.02 60 / 0.6);
-  --ambient-a: oklch(0.66 0.14 42 / 0.06);
-  --ambient-b: oklch(0.66 0.09 125 / 0.035);
+  --color-gold: oklch(0.78 0.1 230);
+  --color-gold-soft: oklch(0.78 0.1 230 / 0.22);
+  --color-gold-hi: oklch(0.85 0.09 230);
+
+  --color-danger: oklch(0.68 0.18 22);
+  --color-danger-border: oklch(0.68 0.18 22 / 0.4);
+
+  --color-backdrop: oklch(0.18 0.03 256 / 0.6);
+  --ambient-a: oklch(0.62 0.16 252 / 0.08);
+  --ambient-b: oklch(0.78 0.1 230 / 0.05);
 
   --space-1: 4px;
   --space-2: 8px;
@@ -73,35 +90,50 @@
 }
 
 :root[data-theme='light'] {
-  --color-bg: #f4efe6;
-  --color-surface-1: #ede6d9;
-  --color-surface-2: #e5dccd;
-  --color-surface-3: #dcd1bd;
-  --color-surface-4: #cfc1a8;
-  --color-line: oklch(0 0 0 / 0.08);
-  --color-line-strong: oklch(0 0 0 / 0.14);
-  --color-overlay-weak: oklch(0 0 0 / 0.025);
-  --color-overlay: oklch(0 0 0 / 0.045);
-  --color-overlay-hi: oklch(0 0 0 / 0.08);
-  --color-ink-shadow: oklch(0.25 0.03 50 / 0.18);
+  --color-bg: oklch(0.96 0.02 256);
+  --color-sidebar:
+    radial-gradient(120% 55% at 50% 0%, oklch(0.99 0.05 264), transparent 65%), oklch(0.9 0.03 264);
+  --color-surface-1: oklch(0.93 0.014 250);
+  --color-surface-2: oklch(0.9 0.016 250);
+  --color-surface-3: oklch(0.86 0.018 250);
+  --color-surface-4: oklch(0.8 0.02 250);
 
-  --color-text: oklch(0.26 0.025 55);
-  --color-text-muted: oklch(0.4 0.02 55);
-  --color-text-dim: oklch(0.52 0.02 60);
-  --color-text-faint: oklch(0.62 0.018 65);
+  --color-surface: oklch(0.2 0.03 256 / 0.04);
+  --color-surface-strong: oklch(0.2 0.03 256 / 0.07);
+  --color-line: oklch(0.2 0.03 256 / 0.12);
+  --color-line-strong: oklch(0.2 0.03 256 / 0.2);
+  --color-overlay-weak: oklch(0.2 0.03 256 / 0.03);
+  --color-overlay: oklch(0.2 0.03 256 / 0.05);
+  --color-overlay-hi: oklch(0.2 0.03 256 / 0.1);
+  --color-ink-shadow: oklch(0.3 0.04 256 / 0.18);
+  --color-shadow: oklch(0.3 0.05 256 / 0.2);
 
-  --color-teal: oklch(0.5 0.14 38);
-  --color-teal-soft: oklch(0.5 0.14 38 / 0.18);
-  --color-teal-ghost: oklch(0.5 0.14 38 / 0.08);
-  --color-teal-hi: oklch(0.58 0.15 38);
+  --color-text: oklch(0.3 0.03 256);
+  --color-text-muted: oklch(0.44 0.03 254);
+  --color-text-dim: oklch(0.55 0.028 254);
+  --color-text-faint: oklch(0.64 0.025 254);
 
-  --color-gold: oklch(0.46 0.08 125);
-  --color-gold-soft: oklch(0.46 0.08 125 / 0.2);
-  --color-gold-hi: oklch(0.54 0.09 125);
+  --color-accent: oklch(0.55 0.17 254);
+  --color-accent-hi: oklch(0.62 0.16 252);
+  --color-accent-soft: oklch(0.55 0.17 254 / 0.16);
+  --color-accent-border: oklch(0.55 0.17 254 / 0.35);
+  --color-on-accent: oklch(0.99 0 0);
 
-  --color-backdrop: oklch(0.3 0.04 60 / 0.35);
-  --ambient-a: oklch(0.7 0.14 42 / 0.1);
-  --ambient-b: oklch(0.66 0.08 125 / 0.07);
+  --color-teal: oklch(0.55 0.17 254);
+  --color-teal-soft: oklch(0.55 0.17 254 / 0.16);
+  --color-teal-ghost: oklch(0.55 0.17 254 / 0.08);
+  --color-teal-hi: oklch(0.62 0.16 252);
+
+  --color-gold: oklch(0.6 0.1 230);
+  --color-gold-soft: oklch(0.6 0.1 230 / 0.2);
+  --color-gold-hi: oklch(0.68 0.1 230);
+
+  --color-danger: oklch(0.55 0.2 25);
+  --color-danger-border: oklch(0.55 0.2 25 / 0.35);
+
+  --color-backdrop: oklch(0.5 0.05 256 / 0.35);
+  --ambient-a: oklch(0.7 0.14 252 / 0.12);
+  --ambient-b: oklch(0.78 0.1 230 / 0.08);
 }
 
 html.theme-transition,
@@ -204,5 +236,11 @@ html.theme-transition * {
   to {
     opacity: 0;
     transform: translateY(-6px) scale(0.98);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
