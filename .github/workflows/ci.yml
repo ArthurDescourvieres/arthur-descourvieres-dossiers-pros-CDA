@@ -185,7 +185,7 @@ jobs:
       # run, so the Deploy workflow (which only fires on a green CI) never starts.
       # ignore-unfixed avoids failing on vulnerabilities that have no patch yet.
       - name: Scan backend image (Trivy)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.28.0
         with:
           image-ref: ${{ steps.img.outputs.prefix }}-backend:sha-${{ github.sha }}
           severity: HIGH,CRITICAL
@@ -193,7 +193,7 @@ jobs:
           exit-code: '1'
 
       - name: Scan web image (Trivy)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.28.0
         with:
           image-ref: ${{ steps.img.outputs.prefix }}-web:sha-${{ github.sha }}
           severity: HIGH,CRITICAL
