@@ -19,7 +19,7 @@
     "purge": "tsx src/jobs/purge-deactivated.ts"
   },
   "dependencies": {
-    "@hono/node-server": "^1.13.7",
+    "@hono/node-server": "^2.0.5",
     "@prisma/client": "^6.6.0",
     "@socket.io/redis-adapter": "^8.3.0",
     "argon2": "^0.44.0",
