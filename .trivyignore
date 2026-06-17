@@ -1,0 +1,10 @@
+# Trivy ignore file — exceptions documentées (revues régulièrement).
+#
+# CVE-2026-33671 — picomatch < 4.0.4 : ReDoS (Regular Expression Denial of Service).
+# picomatch n'est PAS une dépendance de l'API en exécution : l'app tourne via
+# `node dist/index.js` et le lockfile épingle déjà picomatch 4.0.4. La copie 4.0.3
+# signalée est tirée côté Linux par l'outillage du CLI Prisma au moment de
+# `prisma generate` (hors arbre npm de prod, donc non corrigeable par override).
+# Le serveur n'expose jamais picomatch à de l'input attaquant → risque non
+# exploitable au runtime. À retirer dès que Prisma embarque picomatch >= 4.0.4.
+CVE-2026-33671
