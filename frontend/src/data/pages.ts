@@ -1,4 +1,4 @@
-import type { Page } from './types';
+import type { Page } from './types'
 
 export const initialPages: Record<string, Page> = {
   atlas: {
@@ -359,7 +359,7 @@ export const initialPages: Record<string, Page> = {
       { type: 'slash' },
     ],
   },
-};
+}
 
 export const virtualPages: Record<
   'today' | 'archive' | 'trash' | 'inbox_empty',
@@ -389,4 +389,4 @@ export const virtualPages: Record<
     subtitle: 'No new captures today.',
     icon: 'inbox',
   },
-};
+}

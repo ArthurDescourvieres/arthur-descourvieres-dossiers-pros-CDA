@@ -1,7 +1,6 @@
 import { verify } from 'hono/jwt'
 import type { Server, Socket } from 'socket.io'
-
-const JWT_SECRET = process.env.JWT_SECRET ?? 'secret'
+import { JWT_SECRET } from '../lib/env.js'
 
 export type RealtimeSocketData = {
   userId: string

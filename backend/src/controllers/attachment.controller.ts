@@ -4,17 +4,11 @@ import { fileTypeFromBuffer } from 'file-type'
 import type { AppEnv } from '../types/hono.js'
 import { attachmentService } from '../services/attachment.service.js'
 import { storage } from '../lib/storage.js'
+import { ALLOWED_MIMES, looksLikeText } from '../lib/upload.js'
 
 type C = Context<AppEnv>
 
 const MAX_BYTES = 10 * 1024 * 1024
-const ALLOWED_MIMES = new Set([
-  'image/jpeg',
-  'image/png',
-  'image/gif',
-  'image/webp',
-  'application/pdf',
-])
 
 export const attachmentController = {
   async upload(c: C) {
@@ -39,24 +33,32 @@ export const attachmentController = {
 
     const buffer = Buffer.from(await file.arrayBuffer())
 
-    // Validate MIME from magic bytes — never trust client-sent Content-Type
+    // Validate MIME from magic bytes — never trust the client-sent Content-Type.
+    // Plain text has no magic bytes (file-type returns undefined): accept it only
+    // when the bytes are genuinely UTF-8 text, so a binary renamed .txt is rejected.
     const detected = await fileTypeFromBuffer(buffer)
-    if (!detected || !ALLOWED_MIMES.has(detected.mime)) {
+    let mime = detected?.mime
+    let ext = detected?.ext
+    if (!mime && looksLikeText(buffer)) {
+      mime = 'text/plain'
+      ext = 'txt'
+    }
+    if (!mime || !ALLOWED_MIMES.has(mime)) {
       return c.json(
         {
           error: 'Unsupported file type',
-          detail: detected ? `Detected: ${detected.mime}` : 'Could not detect file type',
+          detail: mime ? `Detected: ${mime}` : 'Could not detect file type',
           allowed: Array.from(ALLOWED_MIMES),
         },
-        400,
+        415,
       )
     }
 
     const attachment = await attachmentService.create({
       noteId,
       uploadedById: userId,
-      filename: file.name || `upload.${detected.ext}`,
-      mimeType: detected.mime,
+      filename: file.name || `upload.${ext}`,
+      mimeType: mime,
       buffer,
     })
 
@@ -72,7 +74,7 @@ export const attachmentController = {
   async serveFile(c: C) {
     const id = c.req.param('id')!
     const attachment = await attachmentService.getById(id)
-    if (!attachment) return c.json({ error: 'Not found' }, 404)
+    if (!attachment) return c.json({ error: 'Forbidden' }, 403)
 
     c.header('Content-Type', attachment.mimeType)
     c.header('Content-Length', String(attachment.size))
@@ -98,7 +100,7 @@ export const attachmentController = {
     const userRole = c.get('userRole')
 
     const attachment = await attachmentService.getById(id)
-    if (!attachment) return c.json({ error: 'Not found' }, 404)
+    if (!attachment) return c.json({ error: 'Forbidden' }, 403)
 
     const isOwner = userRole === 'OWNER'
     const isUploader = attachment.uploadedById === userId

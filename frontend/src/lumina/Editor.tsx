@@ -7,10 +7,11 @@ import {
   useState,
   type CSSProperties,
   type MouseEvent as ReactMouseEvent,
-} from 'react';
-import { useLumina, virtualPages } from './LuminaContext';
-import { LuminaIcon } from './LuminaIcon';
-import { spawnParticles } from '../lib/particles';
+} from 'react'
+import { useLumina, virtualPages } from './LuminaContext'
+import { LuminaIcon } from './LuminaIcon'
+import { spawnParticles } from '../lib/particles'
+import { sanitizeHtml } from '../lib/sanitizeHtml'
 import type {
   Block,
   BlockTodo as BlockTodoT,
@@ -20,18 +21,17 @@ import type {
   BlockQuote,
   BlockCallout,
   Page,
-} from '../data/types';
+} from '../data/types'
 
 const REDUCED = () =>
-  typeof matchMedia !== 'undefined' &&
-  matchMedia('(prefers-reduced-motion: reduce)').matches;
+  typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches
 
 // =====================================================================
 // THEME TOGGLE
 // =====================================================================
 function ThemeToggle() {
-  const lumina = useLumina();
-  const isLight = lumina.theme === 'light';
+  const lumina = useLumina()
+  const isLight = lumina.theme === 'light'
   return (
     <button
       className={`theme-toggle ${lumina.theme}`}
@@ -39,16 +39,16 @@ function ThemeToggle() {
       aria-label={isLight ? 'Switch to dark mode' : 'Switch to light mode'}
       aria-pressed={isLight ? 'true' : 'false'}
     />
-  );
+  )
 }
 
 // =====================================================================
 // BREADCRUMB
 // =====================================================================
 function Breadcrumb({ page, virtualKey }: { page: Page | null; virtualKey: string | null }) {
-  const lumina = useLumina();
+  const lumina = useLumina()
   if (virtualKey) {
-    const v = virtualPages[virtualKey as keyof typeof virtualPages];
+    const v = virtualPages[virtualKey as keyof typeof virtualPages]
     return (
       <div className="breadcrumb" id="breadcrumb">
         <a href="#" className="leaf" onClick={(e) => e.preventDefault()}>
@@ -56,21 +56,21 @@ function Breadcrumb({ page, virtualKey }: { page: Page | null; virtualKey: strin
           {v.title}
         </a>
       </div>
-    );
+    )
   }
-  if (!page) return <div className="breadcrumb" id="breadcrumb" />;
+  if (!page) return <div className="breadcrumb" id="breadcrumb" />
   return (
     <div className="breadcrumb" id="breadcrumb">
       {page.path.map((seg, i) => {
-        const isLeaf = i === page.path.length - 1;
+        const isLeaf = i === page.path.length - 1
         return (
           <span key={i} style={{ display: 'contents' }}>
             <a
               href="#"
               className={isLeaf ? 'leaf' : undefined}
               onClick={(e) => {
-                e.preventDefault();
-                if (!isLeaf) lumina.showToast(`Navigating to “${seg}”`, 'folder');
+                e.preventDefault()
+                if (!isLeaf) lumina.showToast(`Navigating to “${seg}”`, 'folder')
               }}
             >
               {isLeaf && <span className="leaf-emoji">{page.emoji}</span>}
@@ -78,20 +78,20 @@ function Breadcrumb({ page, virtualKey }: { page: Page | null; virtualKey: strin
             </a>
             {!isLeaf && <span className="sep">/</span>}
           </span>
-        );
+        )
       })}
     </div>
-  );
+  )
 }
 
 // =====================================================================
 // TOPBAR
 // =====================================================================
 function Topbar({ page, virtualKey }: { page: Page | null; virtualKey: string | null }) {
-  const lumina = useLumina();
+  const lumina = useLumina()
 
   const openShare = () => {
-    const p = page;
+    const p = page
     lumina.openModal(
       <>
         <h3>Share {p ? `“${p.title}”` : 'this view'}</h3>
@@ -113,7 +113,9 @@ function Topbar({ page, virtualKey }: { page: Page | null; virtualKey: string | 
             <div className="avatar">E</div>
             <div>
               <div>Elise Marchetti</div>
-              <div style={{ fontSize: 11.5, color: 'var(--color-text-faint)' }}>elise@lumina.work</div>
+              <div style={{ fontSize: 11.5, color: 'var(--color-text-faint)' }}>
+                elise@lumina.work
+              </div>
             </div>
             <div className="role">Owner</div>
           </div>
@@ -157,8 +159,8 @@ function Topbar({ page, virtualKey }: { page: Page | null; virtualKey: string | 
           <button
             className="modal-btn"
             onClick={() => {
-              lumina.closeModal();
-              lumina.showToast('Link copied to clipboard', 'link');
+              lumina.closeModal()
+              lumina.showToast('Link copied to clipboard', 'link')
             }}
           >
             Copy link
@@ -168,11 +170,11 @@ function Topbar({ page, virtualKey }: { page: Page | null; virtualKey: string | 
           </button>
         </div>
       </>,
-    );
-  };
+    )
+  }
 
   const openHistory = () => {
-    const p = page;
+    const p = page
     lumina.openModal(
       <>
         <h3>Version history</h3>
@@ -220,8 +222,8 @@ function Topbar({ page, virtualKey }: { page: Page | null; virtualKey: string | 
           </button>
         </div>
       </>,
-    );
-  };
+    )
+  }
 
   const openComments = () => {
     lumina.openModal(
@@ -282,8 +284,8 @@ function Topbar({ page, virtualKey }: { page: Page | null; virtualKey: string | 
           </button>
         </div>
       </>,
-    );
-  };
+    )
+  }
 
   return (
     <header className="topbar">
@@ -312,7 +314,7 @@ function Topbar({ page, virtualKey }: { page: Page | null; virtualKey: string | 
         </button>
       </div>
     </header>
-  );
+  )
 }
 
 // =====================================================================
@@ -328,24 +330,24 @@ function BlockHandle() {
         <LuminaIcon name="grip-vertical" />
       </button>
     </span>
-  );
+  )
 }
 
 // =====================================================================
 // BLOCK VARIANTS
 // =====================================================================
 function BlockTodo({ block }: { block: BlockTodoT }) {
-  const [done, setDone] = useState(block.done);
-  const checkRef = useRef<HTMLButtonElement | null>(null);
+  const [done, setDone] = useState(block.done)
+  const checkRef = useRef<HTMLButtonElement | null>(null)
 
   const onToggle = (e: ReactMouseEvent) => {
-    e.stopPropagation();
+    e.stopPropagation()
     setDone((prev) => {
-      const next = !prev;
-      if (next && checkRef.current) spawnParticles(checkRef.current);
-      return next;
-    });
-  };
+      const next = !prev
+      if (next && checkRef.current) spawnParticles(checkRef.current)
+      return next
+    })
+  }
 
   return (
     <div className={`block-todo ${done ? 'done' : ''}`}>
@@ -363,20 +365,20 @@ function BlockTodo({ block }: { block: BlockTodoT }) {
       <div className="todo-label">{block.label}</div>
       <span className="todo-meta tag">{block.meta}</span>
     </div>
-  );
+  )
 }
 
 function SlashTrigger() {
-  const lumina = useLumina();
-  const ref = useRef<HTMLDivElement | null>(null);
+  const lumina = useLumina()
+  const ref = useRef<HTMLDivElement | null>(null)
   return (
     <div
       ref={ref}
       className="slash-trigger"
       data-slash-trigger=""
       onClick={(e) => {
-        e.stopPropagation();
-        if (ref.current) lumina.openSlashMenu(ref.current);
+        e.stopPropagation()
+        if (ref.current) lumina.openSlashMenu(ref.current)
       }}
     >
       <span className="bar"></span>
@@ -384,81 +386,90 @@ function SlashTrigger() {
         Type <strong style={{ color: 'var(--color-text)' }}>/</strong> to insert a new block…
       </span>
     </div>
-  );
+  )
 }
 
 function BlockBody({ block }: { block: Block }) {
   switch (block.type) {
     case 'callout': {
-      const b = block as BlockCallout;
+      const b = block as BlockCallout
       return (
         <div className="block-callout">
           <span className="callout-icon">{b.icon}</span>
-          <div className="callout-body" dangerouslySetInnerHTML={{ __html: b.body }} />
+          <div
+            className="callout-body"
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(b.body) }}
+          />
         </div>
-      );
+      )
     }
     case 'h1': {
-      const b = block as BlockH1;
-      return <div className="block-h1">{b.text}</div>;
+      const b = block as BlockH1
+      return <div className="block-h1">{b.text}</div>
     }
     case 'h2': {
-      const b = block as BlockH2;
-      return <div className="block-h2">{b.text}</div>;
+      const b = block as BlockH2
+      return <div className="block-h2">{b.text}</div>
     }
     case 'p': {
-      const b = block as BlockP;
+      const b = block as BlockP
       return (
         <div
           className="block-p"
-          dangerouslySetInnerHTML={{ __html: b.html ?? b.text ?? '' }}
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(b.html ?? b.text ?? '') }}
         />
-      );
+      )
     }
     case 'quote': {
-      const b = block as BlockQuote;
+      const b = block as BlockQuote
       return (
         <blockquote className="block-quote">
           {b.text}
           <span className="block-quote-cite">— {b.cite}</span>
         </blockquote>
-      );
+      )
     }
     case 'divider':
       return (
         <div className="block-divider">
           <span className="block-divider-mark">✦ ✦ ✦</span>
         </div>
-      );
+      )
     case 'todo':
-      return <BlockTodo block={block as BlockTodoT} />;
+      return <BlockTodo block={block as BlockTodoT} />
     case 'slash':
-      return <SlashTrigger />;
+      return <SlashTrigger />
     default:
-      return null;
+      return null
   }
 }
 
-function BlockRow({ block, idx, focused, onFocus, initialDelay }: {
-  block: Block;
-  idx: number;
-  focused: boolean;
-  onFocus: () => void;
-  initialDelay: number;
+function BlockRow({
+  block,
+  idx,
+  focused,
+  onFocus,
+  initialDelay,
+}: {
+  block: Block
+  idx: number
+  focused: boolean
+  onFocus: () => void
+  initialDelay: number
 }) {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const isDivider = block.type === 'divider';
+  const ref = useRef<HTMLDivElement | null>(null)
+  const isDivider = block.type === 'divider'
 
   // Stagger entry animation: start with .will-enter, swap to .enter after delay.
-  const [entered, setEntered] = useState(false);
+  const [entered, setEntered] = useState(false)
   useEffect(() => {
     if (REDUCED()) {
-      setEntered(true);
-      return;
+      setEntered(true)
+      return
     }
-    const t = window.setTimeout(() => setEntered(true), 60 * idx + initialDelay);
-    return () => window.clearTimeout(t);
-  }, [idx, initialDelay]);
+    const t = window.setTimeout(() => setEntered(true), 60 * idx + initialDelay)
+    return () => window.clearTimeout(t)
+  }, [idx, initialDelay])
 
   return (
     <div
@@ -471,25 +482,22 @@ function BlockRow({ block, idx, focused, onFocus, initialDelay }: {
       {!isDivider ? <BlockHandle /> : null}
       <BlockBody block={block} />
     </div>
-  );
+  )
 }
 
 // =====================================================================
 // PAGE (renders current page content w/ exit/enter)
 // =====================================================================
 function PageView({ page, initialDelay }: { page: Page; initialDelay: number }) {
-  const [focusedIdx, setFocusedIdx] = useState<number | null>(null);
-  const tasks = useMemo(
-    () => page.blocks.filter((b) => b.type === 'todo').length,
-    [page],
-  );
+  const [focusedIdx, setFocusedIdx] = useState<number | null>(null)
+  const tasks = useMemo(() => page.blocks.filter((b) => b.type === 'todo').length, [page])
   return (
     <article className="page" id="lumina-page">
       <div className="cover" />
       <div className="page-emoji">{page.emoji}</div>
       <h1
         className="page-title"
-        dangerouslySetInnerHTML={{ __html: page.titleHTML || page.title }}
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(page.titleHTML || page.title) }}
       />
       <div className="page-subtitle">
         <span>Edited {page.meta.edited}</span>
@@ -511,11 +519,11 @@ function PageView({ page, initialDelay }: { page: Page; initialDelay: number }) 
         />
       ))}
     </article>
-  );
+  )
 }
 
 function VirtualPageView({ vkey }: { vkey: keyof typeof virtualPages }) {
-  const v = virtualPages[vkey];
+  const v = virtualPages[vkey]
   return (
     <article className="page" id="lumina-page">
       <div className="empty-state">
@@ -526,7 +534,7 @@ function VirtualPageView({ vkey }: { vkey: keyof typeof virtualPages }) {
         <p>{v.subtitle}</p>
       </div>
     </article>
-  );
+  )
 }
 
 // =====================================================================
@@ -575,84 +583,79 @@ const SLASH_ITEMS = [
     desc: 'Break up content with a line.',
     kbd: '---',
   },
-];
+]
 
 function SlashMenu({ scrollRef }: { scrollRef: React.RefObject<HTMLDivElement | null> }) {
-  const lumina = useLumina();
-  const open = !!lumina.slashTriggerEl;
-  const [activeIdx, setActiveIdx] = useState(0);
-  const [pos, setPos] = useState<{ left: number; top: number }>({ left: 0, top: 0 });
+  const lumina = useLumina()
+  const open = !!lumina.slashTriggerEl
+  const [activeIdx, setActiveIdx] = useState(0)
+  const [pos, setPos] = useState<{ left: number; top: number }>({ left: 0, top: 0 })
 
   // Position menu relative to the editor-col / scroll container.
   useLayoutEffect(() => {
-    if (!open) return;
-    const anchor = lumina.slashTriggerEl;
-    const scroll = scrollRef.current;
-    if (!anchor || !scroll) return;
-    const a = anchor.getBoundingClientRect();
-    const s = scroll.getBoundingClientRect();
+    if (!open) return
+    const anchor = lumina.slashTriggerEl
+    const scroll = scrollRef.current
+    if (!anchor || !scroll) return
+    const a = anchor.getBoundingClientRect()
+    const s = scroll.getBoundingClientRect()
     setPos({
       left: a.left - s.left + 12,
       top: a.top - s.top + 28,
-    });
-    setActiveIdx(0);
-  }, [open, lumina.slashTriggerEl, scrollRef]);
+    })
+    setActiveIdx(0)
+  }, [open, lumina.slashTriggerEl, scrollRef])
 
   // Keyboard nav.
   useEffect(() => {
-    if (!open) return;
+    if (!open) return
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        lumina.closeSlashMenu();
-        return;
+        lumina.closeSlashMenu()
+        return
       }
       if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        setActiveIdx((i) => (i + 1) % SLASH_ITEMS.length);
+        e.preventDefault()
+        setActiveIdx((i) => (i + 1) % SLASH_ITEMS.length)
       }
       if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        setActiveIdx((i) => (i - 1 + SLASH_ITEMS.length) % SLASH_ITEMS.length);
+        e.preventDefault()
+        setActiveIdx((i) => (i - 1 + SLASH_ITEMS.length) % SLASH_ITEMS.length)
       }
       if (e.key === 'Enter') {
-        e.preventDefault();
-        const item = SLASH_ITEMS[activeIdx];
-        lumina.closeSlashMenu();
-        lumina.showToast(`Inserted ${item.title}`, item.icon);
+        e.preventDefault()
+        const item = SLASH_ITEMS[activeIdx]
+        lumina.closeSlashMenu()
+        lumina.showToast(`Inserted ${item.title}`, item.icon)
       }
-    };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [open, activeIdx, lumina]);
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [open, activeIdx, lumina])
 
   // Click outside.
   useEffect(() => {
-    if (!open) return;
+    if (!open) return
     const onClick = (e: globalThis.MouseEvent) => {
-      const t = e.target as Element | null;
-      if (!t) return;
-      if (t.closest('.slash-menu')) return;
-      if (t.closest('[data-slash-trigger]')) return;
-      lumina.closeSlashMenu();
-    };
-    document.addEventListener('click', onClick);
-    return () => document.removeEventListener('click', onClick);
-  }, [open, lumina]);
+      const t = e.target as Element | null
+      if (!t) return
+      if (t.closest('.slash-menu')) return
+      if (t.closest('[data-slash-trigger]')) return
+      lumina.closeSlashMenu()
+    }
+    document.addEventListener('click', onClick)
+    return () => document.removeEventListener('click', onClick)
+  }, [open, lumina])
 
-  if (!open) return null;
+  if (!open) return null
 
   const style: CSSProperties = {
     left: `${pos.left}px`,
     top: `${pos.top}px`,
-  };
+  }
 
   return (
-    <div
-      className="slash-menu open"
-      role="listbox"
-      aria-label="Insert block"
-      style={style}
-    >
+    <div className="slash-menu open" role="listbox" aria-label="Insert block" style={style}>
       <div className="slash-menu-label">Basic blocks</div>
       {SLASH_ITEMS.map((item, i) => (
         <button
@@ -661,8 +664,8 @@ function SlashMenu({ scrollRef }: { scrollRef: React.RefObject<HTMLDivElement | 
           data-slash={item.key}
           onMouseEnter={() => setActiveIdx(i)}
           onClick={() => {
-            lumina.closeSlashMenu();
-            lumina.showToast(`Inserted ${item.title}`, item.icon);
+            lumina.closeSlashMenu()
+            lumina.showToast(`Inserted ${item.title}`, item.icon)
           }}
         >
           <span className="slash-item-icon">
@@ -676,35 +679,32 @@ function SlashMenu({ scrollRef }: { scrollRef: React.RefObject<HTMLDivElement | 
         </button>
       ))}
     </div>
-  );
+  )
 }
 
 // =====================================================================
 // EDITOR COLUMN
 // =====================================================================
 export function Editor() {
-  const lumina = useLumina();
-  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const lumina = useLumina()
+  const scrollRef = useRef<HTMLDivElement | null>(null)
 
-  const page = lumina.currentPageId ? lumina.pages[lumina.currentPageId] : null;
-  const virtualKey = lumina.currentVirtual;
+  const page = lumina.currentPageId ? lumina.pages[lumina.currentPageId] : null
+  const virtualKey = lumina.currentVirtual
 
   // Page exit/enter animation: when currentPageId changes, briefly add page-enter.
-  const [enterKey, setEnterKey] = useState(0);
-  const lastIdRef = useRef<string | null>(lumina.currentPageId);
+  const [enterKey, setEnterKey] = useState(0)
+  const lastIdRef = useRef<string | null>(lumina.currentPageId)
   useEffect(() => {
     if (lumina.currentPageId !== lastIdRef.current) {
-      lastIdRef.current = lumina.currentPageId;
-      setEnterKey((k) => k + 1);
+      lastIdRef.current = lumina.currentPageId
+      setEnterKey((k) => k + 1)
     }
-  }, [lumina.currentPageId]);
+  }, [lumina.currentPageId])
 
-  const handleEditorClick = useCallback(
-    (_e: ReactMouseEvent<HTMLElement>) => {
-      // any click in editor area dismisses page-exit class; React handles the state
-    },
-    [],
-  );
+  const handleEditorClick = useCallback((_e: ReactMouseEvent<HTMLElement>) => {
+    // any click in editor area dismisses page-exit class; React handles the state
+  }, [])
 
   return (
     <main className="editor-col" onClick={handleEditorClick}>
@@ -718,5 +718,5 @@ export function Editor() {
       </div>
       <SlashMenu scrollRef={scrollRef} />
     </main>
-  );
+  )
 }

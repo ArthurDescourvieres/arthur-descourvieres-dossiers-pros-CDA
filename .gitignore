@@ -7,10 +7,17 @@ frontend/node_modules/
 dist/
 build/
 
+# Test coverage
+coverage/
+
+docs/claude/
+
 # Environment
 .env
 .env.local
 .env.*.local
+.env.prod
+!.env.prod.example
 
 # IDE
 .vscode/

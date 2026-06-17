@@ -67,9 +67,7 @@ export function registerRealtime(io: Server): void {
       const me = { socketId: socket.id, userId, name: data.name ?? 'Anonyme' }
 
       // Tell the joiner who is already in the room (excluding themselves).
-      const snapshot = (await presenceSnapshot(io, noteId)).filter(
-        (p) => p.socketId !== socket.id,
-      )
+      const snapshot = (await presenceSnapshot(io, noteId)).filter((p) => p.socketId !== socket.id)
 
       // Tell everyone else (in this and other instances) that someone joined.
       socket.to(roomFor(noteId)).emit('presence:joined', { noteId, ...me })

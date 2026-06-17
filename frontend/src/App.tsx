@@ -1,31 +1,100 @@
-import { WorkspaceShell } from './lumina/WorkspaceShell';
-import { Login } from './lumina/Login';
-import { useAuth } from './lib/auth/AuthContext';
+import { lazy, Suspense } from 'react'
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
+import { Spinner } from './lumina/Spinner'
+import { useAuth } from './lib/auth/AuthContext'
+
+// Code splitting (éco-conception) : les écrans lourds sont chargés à la demande.
+// WorkspaceShell embarque l'éditeur Tiptap + lowlight + socket.io (gros chunk) et
+// n'est utile qu'une fois connecté ; Landing/Login ne servent qu'aux visiteurs.
+const WorkspaceShell = lazy(() =>
+  import('./lumina/WorkspaceShell').then((m) => ({ default: m.WorkspaceShell })),
+)
+const Landing = lazy(() => import('./lumina/landing/Landing').then((m) => ({ default: m.Landing })))
+const Login = lazy(() => import('./lumina/Login').then((m) => ({ default: m.Login })))
+const MentionsLegales = lazy(() =>
+  import('./lumina/legal/MentionsLegales').then((m) => ({ default: m.MentionsLegales })),
+)
+const Confidentialite = lazy(() =>
+  import('./lumina/legal/Confidentialite').then((m) => ({ default: m.Confidentialite })),
+)
+
+function CenteredSpinner() {
+  return (
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'grid',
+        placeItems: 'center',
+        background: 'var(--color-bg)',
+      }}
+    >
+      <Spinner size={36} />
+    </div>
+  )
+}
 
 export function App() {
-  const auth = useAuth();
+  const auth = useAuth()
 
   if (auth.status === 'loading') {
-    return (
-      <div
-        style={{
-          minHeight: '100vh',
-          display: 'grid',
-          placeItems: 'center',
-          background: 'var(--bg, #0b0b0f)',
-          color: 'var(--fg, #f5f5f5)',
-          opacity: 0.6,
-          fontSize: 13,
-        }}
-      >
-        Chargement…
-      </div>
-    );
+    return <CenteredSpinner />
   }
 
-  if (auth.status === 'guest') {
-    return <Login />;
-  }
+  // Public routes are only mounted for unauthenticated visitors, so the landing
+  // page is unreachable once signed in. Suspense covers the lazy-loaded chunks.
+  return (
+    <Suspense fallback={<CenteredSpinner />}>
+      {auth.status === 'guest' ? (
+        <PublicRoutes />
+      ) : (
+        <Routes>
+          <Route path="/" element={<WorkspaceShell />} />
+          <Route path="/mentions-legales" element={<MentionsLegales />} />
+          <Route path="/confidentialite" element={<Confidentialite />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      )}
+    </Suspense>
+  )
+}
 
-  return <WorkspaceShell />;
+/** Routes available to visitors who are not signed in. */
+function PublicRoutes() {
+  const navigate = useNavigate()
+
+  return (
+    <Routes>
+      <Route
+        path="/"
+        element={
+          <Landing onRegister={() => navigate('/register')} onLogin={() => navigate('/login')} />
+        }
+      />
+      <Route
+        path="/login"
+        element={
+          <Login
+            key="login"
+            initialMode="login"
+            onBack={() => navigate('/')}
+            onSwitchMode={() => navigate('/register')}
+          />
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          <Login
+            key="register"
+            initialMode="register"
+            onBack={() => navigate('/')}
+            onSwitchMode={() => navigate('/login')}
+          />
+        }
+      />
+      <Route path="/mentions-legales" element={<MentionsLegales />} />
+      <Route path="/confidentialite" element={<Confidentialite />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  )
 }

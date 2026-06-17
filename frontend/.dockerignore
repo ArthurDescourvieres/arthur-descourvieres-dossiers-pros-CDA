@@ -1,0 +1,16 @@
+# Reinstalled inside the image — host node_modules must not leak in.
+node_modules
+dist
+
+# Secrets / local env never belong in the build context.
+.env
+.env.*
+
+# Misc
+coverage
+*.log
+npm-debug.log*
+.git
+.gitignore
+Dockerfile
+.dockerignore

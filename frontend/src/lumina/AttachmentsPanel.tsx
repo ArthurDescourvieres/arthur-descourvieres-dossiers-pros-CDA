@@ -43,7 +43,7 @@ export function AttachmentsPanel({ noteId }: { noteId: string }) {
     <section
       style={{
         marginTop: 24,
-        borderTop: '1px solid rgba(255,255,255,0.08)',
+        borderTop: '1px solid var(--color-line)',
         paddingTop: 16,
         display: 'flex',
         flexDirection: 'column',
@@ -66,8 +66,8 @@ export function AttachmentsPanel({ noteId }: { noteId: string }) {
           onClick={onPickFile}
           disabled={upload.isPending}
           style={{
-            background: 'rgba(91, 140, 255, 0.18)',
-            border: '1px solid rgba(91, 140, 255, 0.3)',
+            background: 'var(--color-accent-soft)',
+            border: '1px solid var(--color-accent-border)',
             color: 'inherit',
             padding: '4px 10px',
             fontSize: 12,
@@ -103,7 +103,13 @@ export function AttachmentsPanel({ noteId }: { noteId: string }) {
   )
 }
 
-function AttachmentItem({ attachment, onDelete }: { attachment: Attachment; onDelete: () => void }) {
+function AttachmentItem({
+  attachment,
+  onDelete,
+}: {
+  attachment: Attachment
+  onDelete: () => void
+}) {
   const isImage = attachment.mimeType.startsWith('image/')
   const url = attachmentFileUrl(attachment.id)
   const { url: blobUrl } = useBlobUrl(isImage ? url : null)
@@ -111,8 +117,8 @@ function AttachmentItem({ attachment, onDelete }: { attachment: Attachment; onDe
   return (
     <li
       style={{
-        background: 'rgba(255,255,255,0.04)',
-        border: '1px solid rgba(255,255,255,0.06)',
+        background: 'var(--color-surface)',
+        border: '1px solid var(--color-surface-strong)',
         borderRadius: 6,
         padding: 8,
         display: 'flex',
@@ -136,7 +142,7 @@ function AttachmentItem({ attachment, onDelete }: { attachment: Attachment; onDe
             height: 100,
             display: 'grid',
             placeItems: 'center',
-            background: 'rgba(255,255,255,0.04)',
+            background: 'var(--color-surface)',
             borderRadius: 4,
             fontSize: 11,
             opacity: 0.6,
@@ -146,7 +152,14 @@ function AttachmentItem({ attachment, onDelete }: { attachment: Attachment; onDe
         </div>
       )}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <span style={{ fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        <span
+          style={{
+            fontSize: 12,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
           {attachment.filename}
         </span>
         <span style={{ fontSize: 11, opacity: 0.5 }}>{formatSize(attachment.size)}</span>
@@ -156,8 +169,8 @@ function AttachmentItem({ attachment, onDelete }: { attachment: Attachment; onDe
         onClick={onDelete}
         style={{
           background: 'transparent',
-          border: '1px solid rgba(255,107,107,0.3)',
-          color: '#ff6b6b',
+          border: '1px solid var(--color-danger-border)',
+          color: 'var(--color-danger)',
           padding: '2px 6px',
           fontSize: 11,
           borderRadius: 4,

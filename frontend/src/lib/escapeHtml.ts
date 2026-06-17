@@ -9,5 +9,5 @@ export function escapeHTML(s: string): string {
         '"': '&quot;',
         "'": '&#39;',
       })[c] as string,
-  );
+  )
 }

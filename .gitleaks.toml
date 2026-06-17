@@ -1,0 +1,17 @@
+title = "Memo — gitleaks"
+
+# Repart des règles de détection de secrets par défaut de gitleaks.
+[extend]
+useDefault = true
+
+# Faux positifs connus : secrets factices utilisés par les tests.
+[allowlist]
+description = "Fixtures de test (secrets non sensibles)"
+regexes = ['''test-only-jwt-secret-do-not-use-in-prod''']
+paths = [
+  '''.*\.test\.ts$''',
+  '''backend/vitest\.config\.ts$''',
+  # Scripts de benchmark (k6 / load realtime) : comptes de test éphémères créés
+  # à la volée, mots de passe jetables — outillage de mesure, jamais en prod.
+  '''^benchmarks/''',
+]

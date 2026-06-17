@@ -1,20 +1,17 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../lib/auth/AuthContext'
-import {
-  useCreateFolder,
-  useCreateNote,
-  useCreateWorkspace,
-  useFolders,
-  useNote,
-  useNotesInFolder,
-  useWorkspaces,
-} from '../hooks/useWorkspaces'
-import { useNoteAutosave, type AutosaveStatus } from '../hooks/useNoteAutosave'
-import { useSearch, type SearchHit } from '../hooks/useSearch'
-import { useNoteRealtime, type Presence } from '../hooks/useNoteRealtime'
-import { TiptapEditor } from './TiptapEditor'
-import { AttachmentsPanel } from './AttachmentsPanel'
-import type { TiptapDoc } from '../lib/types'
+import { useFolders, useNotesInFolder, useWorkspaces } from '../hooks/useWorkspaces'
+import { SidebarToggleButton, SidebarOpenButton } from './SidebarToggle'
+import { InviteSection } from './InviteSection'
+import { InviteAcceptBanner } from './InviteAcceptBanner'
+import { MembersSection } from './MembersSection'
+import { TrashSection } from './TrashSection'
+import { SearchBox } from './sidebar/SearchBox'
+import { WorkspaceSection } from './sidebar/WorkspaceSection'
+import { FolderSection } from './sidebar/FolderSection'
+import { NoteSection } from './sidebar/NoteSection'
+import { NoteEditor } from './editor/NoteEditor'
+import { AccountModal } from './AccountModal'
 
 export function WorkspaceShell() {
   const auth = useAuth()
@@ -24,6 +21,8 @@ export function WorkspaceShell() {
   const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<string | null>(null)
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null)
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null)
+  const [collapsed, setCollapsed] = useState(false)
+  const [accountOpen, setAccountOpen] = useState(false)
 
   // Auto-pick first workspace once loaded.
   useEffect(() => {
@@ -34,7 +33,7 @@ export function WorkspaceShell() {
 
   const folders = useFolders(selectedWorkspaceId)
 
-  // Auto-pick first folder.
+  // Reset folder/note selection when the workspace changes.
   useEffect(() => {
     setSelectedFolderId(null)
     setSelectedNoteId(null)
@@ -58,91 +57,164 @@ export function WorkspaceShell() {
     }
   }, [notes.data, selectedNoteId])
 
+  const currentRole = useMemo(
+    () => workspaces.data?.find((w) => w.id === selectedWorkspaceId)?.role ?? null,
+    [workspaces.data, selectedWorkspaceId],
+  )
+  const canEdit = currentRole === 'OWNER' || currentRole === 'EDITOR'
+
   return (
     <div
       style={{
-        minHeight: '100vh',
-        display: 'grid',
-        gridTemplateColumns: '280px 1fr',
-        background: '#0b0b0f',
-        color: '#f5f5f5',
+        height: '100vh',
+        display: 'flex',
+        overflow: 'hidden',
+        background: 'var(--color-bg)',
+        color: 'var(--color-text)',
+        position: 'relative',
       }}
     >
-      <aside
+      <div
         style={{
-          borderRight: '1px solid rgba(255,255,255,0.08)',
-          padding: 16,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 16,
-          overflow: 'auto',
+          flex: '0 0 auto',
+          width: collapsed ? 0 : 280,
+          height: 'calc(100vh - 62px)',
+          alignSelf: 'center',
+          overflow: 'hidden',
+          transition: 'width 0.32s cubic-bezier(0.65, 0, 0.35, 1)',
         }}
       >
-        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <strong>Lumina</strong>
-          <button
-            type="button"
-            onClick={auth.logout}
+        <aside
+          aria-hidden={collapsed}
+          style={{
+            width: 280,
+            height: '100%',
+            boxSizing: 'border-box',
+            transform: collapsed ? 'translateX(-100%)' : 'translateX(0)',
+            transition: 'transform 0.32s cubic-bezier(0.65, 0, 0.35, 1)',
+            borderRight: '1px solid var(--color-line)',
+            background: 'var(--color-sidebar)',
+            padding: 16,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 16,
+            minHeight: 0,
+            overflowX: 'hidden',
+            overflowY: 'auto',
+            borderTopRightRadius: 24,
+            borderBottomRightRadius: 24,
+          }}
+        >
+          <header
             style={{
-              background: 'transparent',
-              border: '1px solid rgba(255,255,255,0.1)',
-              color: 'inherit',
-              padding: '4px 8px',
-              borderRadius: 4,
-              fontSize: 12,
-              cursor: 'pointer',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: 8,
             }}
           >
-            Déconnexion
-          </button>
-        </header>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
+              <SidebarToggleButton onClick={() => setCollapsed(true)} />
+              <strong>Memo</strong>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+              <button
+                type="button"
+                onClick={() => setAccountOpen(true)}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid var(--color-line-strong)',
+                  color: 'inherit',
+                  padding: '4px 8px',
+                  borderRadius: 4,
+                  fontSize: 12,
+                  cursor: 'pointer',
+                }}
+              >
+                Mon compte
+              </button>
+              <button
+                type="button"
+                onClick={auth.logout}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid var(--color-line-strong)',
+                  color: 'inherit',
+                  padding: '4px 8px',
+                  borderRadius: 4,
+                  fontSize: 12,
+                  cursor: 'pointer',
+                }}
+              >
+                Déconnexion
+              </button>
+            </div>
+          </header>
 
-        {user && (
-          <div style={{ fontSize: 12, opacity: 0.6 }}>
-            {user.name} · {user.email}
-          </div>
-        )}
+          {user && (
+            <div style={{ fontSize: 12, opacity: 0.6 }}>
+              {user.name} · {user.email}
+            </div>
+          )}
 
-        {selectedWorkspaceId && (
-          <SearchBox
-            workspaceId={selectedWorkspaceId}
-            onPick={(hit) => {
-              setSelectedFolderId(hit.folderId)
-              setSelectedNoteId(hit.id)
-            }}
+          {selectedWorkspaceId && (
+            <SearchBox
+              workspaceId={selectedWorkspaceId}
+              onPick={(hit) => {
+                setSelectedFolderId(hit.folderId)
+                setSelectedNoteId(hit.id)
+              }}
+            />
+          )}
+
+          <WorkspaceSection
+            workspaces={workspaces.data ?? []}
+            selectedId={selectedWorkspaceId}
+            onSelect={setSelectedWorkspaceId}
+            isLoading={workspaces.isPending}
           />
-        )}
 
-        <WorkspaceSection
-          workspaces={workspaces.data ?? []}
-          selectedId={selectedWorkspaceId}
-          onSelect={setSelectedWorkspaceId}
-          isLoading={workspaces.isPending}
-        />
+          {selectedWorkspaceId && (
+            <FolderSection
+              workspaceId={selectedWorkspaceId}
+              folders={folders.data ?? []}
+              selectedId={selectedFolderId}
+              onSelect={setSelectedFolderId}
+              isLoading={folders.isPending}
+              canEdit={canEdit}
+            />
+          )}
 
-        {selectedWorkspaceId && (
-          <FolderSection
-            workspaceId={selectedWorkspaceId}
-            folders={folders.data ?? []}
-            selectedId={selectedFolderId}
-            onSelect={setSelectedFolderId}
-            isLoading={folders.isPending}
-          />
-        )}
+          {selectedFolderId && (
+            <NoteSection
+              workspaceId={selectedWorkspaceId}
+              folderId={selectedFolderId}
+              notes={notes.data ?? []}
+              selectedId={selectedNoteId}
+              onSelect={setSelectedNoteId}
+              isLoading={notes.isPending}
+              canEdit={canEdit}
+            />
+          )}
 
-        {selectedFolderId && (
-          <NoteSection
-            workspaceId={selectedWorkspaceId}
-            folderId={selectedFolderId}
-            notes={notes.data ?? []}
-            selectedId={selectedNoteId}
-            onSelect={setSelectedNoteId}
-            isLoading={notes.isPending}
-          />
-        )}
-      </aside>
+          {selectedWorkspaceId && canEdit && <TrashSection workspaceId={selectedWorkspaceId} />}
 
-      <main style={{ padding: 32, overflow: 'auto' }}>
+          {selectedWorkspaceId && (
+            <MembersSection
+              workspaceId={selectedWorkspaceId}
+              canManage={currentRole === 'OWNER'}
+              currentUserId={user?.id ?? null}
+            />
+          )}
+
+          {selectedWorkspaceId && currentRole === 'OWNER' && (
+            <InviteSection workspaceId={selectedWorkspaceId} />
+          )}
+        </aside>
+      </div>
+
+      <main style={{ flex: 1, minWidth: 0, padding: 32, minHeight: 0, overflow: 'auto' }}>
+        <InviteAcceptBanner />
         {selectedNoteId ? (
           <NoteEditor noteId={selectedNoteId} />
         ) : (
@@ -151,581 +223,10 @@ export function WorkspaceShell() {
           </div>
         )}
       </main>
+
+      <SidebarOpenButton visible={collapsed} onClick={() => setCollapsed(false)} />
+
+      {accountOpen && <AccountModal onClose={() => setAccountOpen(false)} />}
     </div>
   )
-}
-
-function WorkspaceSection({
-  workspaces,
-  selectedId,
-  onSelect,
-  isLoading,
-}: {
-  workspaces: { id: string; name: string }[]
-  selectedId: string | null
-  onSelect: (id: string) => void
-  isLoading: boolean
-}) {
-  const [creating, setCreating] = useState(false)
-  const [name, setName] = useState('')
-  const create = useCreateWorkspace()
-
-  return (
-    <section style={sectionStyle}>
-      <SectionHeader title="Workspaces" onAdd={() => setCreating((v) => !v)} />
-      {creating && (
-        <form
-          onSubmit={async (e) => {
-            e.preventDefault()
-            if (!name.trim()) return
-            const ws = await create.mutateAsync({ name: name.trim() })
-            onSelect(ws.id)
-            setName('')
-            setCreating(false)
-          }}
-          style={{ display: 'flex', gap: 4 }}
-        >
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Nom du workspace"
-            style={smallInputStyle}
-            autoFocus
-          />
-          <button type="submit" style={smallButtonStyle} disabled={create.isPending}>
-            +
-          </button>
-        </form>
-      )}
-      {isLoading ? (
-        <div style={loadingStyle}>…</div>
-      ) : (
-        <ul style={listStyle}>
-          {workspaces.map((ws) => (
-            <li key={ws.id}>
-              <button
-                type="button"
-                onClick={() => onSelect(ws.id)}
-                style={{
-                  ...listItemStyle,
-                  background: ws.id === selectedId ? 'rgba(91, 140, 255, 0.18)' : 'transparent',
-                }}
-              >
-                {ws.name}
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
-  )
-}
-
-function FolderSection({
-  workspaceId,
-  folders,
-  selectedId,
-  onSelect,
-  isLoading,
-}: {
-  workspaceId: string
-  folders: { id: string; name: string }[]
-  selectedId: string | null
-  onSelect: (id: string) => void
-  isLoading: boolean
-}) {
-  const [creating, setCreating] = useState(false)
-  const [name, setName] = useState('')
-  const create = useCreateFolder(workspaceId)
-
-  return (
-    <section style={sectionStyle}>
-      <SectionHeader title="Dossiers" onAdd={() => setCreating((v) => !v)} />
-      {creating && (
-        <form
-          onSubmit={async (e) => {
-            e.preventDefault()
-            if (!name.trim()) return
-            const folder = await create.mutateAsync({ name: name.trim() })
-            onSelect(folder.id)
-            setName('')
-            setCreating(false)
-          }}
-          style={{ display: 'flex', gap: 4 }}
-        >
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Nom du dossier"
-            style={smallInputStyle}
-            autoFocus
-          />
-          <button type="submit" style={smallButtonStyle} disabled={create.isPending}>
-            +
-          </button>
-        </form>
-      )}
-      {isLoading ? (
-        <div style={loadingStyle}>…</div>
-      ) : folders.length === 0 ? (
-        <div style={emptyStyle}>Aucun dossier</div>
-      ) : (
-        <ul style={listStyle}>
-          {folders.map((f) => (
-            <li key={f.id}>
-              <button
-                type="button"
-                onClick={() => onSelect(f.id)}
-                style={{
-                  ...listItemStyle,
-                  background: f.id === selectedId ? 'rgba(91, 140, 255, 0.18)' : 'transparent',
-                }}
-              >
-                {f.name}
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
-  )
-}
-
-function NoteSection({
-  workspaceId,
-  folderId,
-  notes,
-  selectedId,
-  onSelect,
-  isLoading,
-}: {
-  workspaceId: string | null
-  folderId: string
-  notes: { id: string; title: string }[]
-  selectedId: string | null
-  onSelect: (id: string) => void
-  isLoading: boolean
-}) {
-  const [creating, setCreating] = useState(false)
-  const [title, setTitle] = useState('')
-  const create = useCreateNote(workspaceId, folderId)
-
-  return (
-    <section style={sectionStyle}>
-      <SectionHeader title="Notes" onAdd={() => setCreating((v) => !v)} />
-      {creating && (
-        <form
-          onSubmit={async (e) => {
-            e.preventDefault()
-            if (!title.trim()) return
-            const note = await create.mutateAsync({ title: title.trim() })
-            onSelect(note.id)
-            setTitle('')
-            setCreating(false)
-          }}
-          style={{ display: 'flex', gap: 4 }}
-        >
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Titre de la note"
-            style={smallInputStyle}
-            autoFocus
-          />
-          <button type="submit" style={smallButtonStyle} disabled={create.isPending}>
-            +
-          </button>
-        </form>
-      )}
-      {isLoading ? (
-        <div style={loadingStyle}>…</div>
-      ) : notes.length === 0 ? (
-        <div style={emptyStyle}>Aucune note</div>
-      ) : (
-        <ul style={listStyle}>
-          {notes.map((n) => (
-            <li key={n.id}>
-              <button
-                type="button"
-                onClick={() => onSelect(n.id)}
-                style={{
-                  ...listItemStyle,
-                  background: n.id === selectedId ? 'rgba(91, 140, 255, 0.18)' : 'transparent',
-                }}
-              >
-                {n.title || '(sans titre)'}
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
-  )
-}
-
-function NoteEditor({ noteId }: { noteId: string }) {
-  const note = useNote(noteId)
-  const autosave = useNoteAutosave(noteId)
-
-  const initialContent = useMemo(() => note.data?.content ?? null, [note.data?.id])
-  const initialTitle = note.data?.title ?? ''
-  const [title, setTitle] = useState(initialTitle)
-  const [remoteContent, setRemoteContent] = useState<TiptapDoc | null>(null)
-  const isTypingRef = useRef(false)
-  const typingTimeoutRef = useRef<number | null>(null)
-
-  const markTyping = () => {
-    isTypingRef.current = true
-    if (typingTimeoutRef.current !== null) window.clearTimeout(typingTimeoutRef.current)
-    typingTimeoutRef.current = window.setTimeout(() => {
-      isTypingRef.current = false
-    }, 1500)
-  }
-
-  const realtime = useNoteRealtime(noteId, {
-    onRemoteLive: (u) => {
-      // Skip if I'm currently typing — local edits take priority.
-      if (isTypingRef.current) return
-      if (u.title !== undefined) setTitle(u.title)
-      if (u.content !== undefined) setRemoteContent(u.content)
-    },
-    onRemoteUpdate: (u) => {
-      if (isTypingRef.current) return
-      if (u.title !== undefined) setTitle(u.title)
-      if (u.content !== undefined) setRemoteContent(u.content)
-    },
-  })
-
-  useEffect(() => {
-    setTitle(initialTitle)
-    setRemoteContent(null)
-    isTypingRef.current = false
-    if (typingTimeoutRef.current !== null) window.clearTimeout(typingTimeoutRef.current)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [note.data?.id])
-
-  useEffect(() => {
-    return () => {
-      if (typingTimeoutRef.current !== null) window.clearTimeout(typingTimeoutRef.current)
-    }
-  }, [])
-
-  if (note.isPending) return <div style={{ opacity: 0.5 }}>Chargement…</div>
-  if (note.isError) return <div style={{ color: '#ff6b6b' }}>Impossible de charger la note.</div>
-
-  return (
-    <article style={{ maxWidth: 760, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
-        <input
-          value={title}
-          onChange={(e) => {
-            markTyping()
-            setTitle(e.target.value)
-            autosave.schedule({ title: e.target.value })
-            realtime.sendLive({ title: e.target.value })
-          }}
-          placeholder="Titre"
-          style={{
-            background: 'transparent',
-            border: 'none',
-            color: 'inherit',
-            fontSize: 28,
-            fontWeight: 700,
-            outline: 'none',
-            flex: 1,
-          }}
-        />
-        <PresenceAvatars presence={realtime.presence} />
-        <SaveStatus status={autosave.status} onFlush={() => void autosave.flush()} />
-      </header>
-
-      <TiptapEditor
-        key={noteId}
-        noteId={noteId}
-        initialContent={initialContent}
-        remoteContent={remoteContent}
-        onChange={(content) => {
-          markTyping()
-          autosave.schedule({ content })
-          realtime.sendLive({ content })
-        }}
-      />
-
-      <AttachmentsPanel noteId={noteId} />
-    </article>
-  )
-}
-
-function PresenceAvatars({ presence }: { presence: Presence[] }) {
-  if (presence.length === 0) return null
-  return (
-    <div style={{ display: 'flex', gap: -4 }}>
-      {presence.slice(0, 5).map((p, i) => (
-        <span
-          key={p.socketId}
-          title={p.name}
-          style={{
-            width: 28,
-            height: 28,
-            borderRadius: '50%',
-            background: colorForUser(p.userId),
-            color: '#fff',
-            display: 'inline-grid',
-            placeItems: 'center',
-            fontSize: 11,
-            fontWeight: 600,
-            border: '2px solid #0b0b0f',
-            marginLeft: i === 0 ? 0 : -8,
-          }}
-        >
-          {initials(p.name)}
-        </span>
-      ))}
-      {presence.length > 5 && (
-        <span style={{ fontSize: 11, opacity: 0.6, alignSelf: 'center', marginLeft: 4 }}>
-          +{presence.length - 5}
-        </span>
-      )}
-    </div>
-  )
-}
-
-function initials(name: string): string {
-  return name
-    .split(/\s+/)
-    .map((p) => p[0])
-    .filter(Boolean)
-    .slice(0, 2)
-    .join('')
-    .toUpperCase()
-}
-
-function colorForUser(userId: string): string {
-  let hash = 0
-  for (let i = 0; i < userId.length; i++) hash = (hash * 31 + userId.charCodeAt(i)) & 0xfffffff
-  const hue = hash % 360
-  return `hsl(${hue}, 60%, 50%)`
-}
-
-function SaveStatus({
-  status,
-  onFlush,
-}: {
-  status: AutosaveStatus
-  onFlush: () => void
-}) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-      <span style={{ fontSize: 12, opacity: 0.6, minWidth: 80, textAlign: 'right' }}>
-        {labelFor(status)}
-      </span>
-      <button
-        type="button"
-        onClick={onFlush}
-        style={{
-          background: 'rgba(91, 140, 255, 0.18)',
-          border: '1px solid rgba(91, 140, 255, 0.3)',
-          color: 'inherit',
-          padding: '6px 10px',
-          fontSize: 12,
-          borderRadius: 4,
-          cursor: 'pointer',
-        }}
-      >
-        Enregistrer
-      </button>
-    </div>
-  )
-}
-
-function labelFor(s: AutosaveStatus): string {
-  switch (s) {
-    case 'idle':
-      return ''
-    case 'pending':
-      return 'Modifications…'
-    case 'saving':
-      return 'Sauvegarde…'
-    case 'saved':
-      return 'Enregistré'
-    case 'error':
-      return 'Erreur'
-  }
-}
-
-function SectionHeader({ title, onAdd }: { title: string; onAdd: () => void }) {
-  return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-      <span style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 1, opacity: 0.5 }}>
-        {title}
-      </span>
-      <button
-        type="button"
-        onClick={onAdd}
-        style={{
-          background: 'transparent',
-          border: 'none',
-          color: 'inherit',
-          opacity: 0.6,
-          fontSize: 14,
-          cursor: 'pointer',
-        }}
-        title={`Ajouter ${title.toLowerCase()}`}
-      >
-        +
-      </button>
-    </div>
-  )
-}
-
-const sectionStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 6,
-}
-
-const listStyle: React.CSSProperties = {
-  listStyle: 'none',
-  padding: 0,
-  margin: 0,
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 2,
-}
-
-const listItemStyle: React.CSSProperties = {
-  display: 'block',
-  width: '100%',
-  textAlign: 'left',
-  background: 'transparent',
-  border: 'none',
-  color: 'inherit',
-  padding: '6px 8px',
-  borderRadius: 4,
-  fontSize: 13,
-  cursor: 'pointer',
-}
-
-const smallInputStyle: React.CSSProperties = {
-  flex: 1,
-  background: 'rgba(255,255,255,0.06)',
-  border: '1px solid rgba(255,255,255,0.1)',
-  borderRadius: 4,
-  color: 'inherit',
-  padding: '4px 6px',
-  fontSize: 12,
-  outline: 'none',
-}
-
-const smallButtonStyle: React.CSSProperties = {
-  background: '#5b8cff',
-  color: '#fff',
-  border: 'none',
-  borderRadius: 4,
-  padding: '0 8px',
-  fontSize: 14,
-  cursor: 'pointer',
-}
-
-const loadingStyle: React.CSSProperties = { opacity: 0.4, fontSize: 12 }
-const emptyStyle: React.CSSProperties = { opacity: 0.4, fontSize: 12, padding: '4px 8px' }
-
-function SearchBox({
-  workspaceId,
-  onPick,
-}: {
-  workspaceId: string
-  onPick: (hit: SearchHit) => void
-}) {
-  const [query, setQuery] = useState('')
-  const search = useSearch(workspaceId, query)
-  const showResults = query.trim().length > 0
-
-  return (
-    <section style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-      <input
-        type="search"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Rechercher dans le workspace…"
-        style={{
-          background: 'rgba(255,255,255,0.06)',
-          border: '1px solid rgba(255,255,255,0.1)',
-          borderRadius: 4,
-          color: 'inherit',
-          padding: '6px 8px',
-          fontSize: 12,
-          outline: 'none',
-        }}
-      />
-      {showResults && (
-        <div
-          style={{
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.06)',
-            borderRadius: 4,
-            padding: 4,
-            maxHeight: 240,
-            overflow: 'auto',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 2,
-          }}
-        >
-          {search.isPending ? (
-            <div style={{ opacity: 0.4, fontSize: 11, padding: 6 }}>Recherche…</div>
-          ) : !search.data || search.data.hits.length === 0 ? (
-            <div style={{ opacity: 0.4, fontSize: 11, padding: 6 }}>Aucun résultat</div>
-          ) : (
-            search.data.hits.map((hit) => (
-              <button
-                key={hit.id}
-                type="button"
-                onClick={() => {
-                  onPick(hit)
-                  setQuery('')
-                }}
-                style={{
-                  textAlign: 'left',
-                  background: 'transparent',
-                  border: 'none',
-                  color: 'inherit',
-                  padding: '4px 6px',
-                  borderRadius: 3,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 2,
-                }}
-              >
-                <span style={{ fontSize: 12, fontWeight: 500 }}>
-                  {hit.title || '(sans titre)'}
-                </span>
-                {hit.snippet && (
-                  <span
-                    style={{ fontSize: 11, opacity: 0.5 }}
-                    // The server returns << / >> markers around matches.
-                    dangerouslySetInnerHTML={{
-                      __html: highlightSnippet(hit.snippet),
-                    }}
-                  />
-                )}
-              </button>
-            ))
-          )}
-        </div>
-      )}
-    </section>
-  )
-}
-
-function highlightSnippet(text: string): string {
-  const escaped = text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-  // The original << / >> become &lt;&lt; / &gt;&gt; — restore as <mark>
-  return escaped
-    .replace(/&lt;&lt;/g, '<mark style="background: rgba(91,140,255,0.3); color: inherit;">')
-    .replace(/&gt;&gt;/g, '</mark>')
 }

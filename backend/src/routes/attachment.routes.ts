@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import type { AppEnv } from '../types/hono.js'
 import { authMiddleware } from '../middlewares/auth.js'
+import { uploadRateLimit } from '../middlewares/rate-limit.js'
 import {
   requireRole,
   resolveWorkspaceFromNote,
@@ -22,6 +23,7 @@ noteAttachmentsRouter.get(
 
 noteAttachmentsRouter.post(
   '/:noteId/attachments',
+  uploadRateLimit, // throttle IP avant tout traitement (§7.3)
   authMiddleware,
   resolveWorkspaceFromNote,
   requireRole(WorkspaceRole.EDITOR),

@@ -54,12 +54,10 @@ export function AttachmentImage({
 }) {
   const { url, error } = useBlobUrl(src)
   if (error) {
-    return (
-      <span style={{ color: '#ff6b6b', fontSize: 12 }}>Image indisponible</span>
-    )
+    return <span style={{ color: 'var(--color-danger)', fontSize: 12 }}>Image indisponible</span>
   }
   if (!url) {
     return <span style={{ opacity: 0.4, fontSize: 12 }}>Chargement…</span>
   }
-  return <img src={url} alt={alt ?? ''} style={style} />
+  return <img src={url} alt={alt ?? ''} loading="lazy" decoding="async" style={style} />
 }

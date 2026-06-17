@@ -11,7 +11,8 @@ const ROLE_WEIGHT: Record<WorkspaceRole, number> = {
   [WorkspaceRole.OWNER]: 2,
 }
 
-export const requireRole = (minRole: WorkspaceRole): MiddlewareHandler<AppEnv> =>
+export const requireRole =
+  (minRole: WorkspaceRole): MiddlewareHandler<AppEnv> =>
   async (c, next) => {
     const payload = c.get('jwtPayload') as { sub: string }
     const userId = payload.sub
@@ -38,7 +39,9 @@ export const resolveWorkspaceFromNote: MiddlewareHandler<AppEnv> = async (c, nex
     select: { folder: { select: { workspaceId: true } } },
   })
 
-  if (!note) return c.json({ error: 'Not found' }, 404)
+  // Anti-enumeration (§6.3): a missing resource and a denied one return the
+  // same standardized 403, so the response never reveals whether it exists.
+  if (!note) return c.json({ error: 'Forbidden' }, 403)
 
   c.set('workspaceId', note.folder.workspaceId)
   await next()
@@ -51,7 +54,8 @@ export const resolveWorkspaceFromAttachment: MiddlewareHandler<AppEnv> = async (
     select: { note: { select: { folder: { select: { workspaceId: true } } } } },
   })
 
-  if (!attachment) return c.json({ error: 'Not found' }, 404)
+  // Anti-enumeration (§6.3): same standardized 403 for missing or denied.
+  if (!attachment) return c.json({ error: 'Forbidden' }, 403)
 
   c.set('workspaceId', attachment.note.folder.workspaceId)
   await next()

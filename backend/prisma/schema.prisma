@@ -8,15 +8,20 @@ datasource db {
 }
 
 model User {
-  id          String            @id @default(cuid())
-  email       String            @unique
-  name        String
-  password    String
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  workspaces  WorkspaceMember[]
-  notes       Note[]
-  attachments Attachment[]
+  id            String            @id @default(cuid())
+  email         String            @unique
+  name          String
+  password      String
+  tokenVersion  Int               @default(0)
+  deactivatedAt DateTime?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  workspaces    WorkspaceMember[]
+  notes         Note[]
+  attachments   Attachment[]
+  ownedWorkspaces    Workspace[]  @relation("WorkspaceOwner")
+  permissionsGranted Permission[] @relation("PermissionGrantedBy")
+  invitationsSent    Invitation[] @relation("InvitationInvitedBy")
 }
 
 enum WorkspaceRole {
@@ -25,15 +30,31 @@ enum WorkspaceRole {
   VIEWER
 }
 
+enum PermissionLevel {
+  READ
+  WRITE
+  ADMIN
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REVOKED
+  EXPIRED
+}
+
 model Workspace {
   id          String            @id @default(cuid())
   name        String
   slug        String            @unique
   description String?
+  ownerId     String
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
+  owner       User              @relation("WorkspaceOwner", fields: [ownerId], references: [id], onDelete: Restrict)
   members     WorkspaceMember[]
   folders     Folder[]
+  invitations Invitation[]
 }
 
 model WorkspaceMember {
@@ -44,40 +65,46 @@ model WorkspaceMember {
   workspaceId String
   user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   workspace   Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  permissions Permission[]
 
   @@unique([userId, workspaceId])
 }
 
 model Folder {
-  id          String    @id @default(cuid())
+  id          String       @id @default(cuid())
   name        String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
   workspaceId String
   parentId    String?
-  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  parent      Folder?   @relation("FolderTree", fields: [parentId], references: [id])
-  children    Folder[]  @relation("FolderTree")
+  workspace   Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  parent      Folder?      @relation("FolderTree", fields: [parentId], references: [id])
+  children    Folder[]     @relation("FolderTree")
   notes       Note[]
+  permissions Permission[]
 }
 
 model Note {
-  id           String                  @id @default(cuid())
+  id           String                   @id @default(cuid())
   title        String
   content      Json
   contentText  String?
   // searchVector is GENERATED ALWAYS AS (...) STORED — managed entirely
   // by Postgres (see migration add_note_search_vector). Declared here so
-  // Prisma doesn't try to drop it on drift detection.
+  // Prisma doesn't try to drop it on drift detection. NOTE: `prisma migrate
+  // dev` still emits a spurious `DROP INDEX "Note_searchVector_idx"` and a
+  // `DROP DEFAULT` for this column — strip those two lines from any generated
+  // migration so the GIN search index is preserved.
   searchVector Unsupported("tsvector")?
   deletedAt    DateTime?
-  createdAt    DateTime                @default(now())
-  updatedAt    DateTime                @updatedAt
+  createdAt    DateTime                 @default(now())
+  updatedAt    DateTime                 @updatedAt
   folderId     String
   createdById  String
-  folder       Folder                  @relation(fields: [folderId], references: [id], onDelete: Cascade)
-  createdBy    User                    @relation(fields: [createdById], references: [id])
+  folder       Folder                   @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  createdBy    User                     @relation(fields: [createdById], references: [id])
   attachments  Attachment[]
+  permissions  Permission[]
 }
 
 model Attachment {
@@ -93,4 +120,39 @@ model Attachment {
   uploadedBy   User     @relation(fields: [uploadedById], references: [id])
 
   @@index([noteId])
+}
+
+model Permission {
+  id          String          @id @default(cuid())
+  memberId    String
+  noteId      String?
+  folderId    String?
+  level       PermissionLevel
+  grantedById String
+  createdAt   DateTime        @default(now())
+  member      WorkspaceMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  note        Note?           @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  folder      Folder?         @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  grantedBy   User            @relation("PermissionGrantedBy", fields: [grantedById], references: [id])
+
+  @@index([memberId])
+  @@index([noteId])
+  @@index([folderId])
+}
+
+model Invitation {
+  id          String           @id @default(cuid())
+  workspaceId String
+  email       String
+  role        WorkspaceRole
+  token       String           @unique
+  status      InvitationStatus @default(PENDING)
+  expiresAt   DateTime
+  invitedById String
+  createdAt   DateTime         @default(now())
+  workspace   Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  invitedBy   User             @relation("InvitationInvitedBy", fields: [invitedById], references: [id])
+
+  @@index([workspaceId])
+  @@index([email])
 }
