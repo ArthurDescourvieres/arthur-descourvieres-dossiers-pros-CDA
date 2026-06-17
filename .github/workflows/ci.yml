@@ -158,7 +158,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build & push backend image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ./backend
           target: production
@@ -170,7 +170,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Build & push web image (front build served by Caddy)
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ./frontend
           target: production
