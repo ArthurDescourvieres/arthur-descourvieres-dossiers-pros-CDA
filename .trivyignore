@@ -8,3 +8,11 @@
 # Le serveur n'expose jamais picomatch à de l'input attaquant → risque non
 # exploitable au runtime. À retirer dès que Prisma embarque picomatch >= 4.0.4.
 CVE-2026-33671
+
+# CVE-2026-42504 — Go stdlib (net/textproto) : DoS via en-tête MIME volumineux.
+# Présent dans le binaire `caddy` de l'image caddy:2-alpine (compilé avec Go
+# 1.26.3 ; corrigé en Go 1.26.4). Non corrigeable de notre côté : `apk upgrade`
+# ne recompile pas Caddy — il faut une image caddy:2-alpine reconstruite upstream,
+# pas encore publiée. Impact DoS uniquement. À retirer dès que Caddy repasse sur
+# Go >= 1.26.4. (L'OpenSSL CVE-2026-45447, lui, est corrigé via `apk upgrade`.)
+CVE-2026-42504
