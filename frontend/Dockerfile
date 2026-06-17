@@ -28,6 +28,10 @@ RUN npm run build
 
 # ---- Production: Caddy serves /srv and reverse-proxies api:3000 ----------
 FROM caddy:2-alpine AS production
+# Patch base-image OS packages (e.g. OpenSSL) to the latest Alpine patch level:
+# the caddy:2-alpine tag lags behind fresh CVE fixes, so we upgrade at build time
+# to keep the published image (and the Trivy scan) clean.
+RUN apk upgrade --no-cache
 COPY --from=builder /app/dist /srv
 # The Caddyfile is provided as a read-only mount by docker-compose.prod.yml,
 # so the domain/routing can change without rebuilding this image.
