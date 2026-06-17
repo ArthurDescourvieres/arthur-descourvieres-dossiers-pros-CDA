@@ -30,7 +30,7 @@ jobs:
     # On a CI-triggered run, only deploy if CI passed. Manual runs always go.
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Resolve image tag & repository
         id: tag
