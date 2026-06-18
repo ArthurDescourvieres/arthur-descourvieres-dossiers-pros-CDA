@@ -1,7 +1,8 @@
 import type { CSSProperties, KeyboardEvent, ReactNode } from 'react'
-import { FilePlus, FolderPlus, Trash2 } from 'lucide-react'
+import { ChevronRight, FilePlus, FolderPlus, Trash2 } from 'lucide-react'
 import type { FlatRow } from './flattenTree'
 import { smallInputClass } from './common'
+import { setDragItem } from './dragItem'
 
 const INDENT = 12
 
@@ -105,6 +106,16 @@ export function TreeRow({
       aria-selected={isSelected}
       tabIndex={isActive ? 0 : -1}
       data-row-index={index}
+      // Glisser une ligne (hors renommage) vers la corbeille de la sidebar.
+      draggable={canEdit && !isRenaming}
+      onDragStart={(e) => {
+        e.stopPropagation()
+        setDragItem(e, {
+          kind: row.kind,
+          id: row.id,
+          name: isFolder ? row.folder.name : row.note.title,
+        })
+      }}
       onFocus={() => handlers.setActiveIndex(index)}
       onClick={() => {
         if (isFolder) {
@@ -122,20 +133,17 @@ export function TreeRow({
       className={rootClass}
     >
       <div
-        className={`group flex cursor-pointer items-center gap-1 rounded-[6px] py-1 pr-1.5 text-[13px] ${
+        className={`group my-[3px] flex cursor-pointer items-center gap-1 rounded-[6px] py-1.5 pr-1.5 text-[15px] ${
           isSelected ? 'bg-[var(--color-accent-soft)]' : 'bg-transparent'
         }`}
         style={{ paddingLeft: row.depth * INDENT + (isFolder ? 6 : 22) }}
       >
         {isFolder && (
-          <span
+          <ChevronRight
             aria-hidden
-            className={`w-3 shrink-0 text-center text-[10px] opacity-60 transition-transform ${
-              row.isOpen ? 'rotate-90' : ''
-            }`}
-          >
-            ▸
-          </span>
+            size={14}
+            className={`shrink-0 opacity-60 transition-transform ${row.isOpen ? 'rotate-90' : ''}`}
+          />
         )}
         {isRenaming ? (
           <input

@@ -1,21 +1,44 @@
 import { useState } from 'react'
+import type { DragEvent } from 'react'
 
 interface Props {
   onClick: () => void
   className?: string
+  /** Vrai quand un élément glissé survole le bouton : couvercle ouvert + halo. */
+  dropActive?: boolean
+  onDragOver?: (e: DragEvent) => void
+  onDragEnter?: (e: DragEvent) => void
+  onDragLeave?: (e: DragEvent) => void
+  onDrop?: (e: DragEvent) => void
 }
 
-export function TrashButton({ onClick, className }: Props) {
-  const [lidOpen, setLidOpen] = useState(false)
+export function TrashButton({
+  onClick,
+  className,
+  dropActive = false,
+  onDragOver,
+  onDragEnter,
+  onDragLeave,
+  onDrop,
+}: Props) {
+  const [hover, setHover] = useState(false)
+  // Le couvercle s'ouvre au survol souris ET quand on glisse un élément dessus.
+  const lidOpen = hover || dropActive
 
   return (
     <button
       type="button"
       aria-label="Corbeille"
       onClick={onClick}
-      onMouseEnter={() => setLidOpen(true)}
-      onMouseLeave={() => setLidOpen(false)}
-      className={`flex items-center justify-center rounded bg-transparent border-none cursor-pointer text-[var(--color-text)] opacity-60 hover:opacity-100 transition-opacity duration-[120ms] ${className ?? 'p-1'}`}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      onDragOver={onDragOver}
+      onDragEnter={onDragEnter}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
+      className={`flex items-center justify-center rounded bg-transparent border-none cursor-pointer text-[var(--color-text)] opacity-60 hover:opacity-100 transition-opacity duration-[120ms] ${
+        dropActive ? 'ring-2 ring-[var(--color-accent)]' : ''
+      } ${className ?? 'p-1'}`}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
