@@ -1,8 +1,47 @@
 import { useEffect, useRef, useState } from 'react'
+import { MemoIcon } from './MemoIcon'
+import { useTheme } from '../hooks/useTheme'
 
 interface Props {
   onSettings: () => void
+  onTrash?: () => void
   onLogout: () => void
+}
+
+/**
+ * Interrupteur accessible : piste bleue quand activé, grise quand désactivé,
+ * pastille blanche qui glisse. Le fond de la piste est posé en `style` inline
+ * car le reset global `button { background: none }` (base.css) l'emporterait
+ * sur un utilitaire Tailwind `bg-*` appliqué à un <button>.
+ */
+function Switch({
+  checked,
+  onChange,
+  label,
+}: {
+  checked: boolean
+  onChange: () => void
+  label: string
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label}
+      onClick={onChange}
+      style={{ backgroundColor: checked ? 'var(--color-accent-hi)' : 'var(--color-surface-4)' }}
+      className={`relative inline-flex h-[22px] w-[38px] shrink-0 items-center rounded-full border transition-colors duration-200 ${
+        checked ? 'border-[var(--color-accent-hi)]' : 'border-[var(--color-line-strong)]'
+      }`}
+    >
+      <span
+        className={`inline-block h-4 w-4 rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,0.4)] transition-transform duration-200 ${
+          checked ? 'translate-x-[18px]' : 'translate-x-[3px]'
+        }`}
+      />
+    </button>
+  )
 }
 
 function MenuItem({
@@ -27,9 +66,10 @@ function MenuItem({
   )
 }
 
-export function ProfileMenu({ onSettings, onLogout }: Props) {
+export function ProfileMenu({ onSettings, onTrash, onLogout }: Props) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+  const { isDark, toggle } = useTheme()
 
   useEffect(() => {
     if (!open) return
@@ -46,24 +86,11 @@ export function ProfileMenu({ onSettings, onLogout }: Props) {
     <div ref={ref} className="relative">
       <button
         type="button"
-        aria-label="Profil"
+        aria-label="Menu"
         onClick={() => setOpen((v) => !v)}
         className="flex items-center justify-center p-1 rounded-full bg-transparent border-none cursor-pointer opacity-75 text-[var(--color-text)]"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="22"
-          height="22"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <circle cx="12" cy="8" r="4" />
-          <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-        </svg>
+        <MemoIcon name="more-horizontal" size={22} />
       </button>
 
       {open && (
@@ -76,6 +103,20 @@ export function ProfileMenu({ onSettings, onLogout }: Props) {
           >
             Paramètres
           </MenuItem>
+          {onTrash && (
+            <MenuItem
+              onClick={() => {
+                setOpen(false)
+                onTrash()
+              }}
+            >
+              Corbeille
+            </MenuItem>
+          )}
+          <div className="flex w-full items-center justify-between gap-3 px-3.5 py-[9px] text-[13px]">
+            <span>Thème sombre</span>
+            <Switch checked={isDark} onChange={toggle} label="Activer le thème sombre" />
+          </div>
           <div className="h-px bg-[var(--color-line)]" />
           <MenuItem
             danger

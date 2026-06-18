@@ -26,8 +26,9 @@ export function formatExpiry(iso: string): string {
 
 export function createInviteErrorMessage(err: unknown): string {
   if (err instanceof ApiError) {
-    if (err.status === 400) return 'Adresse e-mail invalide ou rôle non autorisé.'
+    if (err.status === 400) return 'E-mail invalide ou rôle non autorisé.'
     if (err.status === 403) return 'Seul le propriétaire peut inviter des membres.'
+    if (err.status === 404) return 'Aucun utilisateur ne correspond à ce pseudo.'
     if (err.status === 429) return 'Trop de tentatives, réessayez dans un instant.'
   }
   return "L'invitation n'a pas pu être créée."

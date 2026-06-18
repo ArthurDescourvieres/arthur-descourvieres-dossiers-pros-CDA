@@ -3,7 +3,12 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 import { ApiError, setAccessToken } from '../lib/api'
-import { useInvitations, useCreateInvitation, useAcceptInvitation } from './useInvitations'
+import {
+  useInvitations,
+  useCreateInvitation,
+  useAcceptInvitation,
+  useRevokeInvitation,
+} from './useInvitations'
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -63,13 +68,13 @@ describe('useInvitations hooks', () => {
 
     const { result } = renderHook(() => useCreateInvitation('w1'), { wrapper })
     await act(async () => {
-      await result.current.mutateAsync({ email: 'c@d.co', role: 'VIEWER' })
+      await result.current.mutateAsync({ identifier: 'c@d.co', role: 'VIEWER' })
     })
 
     const [path, init] = fetchMock.mock.calls[0]
     expect(path).toBe('/api/workspaces/w1/invitations')
     expect(init.method).toBe('POST')
-    expect(init.body).toBe(JSON.stringify({ email: 'c@d.co', role: 'VIEWER' }))
+    expect(init.body).toBe(JSON.stringify({ identifier: 'c@d.co', role: 'VIEWER' }))
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['invitations', 'w1'] })
   })
 
@@ -93,10 +98,26 @@ describe('useInvitations hooks', () => {
 
     const { result } = renderHook(() => useCreateInvitation('w1'), { wrapper })
     const err = await result.current
-      .mutateAsync({ email: 'x@y.co', role: 'EDITOR' })
+      .mutateAsync({ identifier: 'x@y.co', role: 'EDITOR' })
       .catch((e) => e)
 
     expect(err).toBeInstanceOf(ApiError)
     expect((err as ApiError).status).toBe(403)
+  })
+
+  it('revokes a pending invitation and invalidates the list', async () => {
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }))
+    const { qc, wrapper } = makeWrapper()
+    const invalidate = vi.spyOn(qc, 'invalidateQueries')
+
+    const { result } = renderHook(() => useRevokeInvitation('w1'), { wrapper })
+    await act(async () => {
+      await result.current.mutateAsync('i1')
+    })
+
+    const [path, init] = fetchMock.mock.calls[0]
+    expect(path).toBe('/api/workspaces/w1/invitations/i1')
+    expect(init.method).toBe('DELETE')
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['invitations', 'w1'] })
   })
 })

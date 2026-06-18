@@ -16,7 +16,15 @@ export function SidebarToggleButton({ onClick }: { onClick: () => void }) {
 }
 
 /** Bouton flottant de réouverture, visible uniquement quand la sidebar est repliée. */
-export function SidebarOpenButton({ visible, onClick }: { visible: boolean; onClick: () => void }) {
+export function SidebarOpenButton({
+  visible,
+  onClick,
+  className,
+}: {
+  visible: boolean
+  onClick: () => void
+  className?: string
+}) {
   return (
     <button
       type="button"
@@ -24,7 +32,7 @@ export function SidebarOpenButton({ visible, onClick }: { visible: boolean; onCl
       aria-label="Afficher le panneau"
       title="Afficher le panneau"
       aria-hidden={!visible}
-      className={`absolute left-[14px] top-[14px] z-20 grid h-9 w-9 place-items-center rounded-[var(--r-md)] border border-[var(--color-line-strong)] bg-[var(--color-surface-strong)] p-0 text-[var(--color-text)] shadow-[0_2px_10px_var(--color-shadow)] backdrop-blur-[8px] transition-[opacity,transform] duration-[250ms] ease-[var(--ease-out-expo)] ${
+      className={`absolute z-20 grid h-9 w-9 place-items-center rounded-[var(--r-md)] border border-[var(--color-line-strong)] bg-[var(--color-surface-strong)] p-0 text-[var(--color-text)] shadow-[0_2px_10px_var(--color-shadow)] backdrop-blur-[8px] transition-[opacity,transform] duration-[250ms] ease-[var(--ease-out-expo)] ${className ?? 'left-[14px] top-[14px]'} ${
         visible
           ? 'pointer-events-auto translate-x-0 opacity-100'
           : 'pointer-events-none -translate-x-[8px] opacity-0'

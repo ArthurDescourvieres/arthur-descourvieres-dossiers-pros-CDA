@@ -1,6 +1,23 @@
-import { type RefObject } from 'react'
+import { useLayoutEffect, type RefObject } from 'react'
 import { usePointerParallax, useScrollParallax, useRevealOnScroll } from './useParallax'
 import { Features, Showcase, FinalCta, LandingFooter } from './LandingSections'
+
+/**
+ * La landing garde son identité sombre quel que soit le thème choisi ailleurs :
+ * on force `data-theme='dark'` tant qu'elle est affichée, puis on restaure la
+ * préférence de l'utilisateur en la quittant (ex. vers Login). useLayoutEffect
+ * pour basculer avant le premier paint et éviter tout flash.
+ */
+function useForcedDarkLanding() {
+  useLayoutEffect(() => {
+    const root = document.documentElement
+    const previous = root.dataset.theme === 'light' ? 'light' : 'dark'
+    root.dataset.theme = 'dark'
+    return () => {
+      root.dataset.theme = previous
+    }
+  }, [])
+}
 
 export type LandingProps = {
   /** Open the auth screen in register mode. */
@@ -13,6 +30,7 @@ export function Landing({ onRegister, onLogin }: LandingProps) {
   const scrollRef = useScrollParallax<HTMLDivElement>()
   const heroRef = usePointerParallax<HTMLElement>()
   useRevealOnScroll(scrollRef)
+  useForcedDarkLanding()
 
   return (
     <div className="landing" ref={scrollRef}>
