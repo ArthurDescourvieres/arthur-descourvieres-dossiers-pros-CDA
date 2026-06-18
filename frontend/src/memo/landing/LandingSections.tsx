@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { LuminaIcon } from '../LuminaIcon'
+import { MemoIcon } from '../MemoIcon'
 
 type Feature = { icon: string; title: string; text: string }
 
@@ -43,8 +43,8 @@ export function Features() {
         <span className="lp-eyebrow">L’essentiel, rien de superflu</span>
         <h2 className="lp-h2">Une boîte à outils complète pour écrire</h2>
         <p className="lp-section-text">
-          De la première idée à la note partagée, Lumina réunit tout ce qu’il faut dans une
-          interface épurée.
+          De la première idée à la note partagée, Memo réunit tout ce qu’il faut dans une interface
+          épurée.
         </p>
       </div>
       <div className="lp-grid-cards">
@@ -56,7 +56,7 @@ export function Features() {
             style={{ transitionDelay: `${i * 60}ms` }}
           >
             <span className="lp-card-icon">
-              <LuminaIcon name={f.icon} size={22} strokeWidth={1.6} />
+              <MemoIcon name={f.icon} size={22} strokeWidth={1.6} />
             </span>
             <h3>{f.title}</h3>
             <p>{f.text}</p>
@@ -74,8 +74,8 @@ export function Showcase() {
         <span className="lp-eyebrow">Pensé pour la concentration</span>
         <h2 className="lp-h2">Une interface qui s’efface devant vos idées</h2>
         <p className="lp-section-text">
-          Pas de fioritures, juste vos mots. Lumina garde le décor discret pour laisser toute la
-          place à l’écriture.
+          Pas de fioritures, juste vos mots. Memo garde le décor discret pour laisser toute la place
+          à l’écriture.
         </p>
       </div>
 
@@ -128,7 +128,7 @@ export function LandingFooter() {
       <div className="lp-footer-inner">
         <span className="lp-brand lp-brand-sm">
           <span className="lp-brand-mark" aria-hidden />
-          Lumina
+          Memo
         </span>
         <nav style={{ display: 'flex', gap: 18, flexWrap: 'wrap' }}>
           <Link
@@ -144,7 +144,7 @@ export function LandingFooter() {
             Politique de confidentialité
           </Link>
         </nav>
-        <span>© 2026 Lumina — Vos idées, au clair.</span>
+        <span>© 2026 Memo — Vos idées, au clair.</span>
       </div>
     </footer>
   )

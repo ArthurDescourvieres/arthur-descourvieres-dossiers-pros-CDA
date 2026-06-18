@@ -3,9 +3,9 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-notion}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-notion}
-      POSTGRES_DB: ${POSTGRES_DB:-notion}
+      POSTGRES_USER: ${POSTGRES_USER:-memo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-memo}
+      POSTGRES_DB: ${POSTGRES_DB:-memo}
     ports:
       - '5432:5432'
     volumes:
@@ -13,7 +13,7 @@ services:
     networks:
       - app
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-notion}']
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-memo}']
       interval: 5s
       timeout: 5s
       retries: 5
@@ -42,7 +42,7 @@ services:
     env_file:
       - .env
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-notion}:${POSTGRES_PASSWORD:-notion}@db:5432/${POSTGRES_DB:-notion}
+      DATABASE_URL: ${DATABASE_URL}
       REDIS_URL: redis://redis:6379
       UPLOADS_DIR: /app/uploads
     volumes:

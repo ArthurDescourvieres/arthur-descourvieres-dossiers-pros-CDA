@@ -30,7 +30,7 @@ export function LegalPage({
           <Link to="/confidentialite" style={footerLinkStyle}>
             Politique de confidentialité
           </Link>
-          <span style={{ opacity: 0.5 }}>© 2026 Lumina</span>
+          <span style={{ opacity: 0.5 }}>© 2026 Memo</span>
         </footer>
       </div>
     </div>

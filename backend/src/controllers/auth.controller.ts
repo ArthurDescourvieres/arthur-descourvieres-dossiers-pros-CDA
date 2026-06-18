@@ -36,7 +36,8 @@ export const authController = {
       setRefreshCookie(c, refreshToken)
       return c.json({ accessToken, user }, 201)
     } catch (e) {
-      if (hasCode(e, 'CONFLICT')) return c.json({ error: 'Email already in use' }, 409)
+      if (hasCode(e, 'CONFLICT')) return c.json({ error: 'Cet email est déjà utilisé.' }, 409)
+      if (hasCode(e, 'NAME_CONFLICT')) return c.json({ error: 'Ce pseudo est déjà utilisé.' }, 409)
       if (hasCode(e, 'PWNED')) {
         return c.json(
           {
@@ -64,20 +65,21 @@ export const authController = {
     } catch (e) {
       if (hasCode(e, 'DEACTIVATED'))
         return c.json({ error: 'Ce compte a été désactivé.', code: 'DEACTIVATED' }, 403)
-      if (hasCode(e, 'UNAUTHORIZED')) return c.json({ error: 'Unauthorized' }, 401)
+      if (hasCode(e, 'UNAUTHORIZED'))
+        return c.json({ error: 'Identifiant ou mot de passe invalide.' }, 401)
       throw e
     }
   },
 
   async refresh(c: Context) {
     const token = getCookie(c, REFRESH_COOKIE)
-    if (!token) return c.json({ error: 'Unauthorized' }, 401)
+    if (!token) return c.json({ error: 'Non autorisé.' }, 401)
 
     try {
       const { accessToken } = await authService.refresh(token)
       return c.json({ accessToken }, 200)
     } catch (e) {
-      if (hasCode(e, 'UNAUTHORIZED')) return c.json({ error: 'Unauthorized' }, 401)
+      if (hasCode(e, 'UNAUTHORIZED')) return c.json({ error: 'Non autorisé.' }, 401)
       throw e
     }
   },
@@ -88,7 +90,7 @@ export const authController = {
       await authService.logout(token)
     }
     deleteCookie(c, REFRESH_COOKIE, { path: '/' })
-    return c.json({ message: 'Logged out' }, 200)
+    return c.json({ message: 'Déconnecté.' }, 200)
   },
 
   async me(c: AuthContext) {

@@ -12,24 +12,31 @@ type LoginProps = {
 export function Login({ initialMode = 'login', onBack, onSwitchMode }: LoginProps = {}) {
   const auth = useAuth()
   const [mode, setMode] = useState<Mode>(initialMode)
-  const [email, setEmail] = useState('')
+  const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     setError(null)
     setLoading(true)
     try {
-      if (mode === 'login') await auth.login(email, password)
-      else await auth.register(name, email, password)
+      if (mode === 'login') await auth.login(identifier, password)
+      else await auth.register(name, identifier, password)
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.status === 401) setError('Email ou mot de passe invalide.')
-        else if (err.status === 409) setError('Cet email est déjà utilisé.')
-        else if (err.status === 400) {
+        else if (err.status === 409) {
+          const payload = err.payload as { error?: unknown }
+          setError(
+            typeof payload?.error === 'string'
+              ? payload.error
+              : 'Cet identifiant est déjà utilisé.',
+          )
+        } else if (err.status === 400) {
           const payload = err.payload as { error?: unknown }
           setError(typeof payload?.error === 'string' ? payload.error : 'Champs invalides.')
         } else setError('Une erreur est survenue.')
@@ -92,7 +99,7 @@ export function Login({ initialMode = 'login', onBack, onSwitchMode }: LoginProp
         )}
 
         <h1 style={{ margin: 0, fontSize: 22, fontWeight: 600 }}>
-          {mode === 'login' ? 'Connexion à Lumina' : 'Créer un compte'}
+          {mode === 'login' ? 'Connexion à Memo' : 'Créer un compte'}
         </h1>
 
         {mode === 'register' && (
@@ -111,46 +118,74 @@ export function Login({ initialMode = 'login', onBack, onSwitchMode }: LoginProp
           </label>
         )}
 
-        <label htmlFor="login-email" style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <span style={{ fontSize: 12, opacity: 0.7 }}>Email</span>
+        <label
+          htmlFor="login-identifier"
+          style={{ display: 'flex', flexDirection: 'column', gap: 4 }}
+        >
+          <span style={{ fontSize: 12, opacity: 0.7 }}>
+            {mode === 'login' ? 'Email ou pseudo' : 'Email'}
+          </span>
           <input
-            id="login-email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            id="login-identifier"
+            type={mode === 'login' ? 'text' : 'email'}
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
             required
             aria-required="true"
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? 'login-error' : undefined}
-            autoComplete="email"
+            autoComplete={mode === 'login' ? 'username' : 'email'}
             style={inputStyle}
           />
         </label>
 
-        <label
-          htmlFor="login-password"
-          style={{ display: 'flex', flexDirection: 'column', gap: 4 }}
-        >
-          <span style={{ fontSize: 12, opacity: 0.7 }}>Mot de passe</span>
-          <input
-            id="login-password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            aria-required="true"
-            aria-invalid={error ? true : undefined}
-            aria-describedby={passwordDescribedBy}
-            minLength={mode === 'register' ? 12 : undefined}
-            autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-            style={inputStyle}
-          />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <label htmlFor="login-password" style={{ fontSize: 12, opacity: 0.7 }}>
+            Mot de passe
+          </label>
+          <div style={{ position: 'relative' }}>
+            <input
+              id="login-password"
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              aria-required="true"
+              aria-invalid={error ? true : undefined}
+              aria-describedby={passwordDescribedBy}
+              minLength={mode === 'register' ? 12 : undefined}
+              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+              style={{ ...inputStyle, paddingRight: 36, width: '100%', boxSizing: 'border-box' }}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+              aria-pressed={showPassword}
+              style={{
+                position: 'absolute',
+                right: 8,
+                top: '50%',
+                transform: 'translateY(-50%)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: 2,
+                color: 'inherit',
+                opacity: 0.55,
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              {showPassword ? <EyeOff /> : <Eye />}
+            </button>
+          </div>
           {mode === 'register' && (
             <span id="login-pwd-hint" style={{ fontSize: 11, opacity: 0.55 }}>
               12 caractères minimum.
             </span>
           )}
-        </label>
+        </div>
 
         {error && (
           <div id="login-error" role="alert" style={{ color: 'var(--color-danger)', fontSize: 13 }}>
@@ -209,4 +244,43 @@ const buttonStyle: React.CSSProperties = {
   fontSize: 14,
   cursor: 'pointer',
   marginTop: 4,
+}
+
+function Eye() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  )
+}
+
+function EyeOff() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+      <line x1="1" y1="1" x2="23" y2="23" />
+    </svg>
+  )
 }

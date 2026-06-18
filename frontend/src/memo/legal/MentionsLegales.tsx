@@ -9,7 +9,7 @@ export function MentionsLegales() {
     <LegalPage title="Mentions légales" updatedAt="16 juin 2026">
       <LegalH2>Éditeur</LegalH2>
       <LegalP>
-        Le site et l’application Lumina sont édités par Arthur Descourvieres, dans le cadre d’un
+        Le site et l’application Memo sont édités par Arthur Descourvieres, dans le cadre d’un
         projet de fin de formation au titre professionnel Concepteur Développeur d’Applications.
       </LegalP>
       <LegalP>
@@ -37,7 +37,7 @@ export function MentionsLegales() {
 
       <LegalH2>Responsabilité</LegalH2>
       <LegalP>
-        Lumina est un projet pédagogique fourni « en l’état ». L’éditeur s’efforce d’assurer la
+        Memo est un projet pédagogique fourni « en l’état ». L’éditeur s’efforce d’assurer la
         disponibilité et l’exactitude du service mais ne saurait être tenu responsable d’une
         interruption, d’une perte de données ou d’un usage non conforme.
       </LegalP>

@@ -1,4 +1,4 @@
-import { LuminaIcon } from './LuminaIcon'
+import { MemoIcon } from './MemoIcon'
 
 /** Bouton de repli, posé dans l'en-tête de la sidebar (sidebar ouverte). */
 export function SidebarToggleButton({ onClick }: { onClick: () => void }) {
@@ -22,7 +22,7 @@ export function SidebarToggleButton({ onClick }: { onClick: () => void }) {
         flex: '0 0 auto',
       }}
     >
-      <LuminaIcon name="panel-left" size={16} />
+      <MemoIcon name="panel-left" size={16} />
     </button>
   )
 }
@@ -59,7 +59,7 @@ export function SidebarOpenButton({ visible, onClick }: { visible: boolean; onCl
         transition: 'opacity 0.25s var(--ease-out-expo), transform 0.25s var(--ease-out-expo)',
       }}
     >
-      <LuminaIcon name="panel-left" size={18} />
+      <MemoIcon name="panel-left" size={18} />
     </button>
   )
 }

@@ -9,13 +9,13 @@ export function Confidentialite() {
   return (
     <LegalPage title="Politique de confidentialité" updatedAt="16 juin 2026">
       <LegalP>
-        Lumina applique le principe de minimisation : nous ne collectons que les données strictement
+        Memo applique le principe de minimisation : nous ne collectons que les données strictement
         nécessaires au fonctionnement du service de prise de notes collaborative.
       </LegalP>
 
       <LegalH2>Responsable du traitement</LegalH2>
       <LegalP>
-        Arthur Descourvieres, éditeur de Lumina (voir les mentions légales). Pour toute question
+        Arthur Descourvieres, éditeur de Memo (voir les mentions légales). Pour toute question
         relative à vos données : [À COMPLÉTER — adresse e-mail de contact].
       </LegalP>
 
@@ -75,7 +75,7 @@ export function Confidentialite() {
 
       <LegalH2>Cookies</LegalH2>
       <LegalP>
-        Lumina n’utilise qu’un seul cookie, strictement nécessaire au maintien de votre session : un
+        Memo n’utilise qu’un seul cookie, strictement nécessaire au maintien de votre session : un
         cookie de rafraîchissement <code>refreshToken</code> (httpOnly, Secure, SameSite=Strict).
         Aucun cookie de mesure d’audience ou de publicité n’est déposé.
       </LegalP>

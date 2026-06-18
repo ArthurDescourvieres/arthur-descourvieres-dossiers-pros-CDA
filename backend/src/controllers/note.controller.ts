@@ -33,7 +33,7 @@ export const noteController = {
       const note = await noteService.getNoteById(noteId)
       return c.json(note, 200)
     } catch {
-      return c.json({ error: 'Forbidden' }, 403)
+      return c.json({ error: 'Accès refusé.' }, 403)
     }
   },
 
@@ -46,7 +46,7 @@ export const noteController = {
       const note = await noteService.updateNote(noteId, result.data)
       return c.json(note, 200)
     } catch {
-      return c.json({ error: 'Forbidden' }, 403)
+      return c.json({ error: 'Accès refusé.' }, 403)
     }
   },
 
@@ -60,8 +60,8 @@ export const noteController = {
       return c.json(note, 200)
     } catch (e) {
       if (hasCode(e, 'INVALID_TARGET'))
-        return c.json({ error: 'Target folder is not in the same workspace' }, 400)
-      return c.json({ error: 'Forbidden' }, 403)
+        return c.json({ error: "Le dossier cible n'appartient pas au même workspace." }, 400)
+      return c.json({ error: 'Accès refusé.' }, 403)
     }
   },
 
@@ -71,7 +71,7 @@ export const noteController = {
       await noteService.softDeleteNote(noteId)
       return c.body(null, 204)
     } catch {
-      return c.json({ error: 'Forbidden' }, 403)
+      return c.json({ error: 'Accès refusé.' }, 403)
     }
   },
 
@@ -81,7 +81,7 @@ export const noteController = {
       const note = await noteService.restoreNote(noteId)
       return c.json(note, 200)
     } catch {
-      return c.json({ error: 'Forbidden' }, 403)
+      return c.json({ error: 'Accès refusé.' }, 403)
     }
   },
 

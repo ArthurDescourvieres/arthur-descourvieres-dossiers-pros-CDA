@@ -11,7 +11,7 @@ const GRACE_DAYS = 30
 // Compte « pierre tombale » : auteur de remplacement pour le contenu qui survit
 // à la suppression d'un utilisateur (notes partagées, pièces jointes…). Son hash
 // est aléatoire et il n'est membre d'aucun workspace : aucun login possible.
-const TOMBSTONE_EMAIL = 'compte-supprime@lumina.invalid'
+const TOMBSTONE_EMAIL = 'compte-supprime@memo.invalid'
 
 async function getOrCreateTombstone() {
   const existing = await prisma.user.findUnique({ where: { email: TOMBSTONE_EMAIL } })

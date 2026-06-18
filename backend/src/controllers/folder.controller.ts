@@ -38,7 +38,7 @@ export const folderController = {
       const folder = await folderService.updateFolder(folderId, result.data)
       return c.json(folder, 200)
     } catch {
-      return c.json({ error: 'Forbidden' }, 403)
+      return c.json({ error: 'Accès refusé.' }, 403)
     }
   },
 
@@ -52,10 +52,13 @@ export const folderController = {
       return c.json(folder, 200)
     } catch (e) {
       if (hasCode(e, 'INVALID_TARGET'))
-        return c.json({ error: 'Target parent is not in the same workspace' }, 400)
+        return c.json({ error: "Le dossier cible n'appartient pas au même workspace." }, 400)
       if (hasCode(e, 'CYCLE'))
-        return c.json({ error: 'Cannot move a folder into its own descendant' }, 400)
-      return c.json({ error: 'Forbidden' }, 403)
+        return c.json(
+          { error: "Impossible de déplacer un dossier dans l'un de ses sous-dossiers." },
+          400,
+        )
+      return c.json({ error: 'Accès refusé.' }, 403)
     }
   },
 
@@ -65,7 +68,7 @@ export const folderController = {
       await folderService.deleteFolder(folderId)
       return c.body(null, 204)
     } catch {
-      return c.json({ error: 'Forbidden' }, 403)
+      return c.json({ error: 'Accès refusé.' }, 403)
     }
   },
 }

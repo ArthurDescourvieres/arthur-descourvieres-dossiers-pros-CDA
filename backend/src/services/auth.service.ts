@@ -41,6 +41,11 @@ export const authService = {
       throw Object.assign(new Error('Email already in use'), { code: 'CONFLICT' })
     }
 
+    const existingName = await prisma.user.findUnique({ where: { name: input.name } })
+    if (existingName) {
+      throw Object.assign(new Error('Name already in use'), { code: 'NAME_CONFLICT' })
+    }
+
     // Reject passwords known to be compromised (HIBP k-anonymity, §5.3).
     if (await isPasswordPwned(input.password)) {
       throw Object.assign(new Error('Password found in a known data breach'), { code: 'PWNED' })
@@ -56,15 +61,18 @@ export const authService = {
   },
 
   async login(input: LoginInput) {
-    const user = await prisma.user.findUnique({ where: { email: input.email } })
+    const isEmail = input.identifier.includes('@')
+    const user = isEmail
+      ? await prisma.user.findUnique({ where: { email: input.identifier } })
+      : await prisma.user.findUnique({ where: { name: input.identifier } })
     if (!user) {
-      securityLog('login_failed', { email: input.email, reason: 'unknown_email' })
+      securityLog('login_failed', { identifier: input.identifier, reason: 'unknown_user' })
       throw Object.assign(new Error('Invalid credentials'), { code: 'UNAUTHORIZED' })
     }
 
     const valid = await verifyPassword(user.password, input.password)
     if (!valid) {
-      securityLog('login_failed', { email: input.email, reason: 'bad_password' })
+      securityLog('login_failed', { identifier: input.identifier, reason: 'bad_password' })
       throw Object.assign(new Error('Invalid credentials'), { code: 'UNAUTHORIZED' })
     }
 

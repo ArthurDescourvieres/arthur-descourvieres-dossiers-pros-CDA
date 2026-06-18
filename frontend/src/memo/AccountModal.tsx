@@ -8,7 +8,7 @@ import { useExportAccount, useDeleteAccount } from '../hooks/useAccount'
 /**
  * Écran « Mon compte » : porte les deux droits RGPD démontrables côté UI —
  * portabilité (export JSON) et effacement (suppression du compte). Modale
- * autonome rendue en portail (le système Modal de LuminaContext n'est pas monté).
+ * autonome rendue en portail (le système Modal de MemoContext n'est pas monté).
  */
 export function AccountModal({ onClose }: { onClose: () => void }) {
   const auth = useAuth()

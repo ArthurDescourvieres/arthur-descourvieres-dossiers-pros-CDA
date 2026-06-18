@@ -32,7 +32,7 @@ function LandingNav({ onRegister, onLogin }: LandingProps) {
       <div className="lp-nav-inner">
         <span className="lp-brand">
           <span className="lp-brand-mark" aria-hidden />
-          Lumina
+          Memo
         </span>
         <nav className="lp-nav-actions">
           <button type="button" className="lp-btn lp-btn-ghost" onClick={onLogin}>
@@ -67,8 +67,8 @@ function Hero({ heroRef, onRegister, onLogin }: HeroProps) {
           <span className="lp-title-accent">enfin lumineuses.</span>
         </h1>
         <p className="lp-subtitle">
-          Lumina réunit un éditeur riche, l’organisation par espaces et la collaboration en temps
-          réel dans une interface qui s’efface devant vos idées.
+          Memo réunit un éditeur riche, l’organisation par espaces et la collaboration en temps réel
+          dans une interface qui s’efface devant vos idées.
         </p>
         <div className="lp-hero-actions">
           <button type="button" className="lp-btn lp-btn-primary lp-btn-lg" onClick={onRegister}>

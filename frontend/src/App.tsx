@@ -1,21 +1,21 @@
 import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
-import { Spinner } from './lumina/Spinner'
+import { Spinner } from './memo/Spinner'
 import { useAuth } from './lib/auth/AuthContext'
 
 // Code splitting (éco-conception) : les écrans lourds sont chargés à la demande.
 // WorkspaceShell embarque l'éditeur Tiptap + lowlight + socket.io (gros chunk) et
 // n'est utile qu'une fois connecté ; Landing/Login ne servent qu'aux visiteurs.
 const WorkspaceShell = lazy(() =>
-  import('./lumina/WorkspaceShell').then((m) => ({ default: m.WorkspaceShell })),
+  import('./memo/WorkspaceShell').then((m) => ({ default: m.WorkspaceShell })),
 )
-const Landing = lazy(() => import('./lumina/landing/Landing').then((m) => ({ default: m.Landing })))
-const Login = lazy(() => import('./lumina/Login').then((m) => ({ default: m.Login })))
+const Landing = lazy(() => import('./memo/landing/Landing').then((m) => ({ default: m.Landing })))
+const Login = lazy(() => import('./memo/Login').then((m) => ({ default: m.Login })))
 const MentionsLegales = lazy(() =>
-  import('./lumina/legal/MentionsLegales').then((m) => ({ default: m.MentionsLegales })),
+  import('./memo/legal/MentionsLegales').then((m) => ({ default: m.MentionsLegales })),
 )
 const Confidentialite = lazy(() =>
-  import('./lumina/legal/Confidentialite').then((m) => ({ default: m.Confidentialite })),
+  import('./memo/legal/Confidentialite').then((m) => ({ default: m.Confidentialite })),
 )
 
 function CenteredSpinner() {
