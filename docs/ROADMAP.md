@@ -18,10 +18,10 @@ Le jour de la rédaction finale (S7), chaque chiffre du dossier = celui d'un rap
 |---|---|---|---|
 | Couverture back-end (lignes) | ≥ 70 % (dossier annonce 78 %) | **61,52 %** — 88 tests · 24 fichiers (16/06) | ❌ sous seuil |
 | Couverture composants sensibles | ≥ 85 % | rbac **91,7** ✅ · auth **81,4** ❌ · workspace **82,8** ❌ · attachment **18,2** ❌ (16/06) | ❌ partiel |
-| Couverture front (lignes) | 62 % (dossier) | **8,5 %** — autosave 100, realtime 97, AuthContext 88, reste 0 (16/06) | ❌ loin |
+| Couverture front (lignes) | 62 % (dossier) | **30,6 %** — hooks 97, lib 92, AuthContext 88, composants 0 (18/06) | ❌ sous seuil (couche hooks/lib faite, composants à couvrir) |
 | P95 API REST | < 200 ms | — (k6 à lancer) | ⏳ |
 | P95 propagation temps réel | < 500 ms | — (k6 à lancer) | ⏳ |
-| Nombre de cas de test « tous au vert » | 64 | **113** (88 back + 25 front, 16/06) | ✅ dépassé |
+| Nombre de cas de test « tous au vert » | 64 | **176** (88 back + 88 front, 18/06) | ✅ dépassé |
 
 > **Constat 16/06** : 88 tests back au vert (vs 68 estimés), 25 front. La couverture globale back est à 61,5 % — sous le seuil 70 %. Zones à 0 % : `src/realtime/` (socket) et `src/jobs/` (purge). Zones faibles : `src/controllers/` 42 %, `attachment.service.ts` 18 %, `note.service.ts` 38 %, `storage.ts` 18 %. **Action P3 : monter la couverture back au-dessus de 70 % en ciblant en priorité attachment.service + note.service + 1-2 contrôleurs. Mettre à jour le chiffre dans le dossier (78 % est inatteignable avant l'oral sans travail significatif — ajuster à la valeur réelle ou viser 70 %).**
 
