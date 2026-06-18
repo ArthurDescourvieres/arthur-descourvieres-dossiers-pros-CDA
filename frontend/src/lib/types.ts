@@ -11,6 +11,8 @@ export type Workspace = {
   name: string
   slug: string
   description: string | null
+  // Nom d'icône Lucide (kebab-case) ou null = icône par défaut (rond blanc).
+  icon: string | null
   createdAt: string
   updatedAt: string
 }
