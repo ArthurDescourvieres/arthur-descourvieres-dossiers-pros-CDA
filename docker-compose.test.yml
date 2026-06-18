@@ -11,13 +11,13 @@ services:
     environment:
       POSTGRES_USER: test
       POSTGRES_PASSWORD: test
-      POSTGRES_DB: notion_test
+      POSTGRES_DB: memo_test
     ports:
       - '5434:5432'
     tmpfs:
       - /var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U test -d notion_test']
+      test: ['CMD-SHELL', 'pg_isready -U test -d memo_test']
       interval: 2s
       timeout: 3s
       retries: 25

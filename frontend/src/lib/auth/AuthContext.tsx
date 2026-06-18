@@ -28,7 +28,7 @@ type AuthState =
   | { status: 'guest' }
 
 type AuthContextValue = AuthState & {
-  login: (email: string, password: string) => Promise<void>
+  login: (identifier: string, password: string) => Promise<void>
   register: (name: string, email: string, password: string) => Promise<void>
   logout: () => Promise<void>
 }
@@ -76,10 +76,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const login = useCallback(async (email: string, password: string) => {
+  const login = useCallback(async (identifier: string, password: string) => {
     const res = await api<LoginResponse>('/api/auth/login', {
       method: 'POST',
-      json: { email, password },
+      json: { identifier, password },
     })
     setAccessToken(res.accessToken)
     setState({ status: 'authenticated', user: res.user })

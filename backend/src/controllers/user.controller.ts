@@ -28,7 +28,7 @@ export const userController = {
     const data = await userService.exportUserData(userId)
     return c.body(JSON.stringify(data, null, 2), 200, {
       'Content-Type': 'application/json; charset=utf-8',
-      'Content-Disposition': 'attachment; filename="lumina-mes-donnees.json"',
+      'Content-Disposition': 'attachment; filename="memo-mes-donnees.json"',
     })
   },
 }

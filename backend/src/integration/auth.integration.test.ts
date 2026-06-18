@@ -34,7 +34,10 @@ describe('auth integration', () => {
     expect(regBody.accessToken).toBeTruthy()
     expect(regBody.user.email).toBe('ada@example.com')
 
-    const login = await post('/api/auth/login', { email: creds.email, password: creds.password })
+    const login = await post('/api/auth/login', {
+      identifier: creds.email,
+      password: creds.password,
+    })
     expect(login.status).toBe(200)
   })
 
@@ -42,7 +45,7 @@ describe('auth integration', () => {
     const attempt = () =>
       post(
         '/api/auth/login',
-        { email: 'nobody@example.com', password: 'whatever-pass' },
+        { identifier: 'nobody@example.com', password: 'whatever-pass' },
         { 'x-forwarded-for': '203.0.113.7' },
       )
 

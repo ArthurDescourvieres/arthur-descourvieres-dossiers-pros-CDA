@@ -14,7 +14,7 @@ export function useWorkspaces() {
 export function useCreateWorkspace() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (input: { name: string; description?: string }) =>
+    mutationFn: (input: { name: string; description?: string; icon?: string }) =>
       api<WorkspaceWithRole>('/api/workspaces', { method: 'POST', json: input }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['workspaces'] }),
   })
@@ -23,8 +23,8 @@ export function useCreateWorkspace() {
 export function useUpdateWorkspace() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, name }: { id: string; name: string }) =>
-      api<Workspace>(`/api/workspaces/${id}`, { method: 'PATCH', json: { name } }),
+    mutationFn: ({ id, ...patch }: { id: string; name?: string; icon?: string | null }) =>
+      api<Workspace>(`/api/workspaces/${id}`, { method: 'PATCH', json: patch }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['workspaces'] }),
   })
 }

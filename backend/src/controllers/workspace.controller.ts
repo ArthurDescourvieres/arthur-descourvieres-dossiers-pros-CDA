@@ -27,7 +27,7 @@ export const workspaceController = {
       const workspace = await workspaceService.createWorkspace(result.data, ownerId)
       return c.json(workspace, 201)
     } catch (e) {
-      if (hasCode(e, 'CONFLICT')) return c.json({ error: 'Slug already in use' }, 409)
+      if (hasCode(e, 'CONFLICT')) return c.json({ error: 'Ce nom est déjà utilisé.' }, 409)
       throw e
     }
   },
@@ -49,7 +49,7 @@ export const workspaceController = {
         'X-Cache': hit ? 'HIT' : 'MISS',
       })
     } catch {
-      return c.json({ error: 'Forbidden' }, 403)
+      return c.json({ error: 'Accès refusé.' }, 403)
     }
   },
 
@@ -62,7 +62,7 @@ export const workspaceController = {
       const workspace = await workspaceService.updateWorkspace(workspaceId, result.data)
       return c.json(workspace, 200)
     } catch {
-      return c.json({ error: 'Forbidden' }, 403)
+      return c.json({ error: 'Accès refusé.' }, 403)
     }
   },
 
@@ -72,7 +72,7 @@ export const workspaceController = {
       await workspaceService.deleteWorkspace(workspaceId)
       return c.body(null, 204)
     } catch {
-      return c.json({ error: 'Forbidden' }, 403)
+      return c.json({ error: 'Accès refusé.' }, 403)
     }
   },
 
@@ -89,7 +89,7 @@ export const workspaceController = {
       )
       return c.json(member, 201)
     } catch (e) {
-      if (hasCode(e, 'CONFLICT')) return c.json({ error: 'User is already a member' }, 409)
+      if (hasCode(e, 'CONFLICT')) return c.json({ error: 'Cet utilisateur est déjà membre.' }, 409)
       throw e
     }
   },
@@ -105,7 +105,7 @@ export const workspaceController = {
       return c.json(member, 200)
     } catch (e) {
       if (hasCode(e, 'FORBIDDEN'))
-        return c.json({ error: 'Cannot change role of workspace owner' }, 403)
+        return c.json({ error: 'Impossible de modifier le rôle du propriétaire.' }, 403)
       throw e
     }
   },
@@ -118,7 +118,10 @@ export const workspaceController = {
       return c.body(null, 204)
     } catch (e) {
       if (hasCode(e, 'CANNOT_REMOVE_OWNER'))
-        return c.json({ error: 'Cannot remove workspace owner', code: 'CANNOT_REMOVE_OWNER' }, 403)
+        return c.json(
+          { error: 'Impossible de retirer le propriétaire.', code: 'CANNOT_REMOVE_OWNER' },
+          403,
+        )
       throw e
     }
   },
@@ -132,10 +135,11 @@ export const workspaceController = {
       const member = await workspaceService.transferOwnership(workspaceId, result.data.newOwnerId)
       return c.json(member, 200)
     } catch (e) {
-      if (hasCode(e, 'INVALID_TARGET')) return c.json({ error: 'User is already the owner' }, 400)
+      if (hasCode(e, 'INVALID_TARGET'))
+        return c.json({ error: 'Cet utilisateur est déjà propriétaire.' }, 400)
       if (hasCode(e, 'NOT_A_MEMBER'))
-        return c.json({ error: 'New owner must be a member of the workspace' }, 400)
-      return c.json({ error: 'Forbidden' }, 403)
+        return c.json({ error: 'Le nouveau propriétaire doit être membre du workspace.' }, 400)
+      return c.json({ error: 'Accès refusé.' }, 403)
     }
   },
 }

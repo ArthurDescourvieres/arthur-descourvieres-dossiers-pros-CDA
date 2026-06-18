@@ -23,7 +23,7 @@ app.onError((err, c) => {
     { err: { message: err.message, stack: err.stack }, path: c.req.path, method: c.req.method },
     'unhandled error',
   )
-  return c.json({ error: 'Internal Server Error' }, 500)
+  return c.json({ error: 'Erreur interne du serveur.' }, 500)
 })
 
 app.route('/api', router)

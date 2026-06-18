@@ -1,12 +1,8 @@
 @import 'tailwindcss';
 
-@import './lumina/styles/tokens.css';
-@import './lumina/styles/base.css';
-@import './lumina/styles/sidebar.css';
-@import './lumina/styles/editor.css';
-@import './lumina/styles/tiptap.css';
-@import './lumina/styles/panel.css';
-@import './lumina/styles/overlays.css';
-@import './lumina/styles/responsive.css';
-@import './lumina/styles/landing.css';
-@import './lumina/styles/landing-sections.css';
+@import './memo/styles/tokens.css';
+@import './memo/styles/base.css';
+@import './memo/styles/tiptap.css';
+@import './memo/styles/responsive.css';
+@import './memo/styles/landing.css';
+@import './memo/styles/landing-sections.css';

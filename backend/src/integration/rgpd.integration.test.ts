@@ -29,7 +29,7 @@ function login(email: string, ip: string) {
   return app.request('/api/auth/login', {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-forwarded-for': ip },
-    body: JSON.stringify({ email, password: PASSWORD }),
+    body: JSON.stringify({ identifier: email, password: PASSWORD }),
   })
 }
 

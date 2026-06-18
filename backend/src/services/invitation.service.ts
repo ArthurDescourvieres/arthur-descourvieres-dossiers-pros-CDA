@@ -8,17 +8,30 @@ function generateToken(): string {
   return randomBytes(32).toString('base64url')
 }
 
+// Resolve an invitee identifier (email or username) to the email the invitation
+// is keyed on. Usernames must match an existing account; acceptance then stays a
+// plain email comparison (see acceptInvitation), so no schema change is needed.
+async function resolveInviteeEmail(identifier: string): Promise<string> {
+  if (identifier.includes('@')) return identifier.toLowerCase()
+  const user = await prisma.user.findUnique({ where: { name: identifier } })
+  if (!user) {
+    throw Object.assign(new Error('No user with that username'), { code: 'USER_NOT_FOUND' })
+  }
+  return user.email.toLowerCase()
+}
+
 export const invitationService = {
   async createInvitation(
     workspaceId: string,
-    email: string,
+    identifier: string,
     role: WorkspaceRole,
     invitedById: string,
   ) {
+    const email = await resolveInviteeEmail(identifier)
     return prisma.invitation.create({
       data: {
         workspaceId,
-        email: email.toLowerCase(),
+        email,
         role,
         token: generateToken(),
         invitedById,

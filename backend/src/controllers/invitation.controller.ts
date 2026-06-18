@@ -17,13 +17,20 @@ export const invitationController = {
     if (!result.success) return c.json({ error: result.error.flatten() }, 400)
 
     const invitedById = (c.get('jwtPayload') as { sub: string }).sub
-    const invitation = await invitationService.createInvitation(
-      workspaceId,
-      result.data.email,
-      result.data.role,
-      invitedById,
-    )
-    return c.json(invitation, 201)
+    try {
+      const invitation = await invitationService.createInvitation(
+        workspaceId,
+        result.data.identifier,
+        result.data.role,
+        invitedById,
+      )
+      return c.json(invitation, 201)
+    } catch (e) {
+      if (hasCode(e, 'USER_NOT_FOUND')) {
+        return c.json({ error: 'Aucun utilisateur ne correspond à ce pseudo.' }, 404)
+      }
+      throw e
+    }
   },
 
   async list(c: C) {
@@ -39,7 +46,7 @@ export const invitationController = {
       await invitationService.revokeInvitation(workspaceId, invitationId)
       return c.body(null, 204)
     } catch (e) {
-      if (hasCode(e, 'NOT_FOUND')) return c.json({ error: 'Invitation not found' }, 404)
+      if (hasCode(e, 'NOT_FOUND')) return c.json({ error: 'Invitation introuvable.' }, 404)
       throw e
     }
   },
@@ -51,10 +58,10 @@ export const invitationController = {
       const result = await invitationService.acceptInvitation(token, userId)
       return c.json(result, 201)
     } catch (e) {
-      if (hasCode(e, 'NOT_FOUND')) return c.json({ error: 'Invitation not found' }, 404)
-      if (hasCode(e, 'EXPIRED')) return c.json({ error: 'Invitation expired' }, 410)
-      if (hasCode(e, 'CONFLICT')) return c.json({ error: 'Invitation already accepted' }, 409)
-      if (hasCode(e, 'FORBIDDEN')) return c.json({ error: 'Forbidden' }, 403)
+      if (hasCode(e, 'NOT_FOUND')) return c.json({ error: 'Invitation introuvable.' }, 404)
+      if (hasCode(e, 'EXPIRED')) return c.json({ error: 'Invitation expirée.' }, 410)
+      if (hasCode(e, 'CONFLICT')) return c.json({ error: 'Invitation déjà acceptée.' }, 409)
+      if (hasCode(e, 'FORBIDDEN')) return c.json({ error: 'Accès refusé.' }, 403)
       throw e
     }
   },

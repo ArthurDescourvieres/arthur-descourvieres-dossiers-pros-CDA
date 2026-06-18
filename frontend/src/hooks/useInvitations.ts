@@ -15,7 +15,7 @@ export function useInvitations(workspaceId: string | null) {
 export function useCreateInvitation(workspaceId: string | null) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (input: { email: string; role: 'EDITOR' | 'VIEWER' }) =>
+    mutationFn: (input: { identifier: string; role: 'EDITOR' | 'VIEWER' }) =>
       api<Invitation>(`/api/workspaces/${workspaceId}/invitations`, {
         method: 'POST',
         json: input,
