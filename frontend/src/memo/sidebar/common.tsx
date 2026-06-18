@@ -1,17 +1,19 @@
 // Shared header + class names for the sidebar sections (Workspaces, Dossiers,
 // Notes). Extracted from WorkspaceShell so each section lives in its own file.
-export function SectionHeader({ title, onAdd }: { title: string; onAdd: () => void }) {
+export function SectionHeader({ title, onAdd }: { title: string; onAdd?: () => void }) {
   return (
     <div className="flex items-center justify-between">
       <span className="text-[11px] uppercase tracking-[1px] opacity-50">{title}</span>
-      <button
-        type="button"
-        onClick={onAdd}
-        className="cursor-pointer border-none bg-transparent text-sm text-inherit opacity-60"
-        title={`Ajouter ${title.toLowerCase()}`}
-      >
-        +
-      </button>
+      {onAdd && (
+        <button
+          type="button"
+          onClick={onAdd}
+          className="cursor-pointer border-none bg-transparent text-sm text-inherit opacity-60"
+          title={`Ajouter ${title.toLowerCase()}`}
+        >
+          +
+        </button>
+      )}
     </div>
   )
 }
