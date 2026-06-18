@@ -74,3 +74,16 @@ a {
   background: var(--color-teal-soft);
   color: var(--color-text);
 }
+
+.ws-btn--active {
+  animation: wsActiveGlow 3.5s var(--ease-in-out) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ws-btn--active {
+    animation: none;
+    box-shadow:
+      0 0 0 1px var(--color-accent-border),
+      0 0 10px -2px var(--color-accent-soft);
+  }
+}

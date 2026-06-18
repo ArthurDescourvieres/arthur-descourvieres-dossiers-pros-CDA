@@ -9,6 +9,20 @@
       rel="stylesheet"
       href="https://api.fontshare.com/v2/css?f[]=boska@400,700,401&f[]=satoshi@300,400,500,700&display=swap"
     />
+    <!-- Anti-flash : applique le thème (choix mémorisé sinon préférence système)
+         avant le premier rendu pour éviter un flash de couleur au chargement.
+         La clé 'memo-theme' doit rester synchronisée avec src/lib/theme.ts. -->
+    <script>
+      ;(function () {
+        try {
+          var t = localStorage.getItem('memo-theme')
+          if (t !== 'light' && t !== 'dark') {
+            t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+          }
+          document.documentElement.dataset.theme = t
+        } catch (e) {}
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>
