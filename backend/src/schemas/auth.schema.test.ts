@@ -23,7 +23,7 @@ describe('register password policy (§5.3)', () => {
 
 describe('login schema', () => {
   it('does not impose the 12-char minimum on login', () => {
-    const result = loginSchema.safeParse({ email: 'ada@example.com', password: 'legacy' })
+    const result = loginSchema.safeParse({ identifier: 'ada@example.com', password: 'legacy' })
     expect(result.success).toBe(true)
   })
 })
