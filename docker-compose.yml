@@ -7,7 +7,9 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-memo}
       POSTGRES_DB: ${POSTGRES_DB:-memo}
     ports:
-      - '5432:5432'
+      # Host port 5435 (not 5432) to avoid colliding with the native
+      # PostgreSQL that Laragon binds on 5432. Container port stays 5432.
+      - '5435:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:

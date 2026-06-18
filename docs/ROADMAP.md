@@ -182,6 +182,7 @@ Le jour de la rédaction finale (S7), chaque chiffre du dossier = celui d'un rap
 - **Tables en PascalCase** (convention Prisma). → Corriger le §7 du dossier (qui annonce snake_case + `CHECK`).
 - **`deploy.yml` = `workflow_dispatch` + push `main`.** → Harmoniser le Dossier Professionnel.
 - **Backups → Hetzner Storage Box.**
+- **Couche d'accès aux données = Prisma consommé directement** par les services (pas de couche `repositories/` dédiée, pas d'injection de dépôts). → Dossier projet corrigé le 18/06 (¶ archi multicouche, patrons de conception, couche d'accès). Arbitrage tranché : méthode actuelle conservée. CP8 reste couvert par les extraits Prisma (`$transaction`, `$queryRaw` paramétré, rollback attachment) + les usages Redis. Memo de règles aligné (CP6/CP8).
 
 ## Arbitrages restants
 
