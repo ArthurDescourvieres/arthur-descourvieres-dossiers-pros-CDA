@@ -40,60 +40,34 @@ export function AttachmentsPanel({ noteId }: { noteId: string }) {
   }
 
   return (
-    <section
-      style={{
-        marginTop: 24,
-        borderTop: '1px solid var(--color-line)',
-        paddingTop: 16,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 12,
-      }}
-    >
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1, opacity: 0.5 }}>
-          Pièces jointes
-        </span>
+    <section className="mt-6 flex flex-col gap-3 border-t border-[var(--color-line)] pt-4">
+      <header className="flex items-center justify-between">
+        <span className="text-xs uppercase tracking-[1px] opacity-50">Pièces jointes</span>
         <input
           ref={fileInputRef}
           type="file"
           accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
-          style={{ display: 'none' }}
+          className="hidden"
           onChange={onChange}
         />
         <button
           type="button"
           onClick={onPickFile}
           disabled={upload.isPending}
-          style={{
-            background: 'var(--color-accent-soft)',
-            border: '1px solid var(--color-accent-border)',
-            color: 'inherit',
-            padding: '4px 10px',
-            fontSize: 12,
-            borderRadius: 4,
-            cursor: upload.isPending ? 'wait' : 'pointer',
-          }}
+          className={`${
+            upload.isPending ? 'cursor-wait' : 'cursor-pointer'
+          } rounded border border-[var(--color-accent-border)] bg-[var(--color-accent-soft)] px-2.5 py-1 text-xs text-inherit`}
         >
           {upload.isPending ? 'Envoi…' : '+ Ajouter un fichier'}
         </button>
       </header>
 
       {isPending ? (
-        <div style={{ opacity: 0.4, fontSize: 12 }}>…</div>
+        <div className="text-xs opacity-40">…</div>
       ) : !data || data.length === 0 ? (
-        <div style={{ opacity: 0.4, fontSize: 12 }}>Aucune pièce jointe</div>
+        <div className="text-xs opacity-40">Aucune pièce jointe</div>
       ) : (
-        <ul
-          style={{
-            listStyle: 'none',
-            margin: 0,
-            padding: 0,
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-            gap: 12,
-          }}
-        >
+        <ul className="m-0 grid list-none grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3 p-0">
           {data.map((a) => (
             <AttachmentItem key={a.id} attachment={a} onDelete={() => remove.mutate(a.id)} />
           ))}
@@ -115,67 +89,30 @@ function AttachmentItem({
   const { url: blobUrl } = useBlobUrl(isImage ? url : null)
 
   return (
-    <li
-      style={{
-        background: 'var(--color-surface)',
-        border: '1px solid var(--color-surface-strong)',
-        borderRadius: 6,
-        padding: 8,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 6,
-      }}
-    >
+    <li className="flex flex-col gap-1.5 rounded-md border border-[var(--color-surface-strong)] bg-[var(--color-surface)] p-2">
       {isImage ? (
         blobUrl ? (
           <img
             src={blobUrl}
             alt={attachment.filename}
-            style={{ width: '100%', height: 100, objectFit: 'cover', borderRadius: 4 }}
+            className="h-[100px] w-full rounded object-cover"
           />
         ) : (
-          <div style={{ height: 100, display: 'grid', placeItems: 'center', opacity: 0.4 }}>…</div>
+          <div className="grid h-[100px] place-items-center opacity-40">…</div>
         )
       ) : (
-        <div
-          style={{
-            height: 100,
-            display: 'grid',
-            placeItems: 'center',
-            background: 'var(--color-surface)',
-            borderRadius: 4,
-            fontSize: 11,
-            opacity: 0.6,
-          }}
-        >
+        <div className="grid h-[100px] place-items-center rounded bg-[var(--color-surface)] text-[11px] opacity-60">
           {attachment.mimeType.split('/')[1]?.toUpperCase() ?? 'FILE'}
         </div>
       )}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        <span
-          style={{
-            fontSize: 12,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {attachment.filename}
-        </span>
-        <span style={{ fontSize: 11, opacity: 0.5 }}>{formatSize(attachment.size)}</span>
+      <div className="flex flex-col gap-0.5">
+        <span className="truncate text-xs">{attachment.filename}</span>
+        <span className="text-[11px] opacity-50">{formatSize(attachment.size)}</span>
       </div>
       <button
         type="button"
         onClick={onDelete}
-        style={{
-          background: 'transparent',
-          border: '1px solid var(--color-danger-border)',
-          color: 'var(--color-danger)',
-          padding: '2px 6px',
-          fontSize: 11,
-          borderRadius: 4,
-          cursor: 'pointer',
-        }}
+        className="cursor-pointer rounded border border-[var(--color-danger-border)] bg-transparent px-1.5 py-0.5 text-[11px] text-[var(--color-danger)]"
       >
         Supprimer
       </button>

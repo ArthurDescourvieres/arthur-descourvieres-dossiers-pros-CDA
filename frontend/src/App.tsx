@@ -20,14 +20,7 @@ const Confidentialite = lazy(() =>
 
 function CenteredSpinner() {
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'grid',
-        placeItems: 'center',
-        background: 'var(--color-bg)',
-      }}
-    >
+    <div className="grid min-h-screen place-items-center bg-[var(--color-bg)]">
       <Spinner size={36} />
     </div>
   )

@@ -1,8 +1,11 @@
-import { useState, type CSSProperties, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { useCreateInvitation, useInvitations, useRevokeInvitation } from '../hooks/useInvitations'
 import { createInviteErrorMessage, formatExpiry, inviteLink, roleLabel } from './inviteUtils'
 
 type InvitableRole = 'EDITOR' | 'VIEWER'
+
+const inputClass =
+  'min-w-0 rounded border border-[var(--color-line-strong)] bg-[var(--color-surface-strong)] px-2 py-1.5 text-xs text-inherit outline-none'
 
 // OWNER-only sidebar panel: invite a member by email + role, then copy the
 // generated link to forward it (no email is sent server-side). Lists and
@@ -35,7 +38,7 @@ export function InviteSection({ workspaceId }: { workspaceId: string }) {
   }
 
   return (
-    <section style={sectionStyle}>
+    <section className="flex flex-col gap-1.5">
       <Header
         title="Inviter"
         onAdd={() => {
@@ -45,43 +48,47 @@ export function InviteSection({ workspaceId }: { workspaceId: string }) {
       />
 
       {open && (
-        <form onSubmit={submit} style={formStyle}>
+        <form onSubmit={submit} className="flex flex-col gap-1.5">
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="email@exemple.com"
-            style={inputStyle}
+            className={inputClass}
             autoFocus
             required
           />
-          <div style={{ display: 'flex', gap: 6 }}>
+          <div className="flex gap-1.5">
             <select
               value={role}
               onChange={(e) => setRole(e.target.value as InvitableRole)}
-              style={{ ...inputStyle, flex: 1 }}
+              className={`${inputClass} flex-1`}
             >
               <option value="EDITOR">Éditeur</option>
               <option value="VIEWER">Lecteur</option>
             </select>
-            <button type="submit" style={primaryButtonStyle} disabled={create.isPending}>
+            <button
+              type="submit"
+              className="cursor-pointer rounded border-none bg-[var(--color-accent)] px-3 text-xs text-[var(--color-on-accent)]"
+              disabled={create.isPending}
+            >
               {create.isPending ? '…' : 'Inviter'}
             </button>
           </div>
-          {error && <div style={errorStyle}>{error}</div>}
+          {error && <div className="text-[11.5px] text-[var(--color-danger)]">{error}</div>}
         </form>
       )}
 
       {createdToken && (
-        <div style={linkBoxStyle}>
-          <div style={{ fontSize: 11, opacity: 0.75 }}>
+        <div className="flex flex-col gap-1.5 rounded border border-[var(--color-accent-border)] bg-[var(--color-accent-soft)] p-2">
+          <div className="text-[11px] opacity-75">
             Lien prêt — aucun e-mail n’est envoyé, transmettez-le vous-même :
           </div>
-          <div style={{ display: 'flex', gap: 6 }}>
+          <div className="flex gap-1.5">
             <input
               readOnly
               value={inviteLink(createdToken)}
-              style={{ ...inputStyle, flex: 1 }}
+              className={`${inputClass} flex-1`}
               onFocus={(e) => e.currentTarget.select()}
             />
             <CopyButton token={createdToken} />
@@ -90,27 +97,32 @@ export function InviteSection({ workspaceId }: { workspaceId: string }) {
       )}
 
       {invitations.isPending ? (
-        <div style={loadingStyle}>…</div>
+        <div className="text-xs opacity-40">…</div>
       ) : pending.length === 0 ? (
-        <div style={emptyStyle}>Aucune invitation en attente</div>
+        <div className="px-1.5 py-0.5 text-xs opacity-40">Aucune invitation en attente</div>
       ) : (
-        <ul style={listStyle}>
+        <ul className="m-0 flex list-none flex-col gap-1 p-0">
           {pending.map((inv) => (
-            <li key={inv.id} style={rowStyle}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}>
-                <span style={emailStyle}>{inv.email}</span>
-                <span style={metaStyle}>
+            <li
+              key={inv.id}
+              className="flex items-center justify-between gap-2 rounded px-1.5 py-1"
+            >
+              <div className="flex min-w-0 flex-col gap-0.5">
+                <span className="overflow-hidden text-ellipsis whitespace-nowrap text-[12.5px]">
+                  {inv.email}
+                </span>
+                <span className="text-[11px] opacity-50">
                   {roleLabel(inv.role)} · expire le {formatExpiry(inv.expiresAt)}
                 </span>
               </div>
-              <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+              <div className="flex flex-shrink-0 gap-1">
                 <CopyButton token={inv.token} />
                 <button
                   type="button"
                   onClick={() => revoke.mutate(inv.id)}
                   disabled={revoke.isPending}
                   title="Révoquer l’invitation"
-                  style={iconButtonStyle}
+                  className="h-6 w-6 cursor-pointer rounded border border-[var(--color-line-strong)] bg-transparent text-sm leading-none text-inherit opacity-70"
                 >
                   ×
                 </button>
@@ -120,7 +132,7 @@ export function InviteSection({ workspaceId }: { workspaceId: string }) {
         </ul>
       )}
 
-      <p style={hintStyle}>
+      <p className="mx-0 mb-0 mt-0.5 text-[10.5px] leading-normal opacity-45">
         La personne doit déjà avoir un compte avec cette adresse, puis ouvrir le lien pour rejoindre
         le workspace.
       </p>
@@ -133,7 +145,7 @@ function CopyButton({ token }: { token: string }) {
   return (
     <button
       type="button"
-      style={ghostButtonStyle}
+      className="cursor-pointer whitespace-nowrap rounded border border-[var(--color-accent-border)] bg-[var(--color-accent-soft)] px-2 py-1 text-[11px] text-inherit"
       title="Copier le lien d’invitation"
       onClick={async () => {
         try {
@@ -152,106 +164,16 @@ function CopyButton({ token }: { token: string }) {
 
 function Header({ title, onAdd }: { title: string; onAdd: () => void }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-      <span style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 1, opacity: 0.5 }}>
-        {title}
-      </span>
-      <button type="button" onClick={onAdd} style={addButtonStyle} title="Inviter un membre">
+    <div className="flex items-center justify-between">
+      <span className="text-[11px] uppercase tracking-[1px] opacity-50">{title}</span>
+      <button
+        type="button"
+        onClick={onAdd}
+        className="cursor-pointer border-none bg-transparent text-sm text-inherit opacity-60"
+        title="Inviter un membre"
+      >
         +
       </button>
     </div>
   )
-}
-
-const sectionStyle: CSSProperties = { display: 'flex', flexDirection: 'column', gap: 6 }
-const formStyle: CSSProperties = { display: 'flex', flexDirection: 'column', gap: 6 }
-const listStyle: CSSProperties = {
-  listStyle: 'none',
-  padding: 0,
-  margin: 0,
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 4,
-}
-const rowStyle: CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  gap: 8,
-  padding: '4px 6px',
-  borderRadius: 4,
-}
-const inputStyle: CSSProperties = {
-  background: 'var(--color-surface-strong)',
-  border: '1px solid var(--color-line-strong)',
-  borderRadius: 4,
-  color: 'inherit',
-  padding: '6px 8px',
-  fontSize: 12,
-  outline: 'none',
-  minWidth: 0,
-}
-const primaryButtonStyle: CSSProperties = {
-  background: 'var(--color-accent)',
-  color: 'var(--color-on-accent)',
-  border: 'none',
-  borderRadius: 4,
-  padding: '0 12px',
-  fontSize: 12,
-  cursor: 'pointer',
-}
-const ghostButtonStyle: CSSProperties = {
-  background: 'var(--color-accent-soft)',
-  border: '1px solid var(--color-accent-border)',
-  color: 'inherit',
-  borderRadius: 4,
-  padding: '4px 8px',
-  fontSize: 11,
-  cursor: 'pointer',
-  whiteSpace: 'nowrap',
-}
-const iconButtonStyle: CSSProperties = {
-  background: 'transparent',
-  border: '1px solid var(--color-line-strong)',
-  color: 'inherit',
-  borderRadius: 4,
-  width: 24,
-  height: 24,
-  lineHeight: 1,
-  fontSize: 14,
-  cursor: 'pointer',
-  opacity: 0.7,
-}
-const addButtonStyle: CSSProperties = {
-  background: 'transparent',
-  border: 'none',
-  color: 'inherit',
-  opacity: 0.6,
-  fontSize: 14,
-  cursor: 'pointer',
-}
-const linkBoxStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 6,
-  padding: 8,
-  borderRadius: 4,
-  background: 'var(--color-accent-soft)',
-  border: '1px solid var(--color-accent-border)',
-}
-const errorStyle: CSSProperties = { fontSize: 11.5, color: 'var(--color-danger)' }
-const loadingStyle: CSSProperties = { opacity: 0.4, fontSize: 12 }
-const emptyStyle: CSSProperties = { opacity: 0.4, fontSize: 12, padding: '2px 6px' }
-const emailStyle: CSSProperties = {
-  fontSize: 12.5,
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-}
-const metaStyle: CSSProperties = { fontSize: 11, opacity: 0.5 }
-const hintStyle: CSSProperties = {
-  fontSize: 10.5,
-  opacity: 0.45,
-  lineHeight: 1.5,
-  margin: '2px 0 0',
 }

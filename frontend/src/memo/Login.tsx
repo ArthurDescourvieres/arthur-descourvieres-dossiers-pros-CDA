@@ -55,56 +55,28 @@ export function Login({ initialMode = 'login', onBack, onSwitchMode }: LoginProp
       .join(' ') || undefined
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'grid',
-        placeItems: 'center',
-        background: 'var(--color-bg)',
-        color: 'var(--color-text)',
-        padding: 24,
-      }}
-    >
+    <div className="grid min-h-screen place-items-center bg-[var(--color-bg)] p-6 text-[var(--color-text)]">
       <form
         onSubmit={onSubmit}
-        style={{
-          width: 360,
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 12,
-          background: 'var(--color-surface)',
-          padding: 28,
-          borderRadius: 12,
-          boxShadow: '0 8px 32px var(--color-shadow)',
-        }}
+        className="flex w-[360px] flex-col gap-3 rounded-xl bg-[var(--color-surface)] p-7 shadow-[0_8px_32px_var(--color-shadow)]"
       >
         {onBack && (
           <button
             type="button"
             onClick={onBack}
-            style={{
-              alignSelf: 'flex-start',
-              background: 'none',
-              border: 'none',
-              color: 'inherit',
-              opacity: 0.6,
-              fontSize: 13,
-              cursor: 'pointer',
-              padding: 0,
-              marginBottom: 4,
-            }}
+            className="mb-1 cursor-pointer self-start border-none bg-transparent p-0 text-[13px] text-inherit opacity-60"
           >
             ← Retour à l’accueil
           </button>
         )}
 
-        <h1 style={{ margin: 0, fontSize: 22, fontWeight: 600 }}>
+        <h1 className="m-0 text-[22px] font-semibold">
           {mode === 'login' ? 'Connexion à Memo' : 'Créer un compte'}
         </h1>
 
         {mode === 'register' && (
-          <label htmlFor="login-name" style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <span style={{ fontSize: 12, opacity: 0.7 }}>Nom</span>
+          <label htmlFor="login-name" className="flex flex-col gap-1">
+            <span className="text-xs opacity-70">Nom</span>
             <input
               id="login-name"
               type="text"
@@ -113,16 +85,13 @@ export function Login({ initialMode = 'login', onBack, onSwitchMode }: LoginProp
               required
               aria-required="true"
               autoComplete="name"
-              style={inputStyle}
+              className={inputClass}
             />
           </label>
         )}
 
-        <label
-          htmlFor="login-identifier"
-          style={{ display: 'flex', flexDirection: 'column', gap: 4 }}
-        >
-          <span style={{ fontSize: 12, opacity: 0.7 }}>
+        <label htmlFor="login-identifier" className="flex flex-col gap-1">
+          <span className="text-xs opacity-70">
             {mode === 'login' ? 'Email ou pseudo' : 'Email'}
           </span>
           <input
@@ -135,15 +104,15 @@ export function Login({ initialMode = 'login', onBack, onSwitchMode }: LoginProp
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? 'login-error' : undefined}
             autoComplete={mode === 'login' ? 'username' : 'email'}
-            style={inputStyle}
+            className={inputClass}
           />
         </label>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <label htmlFor="login-password" style={{ fontSize: 12, opacity: 0.7 }}>
+        <div className="flex flex-col gap-1">
+          <label htmlFor="login-password" className="text-xs opacity-70">
             Mot de passe
           </label>
-          <div style={{ position: 'relative' }}>
+          <div className="relative">
             <input
               id="login-password"
               type={showPassword ? 'text' : 'password'}
@@ -155,45 +124,32 @@ export function Login({ initialMode = 'login', onBack, onSwitchMode }: LoginProp
               aria-describedby={passwordDescribedBy}
               minLength={mode === 'register' ? 12 : undefined}
               autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-              style={{ ...inputStyle, paddingRight: 36, width: '100%', boxSizing: 'border-box' }}
+              className={`${inputClass} box-border w-full pr-9`}
             />
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
               aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
               aria-pressed={showPassword}
-              style={{
-                position: 'absolute',
-                right: 8,
-                top: '50%',
-                transform: 'translateY(-50%)',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                padding: 2,
-                color: 'inherit',
-                opacity: 0.55,
-                display: 'flex',
-                alignItems: 'center',
-              }}
+              className="absolute right-2 top-1/2 flex -translate-y-1/2 cursor-pointer items-center border-none bg-transparent p-0.5 text-inherit opacity-[0.55]"
             >
               {showPassword ? <EyeOff /> : <Eye />}
             </button>
           </div>
           {mode === 'register' && (
-            <span id="login-pwd-hint" style={{ fontSize: 11, opacity: 0.55 }}>
+            <span id="login-pwd-hint" className="text-[11px] opacity-[0.55]">
               12 caractères minimum.
             </span>
           )}
         </div>
 
         {error && (
-          <div id="login-error" role="alert" style={{ color: 'var(--color-danger)', fontSize: 13 }}>
+          <div id="login-error" role="alert" className="text-[13px] text-[var(--color-danger)]">
             {error}
           </div>
         )}
 
-        <button type="submit" disabled={loading} style={buttonStyle}>
+        <button type="submit" disabled={loading} className={buttonClass}>
           {loading ? '…' : mode === 'login' ? 'Se connecter' : "S'inscrire"}
         </button>
 
@@ -207,14 +163,7 @@ export function Login({ initialMode = 'login', onBack, onSwitchMode }: LoginProp
             }
             setMode(mode === 'login' ? 'register' : 'login')
           }}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'inherit',
-            opacity: 0.6,
-            fontSize: 12,
-            cursor: 'pointer',
-          }}
+          className="cursor-pointer border-none bg-transparent text-xs text-inherit opacity-60"
         >
           {mode === 'login'
             ? 'Pas encore de compte ? Créez-en un'
@@ -225,26 +174,11 @@ export function Login({ initialMode = 'login', onBack, onSwitchMode }: LoginProp
   )
 }
 
-const inputStyle: React.CSSProperties = {
-  background: 'var(--color-surface-strong)',
-  border: '1px solid var(--color-line-strong)',
-  borderRadius: 6,
-  color: 'inherit',
-  padding: '8px 10px',
-  fontSize: 14,
-}
+const inputClass =
+  'rounded-md border border-[var(--color-line-strong)] bg-[var(--color-surface-strong)] px-2.5 py-2 text-sm text-inherit'
 
-const buttonStyle: React.CSSProperties = {
-  background: 'var(--color-accent)',
-  color: 'var(--color-on-accent)',
-  border: 'none',
-  borderRadius: 6,
-  padding: '10px 12px',
-  fontWeight: 600,
-  fontSize: 14,
-  cursor: 'pointer',
-  marginTop: 4,
-}
+const buttonClass =
+  'mt-1 cursor-pointer rounded-md border-none bg-[var(--color-accent)] px-3 py-2.5 text-sm font-semibold text-[var(--color-on-accent)]'
 
 function Eye() {
   return (

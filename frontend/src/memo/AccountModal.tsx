@@ -1,4 +1,4 @@
-import { useState, type CSSProperties } from 'react'
+import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Link } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
@@ -39,36 +39,49 @@ export function AccountModal({ onClose }: { onClose: () => void }) {
     }
   }
 
+  const buttonBase = 'rounded-md px-3.5 py-2 text-[13px] cursor-pointer'
+  const h3Base = 'text-sm mt-0 mb-1'
+
   return createPortal(
     <div
-      style={backdropStyle}
+      className="fixed inset-0 grid place-items-center z-[9000] p-6 bg-[oklch(0_0_0_/_0.5)]"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}
     >
-      <div style={boxStyle} role="dialog" aria-modal="true" aria-label="Mon compte">
-        <header style={headerStyle}>
-          <h2 style={titleStyle}>Mon compte</h2>
-          <button type="button" onClick={onClose} style={closeButtonStyle} aria-label="Fermer">
+      <div
+        className="flex flex-col gap-4 w-[min(480px,calc(100vw-48px))] max-h-[calc(100vh-48px)] overflow-y-auto rounded-2xl border border-[var(--color-line-strong)] p-[22px] bg-[var(--color-surface-strong)] text-[var(--color-text)]"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Mon compte"
+      >
+        <header className="flex items-center justify-between">
+          <h2 className="text-lg m-0">Mon compte</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-7 h-7 text-lg leading-none cursor-pointer rounded-md border border-[var(--color-line-strong)] bg-transparent text-inherit"
+            aria-label="Fermer"
+          >
             ×
           </button>
         </header>
 
         {user && (
-          <div style={userBoxStyle}>
-            <div style={{ fontWeight: 600 }}>{user.name}</div>
-            <div style={{ fontSize: 13, opacity: 0.6 }}>{user.email}</div>
+          <div className="p-3 rounded-lg bg-[var(--color-overlay)]">
+            <div className="font-semibold">{user.name}</div>
+            <div className="text-[13px] opacity-60">{user.email}</div>
           </div>
         )}
 
         <section>
-          <h3 style={h3Style}>Mes données</h3>
-          <p style={textStyle}>
+          <h3 className={h3Base}>Mes données</h3>
+          <p className="text-[13px] opacity-75 leading-[1.6] mt-0 mb-2.5">
             Téléchargez l’ensemble de vos données au format JSON (droit à la portabilité).
           </p>
           <button
             type="button"
-            style={primaryButtonStyle}
+            className={`${buttonBase} border-none bg-[var(--color-accent)] text-[var(--color-on-accent)]`}
             onClick={handleExport}
             disabled={exportAccount.isPending}
           >
@@ -76,30 +89,34 @@ export function AccountModal({ onClose }: { onClose: () => void }) {
           </button>
         </section>
 
-        <section style={dangerZoneStyle}>
-          <h3 style={{ ...h3Style, color: 'var(--color-danger)' }}>Supprimer mon compte</h3>
-          <p style={textStyle}>
+        <section className="border-t border-[var(--color-line)] pt-4">
+          <h3 className={`${h3Base} text-[var(--color-danger)]`}>Supprimer mon compte</h3>
+          <p className="text-[13px] opacity-75 leading-[1.6] mt-0 mb-2.5">
             Votre compte sera immédiatement désactivé, puis définitivement supprimé après 30 jours.
             Cette action est irréversible.
           </p>
           {confirming ? (
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <div className="flex gap-2 flex-wrap">
               <button
                 type="button"
-                style={dangerButtonStyle}
+                className={`${buttonBase} border-none bg-[var(--color-danger)] text-white`}
                 onClick={handleDelete}
                 disabled={deleteAccount.isPending}
               >
                 {deleteAccount.isPending ? 'Suppression…' : 'Confirmer la suppression'}
               </button>
-              <button type="button" style={ghostButtonStyle} onClick={() => setConfirming(false)}>
+              <button
+                type="button"
+                className={`${buttonBase} bg-transparent border border-[var(--color-line-strong)] text-inherit`}
+                onClick={() => setConfirming(false)}
+              >
                 Annuler
               </button>
             </div>
           ) : (
             <button
               type="button"
-              style={dangerOutlineButtonStyle}
+              className={`${buttonBase} bg-transparent border border-[var(--color-danger)] text-[var(--color-danger)]`}
               onClick={() => setConfirming(true)}
             >
               Supprimer mon compte
@@ -107,13 +124,21 @@ export function AccountModal({ onClose }: { onClose: () => void }) {
           )}
         </section>
 
-        {error && <div style={errorStyle}>{error}</div>}
+        {error && <div className="text-[12.5px] text-[var(--color-danger)]">{error}</div>}
 
-        <footer style={footerStyle}>
-          <Link to="/mentions-legales" style={linkStyle} onClick={onClose}>
+        <footer className="flex gap-4 flex-wrap border-t border-[var(--color-line)] pt-3.5 text-[12.5px]">
+          <Link
+            to="/mentions-legales"
+            className="no-underline text-[var(--color-accent)]"
+            onClick={onClose}
+          >
             Mentions légales
           </Link>
-          <Link to="/confidentialite" style={linkStyle} onClick={onClose}>
+          <Link
+            to="/confidentialite"
+            className="no-underline text-[var(--color-accent)]"
+            onClick={onClose}
+          >
             Politique de confidentialité
           </Link>
         </footer>
@@ -122,105 +147,3 @@ export function AccountModal({ onClose }: { onClose: () => void }) {
     document.body,
   )
 }
-
-const backdropStyle: CSSProperties = {
-  position: 'fixed',
-  inset: 0,
-  background: 'oklch(0 0 0 / 0.5)',
-  display: 'grid',
-  placeItems: 'center',
-  zIndex: 9000,
-  padding: 24,
-}
-const boxStyle: CSSProperties = {
-  width: 'min(480px, calc(100vw - 48px))',
-  background: 'var(--color-surface-strong)',
-  border: '1px solid var(--color-line-strong)',
-  borderRadius: 16,
-  padding: 22,
-  color: 'var(--color-text)',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 16,
-  maxHeight: 'calc(100vh - 48px)',
-  overflowY: 'auto',
-}
-const headerStyle: CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-}
-const titleStyle: CSSProperties = { fontSize: 18, margin: 0 }
-const closeButtonStyle: CSSProperties = {
-  background: 'transparent',
-  border: '1px solid var(--color-line-strong)',
-  color: 'inherit',
-  borderRadius: 6,
-  width: 28,
-  height: 28,
-  fontSize: 18,
-  lineHeight: 1,
-  cursor: 'pointer',
-}
-const userBoxStyle: CSSProperties = {
-  padding: 12,
-  borderRadius: 8,
-  background: 'var(--color-overlay)',
-}
-const h3Style: CSSProperties = { fontSize: 14, margin: '0 0 4px' }
-const textStyle: CSSProperties = {
-  fontSize: 13,
-  opacity: 0.75,
-  lineHeight: 1.6,
-  margin: '0 0 10px',
-}
-const primaryButtonStyle: CSSProperties = {
-  background: 'var(--color-accent)',
-  color: 'var(--color-on-accent)',
-  border: 'none',
-  borderRadius: 6,
-  padding: '8px 14px',
-  fontSize: 13,
-  cursor: 'pointer',
-}
-const dangerZoneStyle: CSSProperties = {
-  borderTop: '1px solid var(--color-line)',
-  paddingTop: 16,
-}
-const dangerButtonStyle: CSSProperties = {
-  background: 'var(--color-danger)',
-  color: 'white',
-  border: 'none',
-  borderRadius: 6,
-  padding: '8px 14px',
-  fontSize: 13,
-  cursor: 'pointer',
-}
-const dangerOutlineButtonStyle: CSSProperties = {
-  background: 'transparent',
-  color: 'var(--color-danger)',
-  border: '1px solid var(--color-danger)',
-  borderRadius: 6,
-  padding: '8px 14px',
-  fontSize: 13,
-  cursor: 'pointer',
-}
-const ghostButtonStyle: CSSProperties = {
-  background: 'transparent',
-  border: '1px solid var(--color-line-strong)',
-  color: 'inherit',
-  borderRadius: 6,
-  padding: '8px 14px',
-  fontSize: 13,
-  cursor: 'pointer',
-}
-const errorStyle: CSSProperties = { fontSize: 12.5, color: 'var(--color-danger)' }
-const footerStyle: CSSProperties = {
-  display: 'flex',
-  gap: 16,
-  flexWrap: 'wrap',
-  borderTop: '1px solid var(--color-line)',
-  paddingTop: 14,
-  fontSize: 12.5,
-}
-const linkStyle: CSSProperties = { color: 'var(--color-accent)', textDecoration: 'none' }

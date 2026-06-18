@@ -53,17 +53,13 @@ export function NoteEditor({ noteId }: { noteId: string }) {
     }
   }, [])
 
-  if (note.isPending) return <div style={{ opacity: 0.5 }}>Chargement…</div>
+  if (note.isPending) return <div className="opacity-50">Chargement…</div>
   if (note.isError)
-    return <div style={{ color: 'var(--color-danger)' }}>Impossible de charger la note.</div>
+    return <div className="text-[var(--color-danger)]">Impossible de charger la note.</div>
 
   return (
-    <article
-      style={{ maxWidth: 760, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 16 }}
-    >
-      <header
-        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}
-      >
+    <article className="mx-auto flex max-w-[760px] flex-col gap-4">
+      <header className="flex items-center justify-between gap-4">
         <input
           value={title}
           onChange={(e) => {
@@ -73,15 +69,7 @@ export function NoteEditor({ noteId }: { noteId: string }) {
             realtime.sendLive({ title: e.target.value })
           }}
           placeholder="Titre"
-          style={{
-            background: 'transparent',
-            border: 'none',
-            color: 'inherit',
-            fontSize: 28,
-            fontWeight: 700,
-            outline: 'none',
-            flex: 1,
-          }}
+          className="flex-1 border-none bg-transparent text-[28px] font-bold text-inherit outline-none"
         />
         <PresenceAvatars presence={realtime.presence} />
         <SaveStatus status={autosave.status} onFlush={() => void autosave.flush()} />
@@ -107,32 +95,19 @@ export function NoteEditor({ noteId }: { noteId: string }) {
 function PresenceAvatars({ presence }: { presence: Presence[] }) {
   if (presence.length === 0) return null
   return (
-    <div style={{ display: 'flex', gap: -4 }}>
+    <div className="flex">
       {presence.slice(0, 5).map((p, i) => (
         <span
           key={p.socketId}
           title={p.name}
-          style={{
-            width: 28,
-            height: 28,
-            borderRadius: '50%',
-            background: colorForUser(p.userId),
-            color: 'var(--color-on-accent)',
-            display: 'inline-grid',
-            placeItems: 'center',
-            fontSize: 11,
-            fontWeight: 600,
-            border: '2px solid var(--color-bg)',
-            marginLeft: i === 0 ? 0 : -8,
-          }}
+          className="inline-grid h-7 w-7 place-items-center rounded-full border-2 border-[var(--color-bg)] text-[11px] font-semibold text-[var(--color-on-accent)]"
+          style={{ background: colorForUser(p.userId), marginLeft: i === 0 ? 0 : -8 }}
         >
           {initials(p.name)}
         </span>
       ))}
       {presence.length > 5 && (
-        <span style={{ fontSize: 11, opacity: 0.6, alignSelf: 'center', marginLeft: 4 }}>
-          +{presence.length - 5}
-        </span>
+        <span className="ml-1 self-center text-[11px] opacity-60">+{presence.length - 5}</span>
       )}
     </div>
   )
@@ -157,22 +132,12 @@ function colorForUser(userId: string): string {
 
 function SaveStatus({ status, onFlush }: { status: AutosaveStatus; onFlush: () => void }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-      <span style={{ fontSize: 12, opacity: 0.6, minWidth: 80, textAlign: 'right' }}>
-        {labelFor(status)}
-      </span>
+    <div className="flex items-center gap-3">
+      <span className="min-w-20 text-right text-xs opacity-60">{labelFor(status)}</span>
       <button
         type="button"
         onClick={onFlush}
-        style={{
-          background: 'var(--color-accent-soft)',
-          border: '1px solid var(--color-accent-border)',
-          color: 'inherit',
-          padding: '6px 10px',
-          fontSize: 12,
-          borderRadius: 4,
-          cursor: 'pointer',
-        }}
+        className="cursor-pointer rounded border border-[var(--color-accent-border)] bg-[var(--color-accent-soft)] px-2.5 py-1.5 text-xs text-inherit"
       >
         Enregistrer
       </button>

@@ -7,14 +7,14 @@ import {
 import type { WorkspaceRole } from '../../lib/types'
 import {
   SectionHeader,
-  sectionStyle,
-  listStyle,
-  listItemStyle,
-  rowStyle,
-  rowActionStyle,
-  smallInputStyle,
-  smallButtonStyle,
-  loadingStyle,
+  sectionClass,
+  listClass,
+  listItemClass,
+  rowClass,
+  rowActionClass,
+  smallInputClass,
+  smallButtonClass,
+  loadingClass,
 } from './common'
 
 export function WorkspaceSection({
@@ -70,7 +70,7 @@ export function WorkspaceSection({
   }
 
   return (
-    <section style={sectionStyle}>
+    <section className={sectionClass}>
       <SectionHeader title="Workspaces" onAdd={() => setCreating((v) => !v)} />
       {creating && (
         <form
@@ -82,33 +82,33 @@ export function WorkspaceSection({
             setName('')
             setCreating(false)
           }}
-          style={{ display: 'flex', gap: 4 }}
+          className="flex gap-1"
         >
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Nom du workspace"
-            style={smallInputStyle}
+            className={smallInputClass}
             autoFocus
           />
-          <button type="submit" style={smallButtonStyle} disabled={create.isPending}>
+          <button type="submit" className={smallButtonClass} disabled={create.isPending}>
             +
           </button>
         </form>
       )}
       {isLoading ? (
-        <div style={loadingStyle}>…</div>
+        <div className={loadingClass}>…</div>
       ) : (
-        <ul style={listStyle} aria-label="Workspaces">
+        <ul className={listClass} aria-label="Workspaces">
           {workspaces.map((ws) => (
-            <li key={ws.id} style={rowStyle}>
+            <li key={ws.id} className={rowClass}>
               {editingId === ws.id ? (
                 <form
                   onSubmit={(e) => {
                     e.preventDefault()
                     void commitEdit()
                   }}
-                  style={{ display: 'flex', flex: 1 }}
+                  className="flex flex-1"
                 >
                   <input
                     value={editName}
@@ -117,7 +117,7 @@ export function WorkspaceSection({
                     onKeyDown={(e) => {
                       if (e.key === 'Escape') setEditingId(null)
                     }}
-                    style={smallInputStyle}
+                    className={smallInputClass}
                     autoFocus
                   />
                 </form>
@@ -127,12 +127,9 @@ export function WorkspaceSection({
                     type="button"
                     onClick={() => onSelect(ws.id)}
                     aria-current={ws.id === selectedId ? true : undefined}
-                    style={{
-                      ...listItemStyle,
-                      flex: 1,
-                      width: 'auto',
-                      background: ws.id === selectedId ? 'var(--color-accent-soft)' : 'transparent',
-                    }}
+                    className={`${listItemClass} w-auto flex-1 ${
+                      ws.id === selectedId ? 'bg-[var(--color-accent-soft)]' : 'bg-transparent'
+                    }`}
                   >
                     {ws.name}
                   </button>
@@ -142,7 +139,7 @@ export function WorkspaceSection({
                         type="button"
                         onClick={() => startEdit(ws.id, ws.name)}
                         title="Renommer le workspace"
-                        style={rowActionStyle}
+                        className={rowActionClass}
                       >
                         ✎
                       </button>
@@ -150,7 +147,7 @@ export function WorkspaceSection({
                         type="button"
                         onClick={() => onDelete(ws.id, ws.name)}
                         title="Supprimer le workspace"
-                        style={rowActionStyle}
+                        className={rowActionClass}
                         disabled={del.isPending}
                       >
                         ×

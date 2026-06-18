@@ -47,23 +47,13 @@ function ImageNodeView({ node, updateAttributes, selected, editor }: NodeViewPro
   }
 
   return (
-    <NodeViewWrapper
-      as="div"
-      style={{ margin: '12px 0' }}
-      data-attachment={isInternal ? 'true' : undefined}
-    >
+    <NodeViewWrapper as="div" className="my-3" data-attachment={isInternal ? 'true' : undefined}>
       {resolvedSrc ? (
         <div
           ref={wrapperRef}
-          style={{
-            position: 'relative',
-            display: 'inline-block',
-            maxWidth: '100%',
-            lineHeight: 0,
-            borderRadius: 6,
-            outline: selected ? '2px solid var(--color-accent)' : 'none',
-            outlineOffset: 2,
-          }}
+          className={`relative inline-block max-w-full rounded-md leading-[0] ${
+            selected ? 'outline outline-2 outline-offset-2 outline-[var(--color-accent)]' : ''
+          }`}
         >
           <img
             src={resolvedSrc}
@@ -71,38 +61,21 @@ function ImageNodeView({ node, updateAttributes, selected, editor }: NodeViewPro
             draggable={false}
             loading="lazy"
             decoding="async"
-            style={{
-              width: displayWidth ? `${displayWidth}px` : 'auto',
-              maxWidth: '100%',
-              height: 'auto',
-              display: 'block',
-              borderRadius: 6,
-              border: '1px solid var(--color-surface-strong)',
-            }}
+            className="block h-auto max-w-full rounded-md border border-[var(--color-surface-strong)]"
+            style={{ width: displayWidth ? `${displayWidth}px` : 'auto' }}
           />
           {editable && (
             <span
               onPointerDown={startResize}
               title="Redimensionner"
-              style={{
-                position: 'absolute',
-                right: -6,
-                bottom: -6,
-                width: 14,
-                height: 14,
-                borderRadius: '50%',
-                background: 'var(--color-accent)',
-                border: '2px solid var(--color-bg)',
-                cursor: 'nwse-resize',
-                touchAction: 'none',
-              }}
+              className="absolute bottom-[-6px] right-[-6px] h-3.5 w-3.5 cursor-[nwse-resize] touch-none rounded-full border-2 border-[var(--color-bg)] bg-[var(--color-accent)]"
             />
           )}
         </div>
       ) : error ? (
-        <span style={{ color: 'var(--color-danger)', fontSize: 12 }}>Image indisponible</span>
+        <span className="text-xs text-[var(--color-danger)]">Image indisponible</span>
       ) : (
-        <span style={{ opacity: 0.4, fontSize: 12 }}>Chargement…</span>
+        <span className="text-xs opacity-40">Chargement…</span>
       )}
     </NodeViewWrapper>
   )

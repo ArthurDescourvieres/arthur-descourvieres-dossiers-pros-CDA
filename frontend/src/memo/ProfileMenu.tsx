@@ -14,25 +14,13 @@ function MenuItem({
   danger?: boolean
   children: React.ReactNode
 }) {
-  const [hovered, setHovered] = useState(false)
   return (
     <button
       type="button"
       onClick={onClick}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        display: 'block',
-        width: '100%',
-        border: 'none',
-        textAlign: 'left',
-        padding: '9px 14px',
-        fontSize: 13,
-        cursor: 'pointer',
-        color: danger ? 'var(--color-danger, #c0392b)' : 'inherit',
-        background: hovered ? 'var(--color-line)' : 'transparent',
-        transition: 'background 0.12s',
-      }}
+      className={`block w-full border-none text-left px-3.5 py-[9px] text-[13px] cursor-pointer bg-transparent transition-colors duration-[120ms] hover:bg-[var(--color-line)] ${
+        danger ? 'text-[var(--color-danger,#c0392b)]' : 'text-inherit'
+      }`}
     >
       {children}
     </button>
@@ -55,23 +43,12 @@ export function ProfileMenu({ onSettings, onLogout }: Props) {
   }, [open])
 
   return (
-    <div ref={ref} style={{ position: 'relative' }}>
+    <div ref={ref} className="relative">
       <button
         type="button"
         aria-label="Profil"
         onClick={() => setOpen((v) => !v)}
-        style={{
-          background: 'transparent',
-          border: 'none',
-          cursor: 'pointer',
-          padding: 4,
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'var(--color-text)',
-          opacity: 0.75,
-        }}
+        className="flex items-center justify-center p-1 rounded-full bg-transparent border-none cursor-pointer opacity-75 text-[var(--color-text)]"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -90,20 +67,7 @@ export function ProfileMenu({ onSettings, onLogout }: Props) {
       </button>
 
       {open && (
-        <div
-          style={{
-            position: 'absolute',
-            top: 'calc(100% + 6px)',
-            right: 0,
-            minWidth: 160,
-            background: 'var(--color-surface-1)',
-            border: '1px solid var(--color-line-strong)',
-            borderRadius: 8,
-            boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
-            zIndex: 200,
-            overflow: 'hidden',
-          }}
-        >
+        <div className="absolute top-[calc(100%+6px)] right-0 min-w-[160px] overflow-hidden rounded-lg border border-[var(--color-line-strong)] bg-[var(--color-surface-1)] shadow-[0_4px_16px_rgba(0,0,0,0.15)] z-[200]">
           <MenuItem
             onClick={() => {
               setOpen(false)
@@ -112,7 +76,7 @@ export function ProfileMenu({ onSettings, onLogout }: Props) {
           >
             Paramètres
           </MenuItem>
-          <div style={{ height: 1, background: 'var(--color-line)' }} />
+          <div className="h-px bg-[var(--color-line)]" />
           <MenuItem
             danger
             onClick={() => {

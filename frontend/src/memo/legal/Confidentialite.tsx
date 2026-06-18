@@ -1,4 +1,3 @@
-import type { CSSProperties } from 'react'
 import { LegalPage, LegalH2, LegalP } from './LegalPage'
 
 /**
@@ -20,7 +19,7 @@ export function Confidentialite() {
       </LegalP>
 
       <LegalH2>Données collectées</LegalH2>
-      <ul style={listStyle}>
+      <ul className="mb-[10px] pl-[22px] text-[14.5px] leading-[1.7] opacity-85">
         <li>Adresse e-mail (identification et connexion) ;</li>
         <li>Nom d’affichage ;</li>
         <li>Mot de passe, stocké uniquement sous forme de hachage argon2id — jamais en clair ;</li>
@@ -49,7 +48,7 @@ export function Confidentialite() {
       </LegalP>
 
       <LegalH2>Sécurité</LegalH2>
-      <ul style={listStyle}>
+      <ul className="mb-[10px] pl-[22px] text-[14.5px] leading-[1.7] opacity-85">
         <li>Mots de passe hachés avec argon2id et vérifiés contre les fuites connues (HIBP) ;</li>
         <li>Sessions révocables et communication chiffrée (HTTPS) ;</li>
         <li>Assainissement des contenus (protection contre les injections XSS).</li>
@@ -61,7 +60,7 @@ export function Confidentialite() {
         portabilité et d’opposition. Deux d’entre eux s’exercent directement depuis l’écran « Mon
         compte » :
       </LegalP>
-      <ul style={listStyle}>
+      <ul className="mb-[10px] pl-[22px] text-[14.5px] leading-[1.7] opacity-85">
         <li>
           <strong>Portabilité</strong> : « Exporter mes données » télécharge l’ensemble de vos
           données au format JSON ;
@@ -87,12 +86,4 @@ export function Confidentialite() {
       </LegalP>
     </LegalPage>
   )
-}
-
-const listStyle: CSSProperties = {
-  fontSize: 14.5,
-  lineHeight: 1.7,
-  opacity: 0.85,
-  margin: '0 0 10px',
-  paddingLeft: 22,
 }

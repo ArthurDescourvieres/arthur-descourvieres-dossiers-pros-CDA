@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 
 /**
@@ -15,22 +15,22 @@ export function LegalPage({
   children: ReactNode
 }) {
   return (
-    <div style={pageStyle}>
-      <div style={containerStyle}>
-        <Link to="/" style={backLinkStyle}>
+    <div className="min-h-screen overflow-y-auto bg-[var(--color-bg)] px-6 py-12 text-[var(--color-text)]">
+      <div className="mx-auto max-w-[760px]">
+        <Link to="/" className="text-[13px] text-[var(--color-accent)] no-underline">
           ← Retour à l’accueil
         </Link>
-        <h1 style={h1Style}>{title}</h1>
-        <p style={updatedStyle}>Dernière mise à jour : {updatedAt}</p>
+        <h1 className="mb-1 mt-5 text-[30px] leading-[1.2]">{title}</h1>
+        <p className="mb-7 text-[12.5px] opacity-50">Dernière mise à jour : {updatedAt}</p>
         <div>{children}</div>
-        <footer style={footerStyle}>
-          <Link to="/mentions-legales" style={footerLinkStyle}>
+        <footer className="mt-12 flex flex-wrap items-center gap-4 border-t border-[var(--color-line)] pt-5 text-[13px]">
+          <Link to="/mentions-legales" className="text-[var(--color-accent)] no-underline">
             Mentions légales
           </Link>
-          <Link to="/confidentialite" style={footerLinkStyle}>
+          <Link to="/confidentialite" className="text-[var(--color-accent)] no-underline">
             Politique de confidentialité
           </Link>
-          <span style={{ opacity: 0.5 }}>© 2026 Memo</span>
+          <span className="opacity-50">© 2026 Memo</span>
         </footer>
       </div>
     </div>
@@ -38,38 +38,9 @@ export function LegalPage({
 }
 
 export function LegalH2({ children }: { children: ReactNode }) {
-  return <h2 style={h2Style}>{children}</h2>
+  return <h2 className="mb-2 mt-7 text-lg">{children}</h2>
 }
 
 export function LegalP({ children }: { children: ReactNode }) {
-  return <p style={pStyle}>{children}</p>
+  return <p className="mb-[10px] text-[14.5px] leading-[1.7] opacity-85">{children}</p>
 }
-
-const pageStyle: CSSProperties = {
-  minHeight: '100vh',
-  background: 'var(--color-bg)',
-  color: 'var(--color-text)',
-  padding: '48px 24px',
-  overflowY: 'auto',
-}
-const containerStyle: CSSProperties = { maxWidth: 760, margin: '0 auto' }
-const backLinkStyle: CSSProperties = {
-  color: 'var(--color-accent)',
-  fontSize: 13,
-  textDecoration: 'none',
-}
-const h1Style: CSSProperties = { fontSize: 30, margin: '20px 0 4px', lineHeight: 1.2 }
-const updatedStyle: CSSProperties = { fontSize: 12.5, opacity: 0.5, margin: '0 0 28px' }
-const h2Style: CSSProperties = { fontSize: 18, margin: '28px 0 8px' }
-const pStyle: CSSProperties = { fontSize: 14.5, lineHeight: 1.7, opacity: 0.85, margin: '0 0 10px' }
-const footerStyle: CSSProperties = {
-  display: 'flex',
-  gap: 16,
-  flexWrap: 'wrap',
-  alignItems: 'center',
-  marginTop: 48,
-  paddingTop: 20,
-  borderTop: '1px solid var(--color-line)',
-  fontSize: 13,
-}
-const footerLinkStyle: CSSProperties = { color: 'var(--color-accent)', textDecoration: 'none' }

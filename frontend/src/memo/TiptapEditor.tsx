@@ -52,7 +52,7 @@ export function TiptapEditor({
     editor.commands.setContent(remoteContent, { emitUpdate: false })
   }, [editor, remoteContent])
 
-  if (!editor) return <div style={{ padding: 24, opacity: 0.5 }}>Chargement de l'éditeur…</div>
+  if (!editor) return <div className="p-6 opacity-50">Chargement de l'éditeur…</div>
 
   const handleUpload = async (file: File) => {
     try {
@@ -72,7 +72,7 @@ export function TiptapEditor({
   }
 
   return (
-    <div className="tiptap-wrapper" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div className="tiptap-wrapper flex flex-col gap-3">
       <Toolbar editor={editor} onUpload={handleUpload} uploading={upload.isPending} />
       <EditorContent editor={editor} className="tiptap-content" />
     </div>
@@ -82,6 +82,8 @@ export function TiptapEditor({
 function defaultDoc(): TiptapDoc {
   return { type: 'doc', content: [{ type: 'paragraph' }] }
 }
+
+const separatorClass = 'mx-1 w-px bg-[var(--color-line-strong)]'
 
 function Toolbar({
   editor,
@@ -97,27 +99,21 @@ function Toolbar({
     <button
       type="button"
       onClick={onClick}
-      style={{
-        background: isActive ? 'var(--color-accent-soft)' : 'var(--color-surface)',
-        color: 'inherit',
-        border: '1px solid var(--color-line)',
-        borderRadius: 4,
-        padding: '4px 8px',
-        fontSize: 12,
-        cursor: 'pointer',
-      }}
+      className={`${
+        isActive ? 'bg-[var(--color-accent-soft)]' : 'bg-[var(--color-surface)]'
+      } cursor-pointer rounded border border-[var(--color-line)] px-2 py-1 text-xs text-inherit`}
     >
       {label}
     </button>
   )
 
   return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+    <div className="flex flex-wrap gap-1.5">
       {btn('B', editor.isActive('bold'), () => editor.chain().focus().toggleBold().run())}
       {btn('I', editor.isActive('italic'), () => editor.chain().focus().toggleItalic().run())}
       {btn('U', editor.isActive('underline'), () => editor.chain().focus().toggleUnderline().run())}
       {btn('S', editor.isActive('strike'), () => editor.chain().focus().toggleStrike().run())}
-      <span style={separatorStyle} />
+      <span className={separatorClass} />
       {btn('H1', editor.isActive('heading', { level: 1 }), () =>
         editor.chain().focus().toggleHeading({ level: 1 }).run(),
       )}
@@ -127,7 +123,7 @@ function Toolbar({
       {btn('H3', editor.isActive('heading', { level: 3 }), () =>
         editor.chain().focus().toggleHeading({ level: 3 }).run(),
       )}
-      <span style={separatorStyle} />
+      <span className={separatorClass} />
       {btn('• List', editor.isActive('bulletList'), () =>
         editor.chain().focus().toggleBulletList().run(),
       )}
@@ -137,12 +133,12 @@ function Toolbar({
       {btn('Code', editor.isActive('codeBlock'), () =>
         editor.chain().focus().toggleCodeBlock().run(),
       )}
-      <span style={separatorStyle} />
+      <span className={separatorClass} />
       <input
         ref={fileInputRef}
         type="file"
         accept="image/jpeg,image/png,image/gif,image/webp,application/pdf"
-        style={{ display: 'none' }}
+        className="hidden"
         onChange={(e) => {
           const file = e.target.files?.[0]
           if (file) onUpload(file)
@@ -153,24 +149,12 @@ function Toolbar({
         type="button"
         onClick={() => fileInputRef.current?.click()}
         disabled={uploading}
-        style={{
-          background: 'var(--color-surface)',
-          color: 'inherit',
-          border: '1px solid var(--color-line)',
-          borderRadius: 4,
-          padding: '4px 8px',
-          fontSize: 12,
-          cursor: uploading ? 'wait' : 'pointer',
-        }}
+        className={`${
+          uploading ? 'cursor-wait' : 'cursor-pointer'
+        } rounded border border-[var(--color-line)] bg-[var(--color-surface)] px-2 py-1 text-xs text-inherit`}
       >
         {uploading ? '…' : '+ Image'}
       </button>
     </div>
   )
-}
-
-const separatorStyle: React.CSSProperties = {
-  width: 1,
-  background: 'var(--color-line-strong)',
-  margin: '0 4px',
 }

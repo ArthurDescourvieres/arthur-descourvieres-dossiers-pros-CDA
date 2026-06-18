@@ -2,15 +2,15 @@ import { useState } from 'react'
 import { useCreateFolder, useDeleteFolder, useUpdateFolder } from '../../hooks/useWorkspaces'
 import {
   SectionHeader,
-  sectionStyle,
-  listStyle,
-  listItemStyle,
-  rowStyle,
-  rowActionStyle,
-  smallInputStyle,
-  smallButtonStyle,
-  loadingStyle,
-  emptyStyle,
+  sectionClass,
+  listClass,
+  listItemClass,
+  rowClass,
+  rowActionClass,
+  smallInputClass,
+  smallButtonClass,
+  loadingClass,
+  emptyClass,
 } from './common'
 
 export function FolderSection({
@@ -65,7 +65,7 @@ export function FolderSection({
   }
 
   return (
-    <section style={sectionStyle}>
+    <section className={sectionClass}>
       <SectionHeader title="Dossiers" onAdd={() => setCreating((v) => !v)} />
       {creating && (
         <form
@@ -77,35 +77,35 @@ export function FolderSection({
             setName('')
             setCreating(false)
           }}
-          style={{ display: 'flex', gap: 4 }}
+          className="flex gap-1"
         >
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Nom du dossier"
-            style={smallInputStyle}
+            className={smallInputClass}
             autoFocus
           />
-          <button type="submit" style={smallButtonStyle} disabled={create.isPending}>
+          <button type="submit" className={smallButtonClass} disabled={create.isPending}>
             +
           </button>
         </form>
       )}
       {isLoading ? (
-        <div style={loadingStyle}>…</div>
+        <div className={loadingClass}>…</div>
       ) : folders.length === 0 ? (
-        <div style={emptyStyle}>Aucun dossier</div>
+        <div className={emptyClass}>Aucun dossier</div>
       ) : (
-        <ul style={listStyle} aria-label="Dossiers">
+        <ul className={listClass} aria-label="Dossiers">
           {folders.map((f) => (
-            <li key={f.id} style={rowStyle}>
+            <li key={f.id} className={rowClass}>
               {editingId === f.id ? (
                 <form
                   onSubmit={(e) => {
                     e.preventDefault()
                     void commitEdit()
                   }}
-                  style={{ display: 'flex', flex: 1 }}
+                  className="flex flex-1"
                 >
                   <input
                     value={editName}
@@ -114,7 +114,7 @@ export function FolderSection({
                     onKeyDown={(e) => {
                       if (e.key === 'Escape') setEditingId(null)
                     }}
-                    style={smallInputStyle}
+                    className={smallInputClass}
                     autoFocus
                   />
                 </form>
@@ -124,12 +124,9 @@ export function FolderSection({
                     type="button"
                     onClick={() => onSelect(f.id)}
                     aria-current={f.id === selectedId ? true : undefined}
-                    style={{
-                      ...listItemStyle,
-                      flex: 1,
-                      width: 'auto',
-                      background: f.id === selectedId ? 'var(--color-accent-soft)' : 'transparent',
-                    }}
+                    className={`${listItemClass} w-auto flex-1 ${
+                      f.id === selectedId ? 'bg-[var(--color-accent-soft)]' : 'bg-transparent'
+                    }`}
                   >
                     {f.name}
                   </button>
@@ -139,7 +136,7 @@ export function FolderSection({
                         type="button"
                         onClick={() => startEdit(f.id, f.name)}
                         title="Renommer le dossier"
-                        style={rowActionStyle}
+                        className={rowActionClass}
                       >
                         ✎
                       </button>
@@ -147,7 +144,7 @@ export function FolderSection({
                         type="button"
                         onClick={() => onDelete(f.id, f.name)}
                         title="Supprimer le dossier"
-                        style={rowActionStyle}
+                        className={rowActionClass}
                         disabled={del.isPending}
                       >
                         ×

@@ -14,39 +14,20 @@ export function SearchBox({
   const showResults = query.trim().length > 0
 
   return (
-    <section style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+    <section className="flex flex-col gap-1.5">
       <input
         type="search"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Rechercher dans le workspace…"
-        style={{
-          background: 'var(--color-surface-strong)',
-          border: '1px solid var(--color-line-strong)',
-          borderRadius: 4,
-          color: 'inherit',
-          padding: '6px 8px',
-          fontSize: 12,
-        }}
+        className="rounded border border-[var(--color-line-strong)] bg-[var(--color-surface-strong)] px-2 py-1.5 text-xs text-inherit"
       />
       {showResults && (
-        <div
-          style={{
-            background: 'var(--color-surface)',
-            border: '1px solid var(--color-surface-strong)',
-            borderRadius: 4,
-            padding: 4,
-            maxHeight: 240,
-            overflow: 'auto',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 2,
-          }}
-        >
+        <div className="flex max-h-60 flex-col gap-0.5 overflow-auto rounded border border-[var(--color-surface-strong)] bg-[var(--color-surface)] p-1">
           {search.isPending ? (
-            <div style={{ opacity: 0.4, fontSize: 11, padding: 6 }}>Recherche…</div>
+            <div className="p-1.5 text-[11px] opacity-40">Recherche…</div>
           ) : !search.data || search.data.hits.length === 0 ? (
-            <div style={{ opacity: 0.4, fontSize: 11, padding: 6 }}>Aucun résultat</div>
+            <div className="p-1.5 text-[11px] opacity-40">Aucun résultat</div>
           ) : (
             search.data.hits.map((hit) => (
               <button
@@ -56,23 +37,12 @@ export function SearchBox({
                   onPick(hit)
                   setQuery('')
                 }}
-                style={{
-                  textAlign: 'left',
-                  background: 'transparent',
-                  border: 'none',
-                  color: 'inherit',
-                  padding: '4px 6px',
-                  borderRadius: 3,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 2,
-                }}
+                className="flex cursor-pointer flex-col gap-0.5 rounded-[3px] border-none bg-transparent px-1.5 py-1 text-left text-inherit"
               >
-                <span style={{ fontSize: 12, fontWeight: 500 }}>{hit.title || '(sans titre)'}</span>
+                <span className="text-xs font-medium">{hit.title || '(sans titre)'}</span>
                 {hit.snippet && (
                   <span
-                    style={{ fontSize: 11, opacity: 0.5 }}
+                    className="text-[11px] opacity-50"
                     // The server returns << / >> markers around matches.
                     dangerouslySetInnerHTML={{
                       __html: sanitizeHtml(highlightSnippet(hit.snippet)),

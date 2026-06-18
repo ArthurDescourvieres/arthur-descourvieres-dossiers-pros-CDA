@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useAcceptInvitation } from '../hooks/useInvitations'
 import { acceptInviteErrorMessage, roleLabel } from './inviteUtils'
 
@@ -15,6 +15,17 @@ function consumeInviteToken(): string | null {
   const url = window.location.pathname + (qs ? `?${qs}` : '') + window.location.hash
   window.history.replaceState(null, '', url)
   return token
+}
+
+// Maps each banner tone to its surface/border classes (per-state colors).
+function toneClass(state: BannerState): string {
+  if (state === 'success') {
+    return 'bg-[var(--color-accent-soft)] border-[var(--color-accent-border)]'
+  }
+  if (state === 'error') {
+    return 'bg-[color-mix(in_oklab,var(--color-danger)_14%,transparent)] border-[var(--color-danger)]'
+  }
+  return 'bg-[var(--color-surface)]'
 }
 
 // Mounted inside the authenticated shell: if the user landed on an invite
@@ -49,50 +60,23 @@ export function InviteAcceptBanner() {
   if (state === 'idle') return null
 
   return (
-    <div role="status" style={{ ...bannerStyle, ...toneStyle(state) }}>
-      <span style={{ fontSize: 13 }}>
+    <div
+      role="status"
+      className={`mx-auto mb-4 flex max-w-[760px] items-center justify-between gap-3 rounded-lg border border-[var(--color-line-strong)] px-3.5 py-2.5 ${toneClass(state)}`}
+    >
+      <span className="text-[13px]">
         {state === 'pending' ? 'Acceptation de l’invitation…' : message}
       </span>
       {state !== 'pending' && (
-        <button type="button" onClick={() => setState('idle')} style={dismissStyle} title="Fermer">
+        <button
+          type="button"
+          onClick={() => setState('idle')}
+          className="cursor-pointer border-none bg-transparent text-base leading-none text-inherit opacity-60"
+          title="Fermer"
+        >
           ×
         </button>
       )}
     </div>
   )
-}
-
-const bannerStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  gap: 12,
-  maxWidth: 760,
-  margin: '0 auto 16px',
-  padding: '10px 14px',
-  borderRadius: 8,
-  border: '1px solid var(--color-line-strong)',
-}
-
-function toneStyle(state: BannerState): CSSProperties {
-  if (state === 'success') {
-    return { background: 'var(--color-accent-soft)', borderColor: 'var(--color-accent-border)' }
-  }
-  if (state === 'error') {
-    return {
-      background: 'color-mix(in oklab, var(--color-danger) 14%, transparent)',
-      borderColor: 'var(--color-danger)',
-    }
-  }
-  return { background: 'var(--color-surface)' }
-}
-
-const dismissStyle: CSSProperties = {
-  background: 'transparent',
-  border: 'none',
-  color: 'inherit',
-  fontSize: 16,
-  cursor: 'pointer',
-  opacity: 0.6,
-  lineHeight: 1,
 }

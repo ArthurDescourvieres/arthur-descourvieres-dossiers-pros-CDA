@@ -2,15 +2,15 @@ import { useState } from 'react'
 import { useCreateNote, useDeleteNote } from '../../hooks/useWorkspaces'
 import {
   SectionHeader,
-  sectionStyle,
-  listStyle,
-  listItemStyle,
-  rowStyle,
-  rowActionStyle,
-  smallInputStyle,
-  smallButtonStyle,
-  loadingStyle,
-  emptyStyle,
+  sectionClass,
+  listClass,
+  listItemClass,
+  rowClass,
+  rowActionClass,
+  smallInputClass,
+  smallButtonClass,
+  loadingClass,
+  emptyClass,
 } from './common'
 
 export function NoteSection({
@@ -46,7 +46,7 @@ export function NoteSection({
   }
 
   return (
-    <section style={sectionStyle}>
+    <section className={sectionClass}>
       <SectionHeader title="Notes" onAdd={() => setCreating((v) => !v)} />
       {creating && (
         <form
@@ -58,38 +58,35 @@ export function NoteSection({
             setTitle('')
             setCreating(false)
           }}
-          style={{ display: 'flex', gap: 4 }}
+          className="flex gap-1"
         >
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Titre de la note"
-            style={smallInputStyle}
+            className={smallInputClass}
             autoFocus
           />
-          <button type="submit" style={smallButtonStyle} disabled={create.isPending}>
+          <button type="submit" className={smallButtonClass} disabled={create.isPending}>
             +
           </button>
         </form>
       )}
       {isLoading ? (
-        <div style={loadingStyle}>…</div>
+        <div className={loadingClass}>…</div>
       ) : notes.length === 0 ? (
-        <div style={emptyStyle}>Aucune note</div>
+        <div className={emptyClass}>Aucune note</div>
       ) : (
-        <ul style={listStyle} aria-label="Notes">
+        <ul className={listClass} aria-label="Notes">
           {notes.map((n) => (
-            <li key={n.id} style={rowStyle}>
+            <li key={n.id} className={rowClass}>
               <button
                 type="button"
                 onClick={() => onSelect(n.id)}
                 aria-current={n.id === selectedId ? true : undefined}
-                style={{
-                  ...listItemStyle,
-                  flex: 1,
-                  width: 'auto',
-                  background: n.id === selectedId ? 'var(--color-accent-soft)' : 'transparent',
-                }}
+                className={`${listItemClass} w-auto flex-1 ${
+                  n.id === selectedId ? 'bg-[var(--color-accent-soft)]' : 'bg-transparent'
+                }`}
               >
                 {n.title || '(sans titre)'}
               </button>
@@ -98,7 +95,7 @@ export function NoteSection({
                   type="button"
                   onClick={() => onDelete(n.id, n.title)}
                   title="Supprimer la note"
-                  style={rowActionStyle}
+                  className={rowActionClass}
                   disabled={del.isPending}
                 >
                   ×
