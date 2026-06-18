@@ -37,7 +37,13 @@ export const workspaceService = {
     const slug = await generateUniqueSlug(data.name)
     return prisma.$transaction(async (tx) => {
       const workspace = await tx.workspace.create({
-        data: { name: data.name, slug, description: data.description, ownerId },
+        data: {
+          name: data.name,
+          slug,
+          description: data.description,
+          icon: data.icon ?? null,
+          ownerId,
+        },
       })
       await tx.workspaceMember.create({
         data: { workspaceId: workspace.id, userId: ownerId, role: WorkspaceRole.OWNER },

@@ -2,15 +2,27 @@ import { z } from 'zod'
 import { WorkspaceRole } from '@prisma/client'
 import { normalizedText } from './common.js'
 
+// Nom d'icône Lucide en kebab-case (ex. "folder", "arrow-down-0-1"). On valide
+// uniquement la forme côté serveur (le catalogue Lucide vit côté client) ; un
+// nom inconnu retombera sur l'icône par défaut à l'affichage.
+const iconName = z
+  .string()
+  .trim()
+  .max(50)
+  .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "Nom d'icône invalide")
+
 // Nom de workspace : 3–50 caractères, trimmé + normalisé NFC (§7.3).
 export const createWorkspaceSchema = z.object({
   name: normalizedText(3, 50),
   description: z.string().trim().optional(),
+  icon: iconName.optional(),
 })
 
 export const updateWorkspaceSchema = z.object({
   name: normalizedText(3, 50).optional(),
   description: z.string().trim().optional(),
+  // null réinitialise l'icône (retour au rond blanc par défaut).
+  icon: iconName.nullable().optional(),
 })
 
 export const inviteMemberSchema = z.object({

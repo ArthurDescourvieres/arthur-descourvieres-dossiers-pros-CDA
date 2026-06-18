@@ -48,6 +48,7 @@ model Workspace {
   name        String
   slug        String            @unique
   description String?
+  icon        String?
   ownerId     String
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
