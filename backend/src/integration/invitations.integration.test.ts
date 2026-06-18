@@ -5,11 +5,14 @@ vi.mock('../lib/hibp.js', () => ({ isPasswordPwned: vi.fn(async () => false) }))
 import { app } from '../app.js'
 import { prisma } from '../lib/prisma.js'
 
-async function register(email: string): Promise<{ token: string; userId: string }> {
+async function register(
+  email: string,
+  name: string = email,
+): Promise<{ token: string; userId: string }> {
   const res = await app.request('/api/auth/register', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ name: email, email, password: 'a-strong-passphrase-123' }),
+    body: JSON.stringify({ name, email, password: 'a-strong-passphrase-123' }),
   })
   const body = (await res.json()) as { accessToken: string; user: { id: string } }
   return { token: body.accessToken, userId: body.user.id }
@@ -33,10 +36,10 @@ async function createWorkspace(token: string): Promise<string> {
   return ws.id
 }
 
-function invite(token: string, wsId: string, email: string, role = 'EDITOR') {
+function invite(token: string, wsId: string, identifier: string, role = 'EDITOR') {
   return authed(`/api/workspaces/${wsId}/invitations`, token, {
     method: 'POST',
-    body: { email, role },
+    body: { identifier, role },
   })
 }
 
@@ -98,5 +101,28 @@ describe('invitations (§12)', () => {
       method: 'POST',
     })
     expect(accept.status).toBe(410)
+  })
+
+  it('lets an OWNER invite by username (pseudo), then the named user can accept', async () => {
+    const owner = await register('owner-u@ex.com', 'owner-u')
+    const wsId = await createWorkspace(owner.token)
+    const invitee = await register('bob@ex.com', 'bob')
+
+    // Invite by username, not email — resolved to the account's email server-side.
+    const inv = await invite(owner.token, wsId, 'bob', 'EDITOR')
+    expect(inv.status).toBe(201)
+    const { token: inviteToken } = (await inv.json()) as { token: string }
+
+    const accept = await authed(`/api/invitations/${inviteToken}/accept`, invitee.token, {
+      method: 'POST',
+    })
+    expect(accept.status).toBe(201)
+  })
+
+  it('returns 404 when inviting an unknown username', async () => {
+    const owner = await register('owner-u2@ex.com', 'owner-u2')
+    const wsId = await createWorkspace(owner.token)
+    const inv = await invite(owner.token, wsId, 'no-such-pseudo', 'EDITOR')
+    expect(inv.status).toBe(404)
   })
 })

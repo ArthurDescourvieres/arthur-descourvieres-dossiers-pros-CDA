@@ -17,13 +17,20 @@ export const invitationController = {
     if (!result.success) return c.json({ error: result.error.flatten() }, 400)
 
     const invitedById = (c.get('jwtPayload') as { sub: string }).sub
-    const invitation = await invitationService.createInvitation(
-      workspaceId,
-      result.data.email,
-      result.data.role,
-      invitedById,
-    )
-    return c.json(invitation, 201)
+    try {
+      const invitation = await invitationService.createInvitation(
+        workspaceId,
+        result.data.identifier,
+        result.data.role,
+        invitedById,
+      )
+      return c.json(invitation, 201)
+    } catch (e) {
+      if (hasCode(e, 'USER_NOT_FOUND')) {
+        return c.json({ error: 'Aucun utilisateur ne correspond à ce pseudo.' }, 404)
+      }
+      throw e
+    }
   },
 
   async list(c: C) {
