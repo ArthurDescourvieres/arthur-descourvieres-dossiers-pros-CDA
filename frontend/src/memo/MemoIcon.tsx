@@ -1,5 +1,7 @@
 import {
   ArrowLeft,
+  Check,
+  ChevronDown,
   Feather,
   Image,
   Layers,
@@ -18,6 +20,8 @@ import {
 // N'ajouter ici que les icônes réellement utilisées par <MemoIcon name="..." />.
 const ICONS: Record<string, LucideIcon> = {
   'arrow-left': ArrowLeft,
+  check: Check,
+  'chevron-down': ChevronDown,
   feather: Feather,
   image: Image,
   layers: Layers,

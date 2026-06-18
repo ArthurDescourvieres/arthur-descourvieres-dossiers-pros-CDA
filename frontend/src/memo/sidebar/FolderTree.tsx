@@ -81,7 +81,7 @@ export function FolderTree({
   const rowVirtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => scrollRef.current,
-    estimateSize: () => 30,
+    estimateSize: () => 38,
     overscan: 12,
   })
 
@@ -245,6 +245,12 @@ export function FolderTree({
             onSelectFolder(folder.id)
             setRootName('')
             setRootCreating(false)
+          }}
+          onBlur={(e) => {
+            if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+              setRootName('')
+              setRootCreating(false)
+            }
           }}
           className="flex gap-1"
         >
