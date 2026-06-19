@@ -13,6 +13,12 @@ folderRouter.get(
   requireRole(WorkspaceRole.VIEWER),
   folderController.getByWorkspace,
 )
+folderRouter.get(
+  '/:workspaceId/trash/folders',
+  authMiddleware,
+  requireRole(WorkspaceRole.EDITOR),
+  folderController.listTrash,
+)
 folderRouter.post(
   '/:workspaceId/folders',
   authMiddleware,
@@ -24,6 +30,12 @@ folderRouter.patch(
   authMiddleware,
   requireRole(WorkspaceRole.EDITOR),
   folderController.move,
+)
+folderRouter.patch(
+  '/:workspaceId/folders/:folderId/restore',
+  authMiddleware,
+  requireRole(WorkspaceRole.EDITOR),
+  folderController.restore,
 )
 folderRouter.patch(
   '/:workspaceId/folders/:folderId',

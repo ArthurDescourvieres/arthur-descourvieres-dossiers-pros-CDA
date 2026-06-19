@@ -65,10 +65,26 @@ export const folderController = {
   async remove(c: C) {
     const folderId = c.req.param('folderId')!
     try {
-      await folderService.deleteFolder(folderId)
+      await folderService.softDeleteFolder(folderId)
       return c.body(null, 204)
     } catch {
       return c.json({ error: 'Accès refusé.' }, 403)
     }
+  },
+
+  async restore(c: C) {
+    const folderId = c.req.param('folderId')!
+    try {
+      await folderService.restoreFolder(folderId)
+      return c.body(null, 204)
+    } catch {
+      return c.json({ error: 'Accès refusé.' }, 403)
+    }
+  },
+
+  async listTrash(c: C) {
+    const workspaceId = c.req.param('workspaceId')!
+    const folders = await folderService.getDeletedFoldersByWorkspace(workspaceId)
+    return c.json(folders, 200)
   },
 }

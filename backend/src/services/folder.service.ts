@@ -1,6 +1,28 @@
 import { prisma } from '../lib/prisma.js'
 import type { CreateFolderInput, UpdateFolderInput } from '../schemas/folder.schema.js'
 
+/**
+ * Collecte l'identifiant d'un dossier et de tous ses descendants (parcours en
+ * largeur sur `parentId`). Sert à propager le soft-delete et la restauration à
+ * tout le sous-arbre. L'arborescence est bornée (cf. getFoldersByWorkspace),
+ * donc une poignée de requêtes suffit.
+ */
+async function subtreeFolderIds(rootId: string): Promise<string[]> {
+  const all = [rootId]
+  let frontier = [rootId]
+  while (frontier.length) {
+    const children = await prisma.folder.findMany({
+      where: { parentId: { in: frontier } },
+      select: { id: true },
+    })
+    if (children.length === 0) break
+    const ids = children.map((c) => c.id)
+    all.push(...ids)
+    frontier = ids
+  }
+  return all
+}
+
 export const folderService = {
   async createFolder(data: CreateFolderInput, workspaceId: string) {
     return prisma.folder.create({ data: { ...data, workspaceId } })
@@ -9,8 +31,9 @@ export const folderService = {
   async getFoldersByWorkspace(workspaceId: string) {
     // The folder tree is bounded by design, so it is returned whole rather than
     // paginated; the cap is a safety bound against a pathological workspace.
+    // Soft-deleted folders (in the trash) are excluded from the live tree.
     return prisma.folder.findMany({
-      where: { workspaceId },
+      where: { workspaceId, deletedAt: null },
       include: {
         children: true,
         _count: { select: { notes: { where: { deletedAt: null } } } },
@@ -82,7 +105,52 @@ export const folderService = {
     return prisma.folder.update({ where: { id: folderId }, data: { parentId: targetParentId } })
   },
 
-  async deleteFolder(folderId: string) {
-    return prisma.folder.delete({ where: { id: folderId } })
+  /**
+   * Soft-delete : place le dossier et tout son sous-arbre (sous-dossiers + notes)
+   * en corbeille en horodatant `deletedAt`. On propage aux notes pour qu'elles
+   * sortent des listes et de la recherche (toutes deux filtrent `deletedAt: null`) ;
+   * les notes déjà en corbeille conservent leur propre horodatage. Atomique.
+   */
+  async softDeleteFolder(folderId: string) {
+    const ids = await subtreeFolderIds(folderId)
+    const deletedAt = new Date()
+    return prisma.$transaction([
+      prisma.note.updateMany({
+        where: { folderId: { in: ids }, deletedAt: null },
+        data: { deletedAt },
+      }),
+      prisma.folder.updateMany({ where: { id: { in: ids } }, data: { deletedAt } }),
+    ])
+  },
+
+  /**
+   * Restaure un dossier mis en corbeille et tout son sous-arbre. Symétrique du
+   * soft-delete. La corbeille ne propose que des racines de suppression (parent
+   * vivant), donc restaurer ne ressuscite jamais un sous-arbre orphelin.
+   */
+  async restoreFolder(folderId: string) {
+    const ids = await subtreeFolderIds(folderId)
+    return prisma.$transaction([
+      prisma.note.updateMany({ where: { folderId: { in: ids } }, data: { deletedAt: null } }),
+      prisma.folder.updateMany({ where: { id: { in: ids } }, data: { deletedAt: null } }),
+    ])
+  },
+
+  /**
+   * Dossiers en corbeille d'un workspace, réduits aux « racines » de suppression :
+   * un dossier supprimé dont le parent est vivant (ou sans parent). On masque
+   * ainsi les sous-dossiers supprimés en cascade — restaurer la racine les ramène
+   * tous. Borné comme l'arbre vivant.
+   */
+  async getDeletedFoldersByWorkspace(workspaceId: string) {
+    return prisma.folder.findMany({
+      where: {
+        workspaceId,
+        deletedAt: { not: null },
+        OR: [{ parentId: null }, { parent: { deletedAt: null } }],
+      },
+      orderBy: { deletedAt: 'desc' },
+      take: 1000,
+    })
   },
 }
