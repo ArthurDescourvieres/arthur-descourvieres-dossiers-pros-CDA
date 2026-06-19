@@ -27,7 +27,7 @@ export function TrashModal({ workspaceId, onClose }: { workspaceId: string; onCl
       }}
     >
       <div
-        className="flex flex-col gap-4 w-[min(480px,calc(100vw-48px))] max-h-[calc(100vh-48px)] overflow-y-auto rounded-2xl border border-[var(--color-line-strong)] p-[22px] bg-[var(--color-surface-strong)] text-[var(--color-text)]"
+        className="flex flex-col gap-4 w-[min(480px,calc(100vw-48px))] max-h-[calc(100vh-48px)] overflow-y-auto rounded-2xl border border-[var(--color-line-strong)] p-[22px] bg-[var(--color-surface-2)] text-[var(--color-text)]"
         role="dialog"
         aria-modal="true"
         aria-label="Corbeille"

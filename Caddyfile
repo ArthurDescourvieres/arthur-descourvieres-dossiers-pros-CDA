@@ -32,3 +32,21 @@
 		file_server
 	}
 }
+
+# Quiz CDA — static revision site on its own subdomain, served by this same
+# Caddy. Files are bind-mounted read-only at /srv-quiz by docker-compose.prod.yml;
+# QUIZ_DOMAIN is injected there too (defaults to quiz.derroce.com). Caddy fetches
+# a Let's Encrypt cert for it automatically once DNS points here.
+{$QUIZ_DOMAIN} {
+	encode zstd gzip
+
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+
+	root * /srv-quiz
+	try_files {path} /index.html
+	file_server
+}

@@ -1,7 +1,14 @@
 import { useState, type FormEvent } from 'react'
 import { createPortal } from 'react-dom'
 import { useCreateInvitation, useInvitations, useRevokeInvitation } from '../hooks/useInvitations'
-import { createInviteErrorMessage, formatExpiry, inviteLink, roleLabel } from './inviteUtils'
+import {
+  ASSIGNABLE_ROLE_OPTIONS,
+  createInviteErrorMessage,
+  formatExpiry,
+  inviteLink,
+  roleLabel,
+} from './inviteUtils'
+import { Select } from './Select'
 
 type InvitableRole = 'EDITOR' | 'VIEWER'
 
@@ -50,7 +57,7 @@ export function InviteModal({
       }}
     >
       <div
-        className="flex max-h-[calc(100vh-48px)] w-[min(480px,calc(100vw-48px))] flex-col gap-4 overflow-y-auto rounded-2xl border border-[var(--color-line-strong)] bg-[var(--color-surface-strong)] p-[22px] text-[var(--color-text)]"
+        className="flex max-h-[calc(100vh-48px)] w-[min(480px,calc(100vw-48px))] flex-col gap-4 overflow-y-auto rounded-2xl border border-[var(--color-line-strong)] bg-[var(--color-surface-2)] p-[22px] text-[var(--color-text)]"
         role="dialog"
         aria-modal="true"
         aria-label="Inviter un membre"
@@ -78,14 +85,13 @@ export function InviteModal({
             required
           />
           <div className="flex gap-1.5">
-            <select
+            <Select
               value={role}
-              onChange={(e) => setRole(e.target.value as InvitableRole)}
-              className={`${inputClass} flex-1`}
-            >
-              <option value="EDITOR">Éditeur</option>
-              <option value="VIEWER">Lecteur</option>
-            </select>
+              onChange={setRole}
+              options={ASSIGNABLE_ROLE_OPTIONS}
+              ariaLabel="Rôle de l’invité"
+              className="flex-1 px-2 py-1.5 text-xs"
+            />
             <button
               type="submit"
               className="cursor-pointer rounded border-none bg-[var(--color-accent)] px-3 text-xs text-[var(--color-on-accent)]"

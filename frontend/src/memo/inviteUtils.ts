@@ -18,6 +18,13 @@ export function roleLabel(role: WorkspaceRole): string {
   }
 }
 
+// Rôles assignables via les sélecteurs (l'OWNER ne s'attribue pas). Partagé par
+// InviteSection et MembersModal pour éviter la duplication des `<option>`.
+export const ASSIGNABLE_ROLE_OPTIONS = (['EDITOR', 'VIEWER'] as const).map((value) => ({
+  value,
+  label: roleLabel(value),
+}))
+
 export function formatExpiry(iso: string): string {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return ''

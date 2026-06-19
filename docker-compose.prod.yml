@@ -98,8 +98,13 @@ services:
     environment:
       DOMAIN: ${DOMAIN}
       ACME_EMAIL: ${ACME_EMAIL}
+      # Quiz CDA subdomain. Default keeps the Caddyfile valid even if .env omits
+      # it (an empty site address would crash Caddy and take memo down too).
+      QUIZ_DOMAIN: ${QUIZ_DOMAIN:-quiz.derroce.com}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      # Static quiz site (see cda-quiz/site). Copy it to ./quiz-site on the VPS.
+      - ./quiz-site:/srv-quiz:ro
       - caddy_data:/data
       - caddy_config:/config
     depends_on:

@@ -16,7 +16,7 @@ import { FolderTree } from './sidebar/FolderTree'
 import { NoteEditor } from './editor/NoteEditor'
 import { AccountModal } from './AccountModal'
 import { ProfileMenu } from './ProfileMenu'
-import { TrashButton } from './TrashButton'
+import { TrashDropTarget } from './TrashDropTarget'
 import { BgColorPicker } from './BgColorPicker'
 
 export function WorkspaceShell() {
@@ -169,14 +169,15 @@ export function WorkspaceShell() {
                   <button
                     type="button"
                     onClick={() => setInviteOpen(true)}
-                    className="h-10 min-w-0 flex-[2] cursor-pointer rounded-xl border border-white bg-[var(--color-surface)] text-sm text-inherit transition-colors hover:bg-[var(--color-surface-strong)]"
+                    className="h-10 min-w-0 flex-[2] cursor-pointer rounded-xl border border-solid border-[color:var(--invite-btn-border)] bg-[var(--color-surface)] text-sm text-inherit transition-colors hover:bg-[var(--color-surface-strong)]"
                   >
                     Inviter
                   </button>
                 )}
                 {canEdit && (
-                  <TrashButton
-                    onClick={() => setTrashOpen(true)}
+                  <TrashDropTarget
+                    workspaceId={selectedWorkspaceId}
+                    onOpen={() => setTrashOpen(true)}
                     className={`h-10 min-w-0 opacity-100 ${isOwner ? 'flex-1' : 'w-full flex-1'} rounded-xl border border-[var(--color-line-strong)] bg-[var(--color-surface)] transition-colors hover:bg-[var(--color-surface-strong)]`}
                   />
                 )}

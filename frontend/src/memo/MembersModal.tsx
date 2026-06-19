@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ApiError } from '../lib/api'
 import { useRemoveMember, useUpdateMemberRole, useWorkspaceDetail } from '../hooks/useMembers'
-import { roleLabel } from './inviteUtils'
+import { ASSIGNABLE_ROLE_OPTIONS, roleLabel } from './inviteUtils'
+import { Select } from './Select'
 import type { WorkspaceMember, WorkspaceRole } from '../lib/types'
 
 type ManageableRole = 'EDITOR' | 'VIEWER'
@@ -110,16 +111,15 @@ export function MembersModal({
 
                   {canManage && !isOwner ? (
                     <div className="flex shrink-0 items-center gap-1">
-                      <select
-                        value={m.role}
+                      <Select
+                        value={m.role as ManageableRole}
                         disabled={rowBusy}
-                        onChange={(e) => onChangeRole(m.userId, e.target.value as ManageableRole)}
+                        onChange={(role) => onChangeRole(m.userId, role)}
+                        options={ASSIGNABLE_ROLE_OPTIONS}
                         title="Modifier le rôle"
-                        className="cursor-pointer rounded border border-[var(--color-line-strong)] bg-[var(--color-surface-strong)] px-1.5 py-1 text-[11px] text-inherit outline-none"
-                      >
-                        <option value="EDITOR">Éditeur</option>
-                        <option value="VIEWER">Lecteur</option>
-                      </select>
+                        ariaLabel={`Rôle de ${m.user.name}`}
+                        className="px-1.5 py-1 text-[11px]"
+                      />
                       <button
                         type="button"
                         onClick={() => onRemove(m)}

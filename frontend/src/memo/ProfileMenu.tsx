@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { MemoIcon } from './MemoIcon'
+import { MemoLogo } from './MemoLogo'
 import { useTheme } from '../hooks/useTheme'
 
 interface Props {
@@ -10,9 +10,9 @@ interface Props {
 
 /**
  * Interrupteur accessible : piste bleue quand activé, grise quand désactivé,
- * pastille blanche qui glisse. Le fond de la piste est posé en `style` inline
- * car le reset global `button { background: none }` (base.css) l'emporterait
- * sur un utilitaire Tailwind `bg-*` appliqué à un <button>.
+ * pastille blanche qui glisse. Couleur de piste posée en `style` inline (valeur
+ * conditionnelle selon l'état) — simple et indépendant de la compilation des
+ * classes Tailwind arbitraires.
  */
 function Switch({
   checked,
@@ -88,9 +88,9 @@ export function ProfileMenu({ onSettings, onTrash, onLogout }: Props) {
         type="button"
         aria-label="Menu"
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center justify-center p-1 rounded-full bg-transparent border-none cursor-pointer opacity-75 text-[var(--color-text)]"
+        className="flex items-center justify-center p-1 rounded-[12px] bg-transparent border-none cursor-pointer opacity-90 transition duration-150 hover:opacity-100 hover:bg-[var(--color-line)]"
       >
-        <MemoIcon name="more-horizontal" size={22} />
+        <MemoLogo size={28} />
       </button>
 
       {open && (
