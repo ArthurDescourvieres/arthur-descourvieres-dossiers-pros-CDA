@@ -3,13 +3,14 @@ import type { DragEvent } from 'react'
 import { TrashButton } from './TrashButton'
 import { useTrashDrop } from '../hooks/useTrash'
 import { getDragItem, hasDragItem } from './sidebar/dragItem'
+import { useDialog } from './dialog/DialogProvider'
 
 /**
  * Bouton corbeille de la sidebar, doublé d'une zone de dépôt : on peut y glisser
  * un dossier ou une note depuis l'arbre. Le clic ouvre toujours la corbeille
- * (onOpen) ; un dépôt déclenche une confirmation puis la suppression. Note =
- * mise en corbeille (restaurable) ; dossier = suppression définitive avec son
- * contenu (la corbeille ne stocke que des notes).
+ * (onOpen) ; un dépôt met l'élément en corbeille sans confirmation. Tout est
+ * restaurable : la note revient seule, le dossier emporte tout son sous-arbre
+ * (sous-dossiers + notes) et le ramène à la restauration.
  */
 export function TrashDropTarget({
   workspaceId,
@@ -21,6 +22,7 @@ export function TrashDropTarget({
   className?: string
 }) {
   const [over, setOver] = useState(false)
+  const dialog = useDialog()
   const { deleteFolder, deleteNote } = useTrashDrop(workspaceId)
 
   const allowDrop = (e: DragEvent) => {
@@ -34,22 +36,16 @@ export function TrashDropTarget({
     setOver(false)
     const item = getDragItem(e)
     if (!item) return
-    const label = item.name || 'sans titre'
     try {
+      // Note comme dossier partent en corbeille (soft-delete, restaurable) :
+      // pas de confirmation. Le dossier emporte tout son sous-arbre.
       if (item.kind === 'folder') {
-        if (
-          !window.confirm(
-            `Supprimer le dossier « ${label} » et tout son contenu ? Cette action est définitive.`,
-          )
-        )
-          return
         await deleteFolder.mutateAsync(item.id)
       } else {
-        if (!window.confirm(`Mettre la note « ${label} » à la corbeille ?`)) return
         await deleteNote.mutateAsync(item.id)
       }
     } catch {
-      window.alert('La suppression a échoué.')
+      void dialog.alert({ message: 'La suppression a échoué.', variant: 'danger' })
     }
   }
 

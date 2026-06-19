@@ -127,7 +127,7 @@
 
 /* Links + rule */
 .tiptap-content a {
-  color: var(--color-accent);
+  color: var(--color-accent-hi);
   text-decoration: underline;
 }
 .tiptap-content hr {

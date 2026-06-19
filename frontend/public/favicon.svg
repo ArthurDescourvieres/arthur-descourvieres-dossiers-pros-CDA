@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Favicon statique : couleurs figées en dur (le thème clair/sombre ne
+       s'applique pas hors React). Dérivées des custom properties color-accent,
+       color-on-accent et color-gold de src/memo/styles/tokens.css ; à garder
+       synchronisé avec MemoLogo.tsx (variante "tile"). -->
+  <rect x="6" y="6" width="88" height="88" rx="22" fill="#508962" />
+  <path
+    d="M30 72 L30 32 L50 58 L70 32 L70 72"
+    fill="none"
+    stroke="#fcfcfc"
+    stroke-width="12"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <circle cx="50" cy="70" r="3.4" fill="#b3b582" />
+</svg>

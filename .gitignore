@@ -7,6 +7,16 @@ frontend/node_modules/
 dist/
 build/
 
+# TS incremental build cache
+*.tsbuildinfo
+
+# Generated from vite.config.ts
+frontend/vite.config.js
+frontend/vite.config.d.ts
+
+# Raw video masters (only used to re-encode the served clips in public/landing/)
+frontend/media-src/
+
 # Test coverage
 coverage/
 

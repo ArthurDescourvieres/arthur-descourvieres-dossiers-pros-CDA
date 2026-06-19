@@ -1,9 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-const { folderFindOrThrow, folderFindUnique, folderUpdate } = vi.hoisted(() => ({
+const {
+  folderFindOrThrow,
+  folderFindUnique,
+  folderUpdate,
+  folderFindMany,
+  folderUpdateMany,
+  noteUpdateMany,
+  txn,
+} = vi.hoisted(() => ({
   folderFindOrThrow: vi.fn(),
   folderFindUnique: vi.fn(),
   folderUpdate: vi.fn(),
+  folderFindMany: vi.fn(),
+  folderUpdateMany: vi.fn(),
+  noteUpdateMany: vi.fn(),
+  txn: vi.fn(),
 }))
 
 vi.mock('../lib/prisma.js', () => ({
@@ -12,7 +24,11 @@ vi.mock('../lib/prisma.js', () => ({
       findUniqueOrThrow: folderFindOrThrow,
       findUnique: folderFindUnique,
       update: folderUpdate,
+      findMany: folderFindMany,
+      updateMany: folderUpdateMany,
     },
+    note: { updateMany: noteUpdateMany },
+    $transaction: txn,
   },
 }))
 
@@ -22,6 +38,10 @@ beforeEach(() => {
   folderFindOrThrow.mockReset()
   folderFindUnique.mockReset()
   folderUpdate.mockReset()
+  folderFindMany.mockReset()
+  folderUpdateMany.mockReset()
+  noteUpdateMany.mockReset()
+  txn.mockReset()
 })
 
 describe('moveFolder — déplacement & anti-cycle', () => {
@@ -76,5 +96,50 @@ describe('moveFolder — déplacement & anti-cycle', () => {
 
     await expect(folderService.moveFolder('f1', 'f3')).rejects.toMatchObject({ code: 'CYCLE' })
     expect(folderUpdate).not.toHaveBeenCalled()
+  })
+})
+
+describe('softDeleteFolder & restoreFolder — cascade sur le sous-arbre', () => {
+  it('met en corbeille le dossier, ses sous-dossiers et leurs notes', async () => {
+    // Arbre f1 > f2 > f3 : la collecte descend niveau par niveau via parentId.
+    folderFindMany
+      .mockResolvedValueOnce([{ id: 'f2' }]) // enfants de f1
+      .mockResolvedValueOnce([{ id: 'f3' }]) // enfants de f2
+      .mockResolvedValueOnce([]) // f3 est une feuille
+    noteUpdateMany.mockResolvedValue({ count: 0 })
+    folderUpdateMany.mockResolvedValue({ count: 3 })
+    txn.mockImplementation((ops: unknown[]) => Promise.all(ops))
+
+    await folderService.softDeleteFolder('f1')
+
+    expect(noteUpdateMany).toHaveBeenCalledWith({
+      where: { folderId: { in: ['f1', 'f2', 'f3'] }, deletedAt: null },
+      data: { deletedAt: expect.any(Date) },
+    })
+    expect(folderUpdateMany).toHaveBeenCalledWith({
+      where: { id: { in: ['f1', 'f2', 'f3'] } },
+      data: { deletedAt: expect.any(Date) },
+    })
+  })
+
+  it('restaure le dossier et tout son sous-arbre (deletedAt remis à null)', async () => {
+    // Arbre f1 > f2.
+    folderFindMany
+      .mockResolvedValueOnce([{ id: 'f2' }]) // enfants de f1
+      .mockResolvedValueOnce([]) // f2 est une feuille
+    noteUpdateMany.mockResolvedValue({ count: 0 })
+    folderUpdateMany.mockResolvedValue({ count: 2 })
+    txn.mockImplementation((ops: unknown[]) => Promise.all(ops))
+
+    await folderService.restoreFolder('f1')
+
+    expect(noteUpdateMany).toHaveBeenCalledWith({
+      where: { folderId: { in: ['f1', 'f2'] } },
+      data: { deletedAt: null },
+    })
+    expect(folderUpdateMany).toHaveBeenCalledWith({
+      where: { id: { in: ['f1', 'f2'] } },
+      data: { deletedAt: null },
+    })
   })
 })

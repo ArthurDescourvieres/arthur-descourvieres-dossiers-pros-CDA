@@ -83,9 +83,13 @@ export const noteService = {
 
   // Soft-deleted notes across the whole workspace. Powers the trash view, since
   // getNotesByFolder filters them out (deletedAt: null) and restoreNote needs an
-  // id to act on.
+  // id to act on. Notes whose folder is itself in the trash are excluded: the
+  // folder represents them in the trash and restoring it brings them back.
   async getDeletedNotesByWorkspace(workspaceId: string, p: Pagination) {
-    const where: Prisma.NoteWhereInput = { deletedAt: { not: null }, folder: { workspaceId } }
+    const where: Prisma.NoteWhereInput = {
+      deletedAt: { not: null },
+      folder: { workspaceId, deletedAt: null },
+    }
     const [items, total] = await prisma.$transaction([
       prisma.note.findMany({
         where,

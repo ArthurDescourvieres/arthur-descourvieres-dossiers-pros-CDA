@@ -1,6 +1,9 @@
-import { useLayoutEffect, type RefObject } from 'react'
+import { useLayoutEffect } from 'react'
 import { usePointerParallax, useScrollParallax, useRevealOnScroll } from './useParallax'
-import { Features, Showcase, FinalCta, LandingFooter } from './LandingSections'
+import { WindowFrame } from './WindowFrame'
+import { AppMockup } from './AppMockup'
+import { LandingSections } from './LandingSections'
+import { MemoLogo } from '../MemoLogo'
 
 /**
  * La landing garde son identité sombre quel que soit le thème choisi ailleurs :
@@ -28,18 +31,16 @@ export type LandingProps = {
 
 export function Landing({ onRegister, onLogin }: LandingProps) {
   const scrollRef = useScrollParallax<HTMLDivElement>()
-  const heroRef = usePointerParallax<HTMLElement>()
   useRevealOnScroll(scrollRef)
   useForcedDarkLanding()
 
   return (
     <div className="landing" ref={scrollRef}>
       <LandingNav onRegister={onRegister} onLogin={onLogin} />
-      <Hero heroRef={heroRef} onRegister={onRegister} onLogin={onLogin} />
-      <Features />
-      <Showcase />
-      <FinalCta onRegister={onRegister} />
-      <LandingFooter />
+      <div className="lp-grid-bg">
+        <Hero onRegister={onRegister} />
+      </div>
+      <LandingSections onRegister={onRegister} />
     </div>
   )
 }
@@ -49,7 +50,7 @@ function LandingNav({ onRegister, onLogin }: LandingProps) {
     <header className="lp-nav">
       <div className="lp-nav-inner">
         <span className="lp-brand">
-          <span className="lp-brand-mark" aria-hidden />
+          <MemoLogo size={26} />
           Memo
         </span>
         <nav className="lp-nav-actions">
@@ -65,41 +66,41 @@ function LandingNav({ onRegister, onLogin }: LandingProps) {
   )
 }
 
-type HeroProps = LandingProps & { heroRef: RefObject<HTMLElement> }
+function Hero({ onRegister }: { onRegister: () => void }) {
+  const visualRef = usePointerParallax<HTMLDivElement>()
+  const seeProduct = () =>
+    document.getElementById('decouvrir')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
-function Hero({ heroRef, onRegister, onLogin }: HeroProps) {
   return (
-    <section className="lp-hero" ref={heroRef}>
-      <div className="lp-hero-bg" aria-hidden>
-        <span className="lp-orb lp-orb-1" />
-        <span className="lp-orb lp-orb-2" />
-        <span className="lp-orb lp-orb-3" />
-        <span className="lp-grid" />
-      </div>
-
-      <div className="lp-hero-content" data-reveal>
-        <span className="lp-eyebrow">Votre espace de travail pour penser</span>
+    <section className="lp-hero">
+      <div className="lp-hero-text" data-reveal>
         <h1 className="lp-title">
-          Vos notes,
+          Prends tes notes,
           <br />
-          <span className="lp-title-accent">enfin lumineuses.</span>
+          pas la tête.
         </h1>
         <p className="lp-subtitle">
-          Memo réunit un éditeur riche, l’organisation par espaces et la collaboration en temps réel
-          dans une interface qui s’efface devant vos idées.
+          Memo est un espace de notes open source et léger. Tu crées un espace, tu écris, tu glisses
+          tes images. Zéro configuration.
         </p>
         <div className="lp-hero-actions">
           <button type="button" className="lp-btn lp-btn-primary lp-btn-lg" onClick={onRegister}>
-            Créer un compte
+            Créer mon espace
           </button>
-          <button type="button" className="lp-btn lp-btn-ghost lp-btn-lg" onClick={onLogin}>
-            J’ai déjà un compte
+          <button type="button" className="lp-btn lp-btn-ghost lp-btn-lg" onClick={seeProduct}>
+            Voir Memo en action
           </button>
         </div>
-        <p className="lp-hero-note">Gratuit · Aucune carte bancaire requise</p>
+        <p className="lp-hero-note">Gratuit · Open source · Sans carte bancaire</p>
       </div>
 
-      <span className="lp-scroll-cue" aria-hidden />
+      <div className="lp-hero-visual" data-reveal>
+        <div className="lp-hero-frame" ref={visualRef}>
+          <WindowFrame className="lp-win-hero">
+            <AppMockup />
+          </WindowFrame>
+        </div>
+      </div>
     </section>
   )
 }

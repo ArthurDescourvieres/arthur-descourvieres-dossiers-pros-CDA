@@ -1,5 +1,5 @@
 import type { CSSProperties, KeyboardEvent, ReactNode } from 'react'
-import { ChevronRight, FilePlus, FolderPlus, Trash2 } from 'lucide-react'
+import { ChevronRight, FilePlus, FolderPlus } from 'lucide-react'
 import type { FlatRow } from './flattenTree'
 import { smallInputClass } from './common'
 import { setDragItem } from './dragItem'
@@ -65,8 +65,11 @@ export function TreeRow({
 
   if (row.kind === 'create') {
     return (
-      <div {...common} role="none" className="py-0.5" style={{ ...style }}>
-        <div style={{ paddingLeft: row.depth * INDENT + 22 }}>
+      <div {...common} role="none" style={{ ...style }}>
+        <div
+          className="my-[3px] flex items-center rounded-[6px] py-1.5 pr-1.5"
+          style={{ paddingLeft: row.depth * INDENT + 22 }}
+        >
           <input
             value={edit.createValue}
             onChange={(e) => edit.onCreateChange(e.target.value)}
@@ -160,41 +163,21 @@ export function TreeRow({
             {isFolder ? row.folder.name : row.note.title || '(sans titre)'}
           </span>
         )}
-        {canEdit && !isRenaming && (
+        {canEdit && !isRenaming && isFolder && (
           <span
             className={`flex shrink-0 items-center gap-0.5 transition-opacity group-hover:opacity-100 ${
               isSelected || isActive ? 'opacity-100' : 'opacity-0'
             }`}
           >
-            {isFolder ? (
-              <>
-                <ActionBtn
-                  label="Nouvelle note"
-                  onClick={() => handlers.onStartCreate(row.id, 'note')}
-                >
-                  <FilePlus size={15} />
-                </ActionBtn>
-                <ActionBtn
-                  label="Nouveau sous-dossier"
-                  onClick={() => handlers.onStartCreate(row.id, 'folder')}
-                >
-                  <FolderPlus size={15} />
-                </ActionBtn>
-                <ActionBtn
-                  label="Supprimer le dossier"
-                  onClick={() => handlers.onDeleteFolder(row.id, row.folder.name)}
-                >
-                  <Trash2 size={15} />
-                </ActionBtn>
-              </>
-            ) : (
-              <ActionBtn
-                label="Supprimer la note"
-                onClick={() => handlers.onDeleteNote(row.id, row.note.title)}
-              >
-                <Trash2 size={14} />
-              </ActionBtn>
-            )}
+            <ActionBtn label="Nouvelle note" onClick={() => handlers.onStartCreate(row.id, 'note')}>
+              <FilePlus size={15} />
+            </ActionBtn>
+            <ActionBtn
+              label="Nouveau sous-dossier"
+              onClick={() => handlers.onStartCreate(row.id, 'folder')}
+            >
+              <FolderPlus size={15} />
+            </ActionBtn>
           </span>
         )}
       </div>

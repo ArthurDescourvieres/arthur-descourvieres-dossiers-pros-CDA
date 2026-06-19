@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 import { setAccessToken } from '../lib/api'
-import { useDeletedNotes, useRestoreNote } from './useTrash'
+import { useDeletedNotes, useRestoreNote, useTrashDrop } from './useTrash'
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -71,5 +71,24 @@ describe('useTrash hooks', () => {
     expect(init.method).toBe('PATCH')
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['trash', 'w1'] })
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['notes'] })
+  })
+
+  it('moves a note to the trash and refreshes lists plus any open editor', async () => {
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }))
+    const { qc, wrapper } = makeWrapper()
+    const invalidate = vi.spyOn(qc, 'invalidateQueries')
+
+    const { result } = renderHook(() => useTrashDrop('w1'), { wrapper })
+    await act(async () => {
+      await result.current.deleteNote.mutateAsync('n1')
+    })
+
+    const [path, init] = fetchMock.mock.calls[0]
+    expect(path).toBe('/api/notes/n1')
+    expect(init.method).toBe('DELETE')
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['notes'] })
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['trash', 'w1'] })
+    // La note ouverte est rafraîchie : elle revient marquée supprimée → l'éditeur se ferme.
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['note', 'n1'] })
   })
 })

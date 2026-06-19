@@ -59,8 +59,8 @@ export function TrashButton({
         <g
           style={{
             transformBox: 'fill-box',
-            transformOrigin: '0% 100%',
-            transform: lidOpen ? 'rotate(-45deg)' : 'rotate(0deg)',
+            transformOrigin: '100% 100%',
+            transform: lidOpen ? 'rotate(45deg)' : 'rotate(0deg)',
             transition: 'transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1)',
           }}
         >
