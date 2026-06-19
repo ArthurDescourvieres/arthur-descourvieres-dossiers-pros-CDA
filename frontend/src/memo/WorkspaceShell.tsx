@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../lib/auth/AuthContext'
 import { useFolders, useWorkspaces, useDeleteWorkspace } from '../hooks/useWorkspaces'
 import type { WorkspaceWithRole } from '../lib/types'
@@ -14,14 +14,17 @@ import { SearchBox } from './sidebar/SearchBox'
 import { WorkspaceBar } from './sidebar/WorkspaceBar'
 import { FolderTree } from './sidebar/FolderTree'
 import { NoteEditor } from './editor/NoteEditor'
+import { EmptyState } from './EmptyState'
 import { AccountModal } from './AccountModal'
 import { ProfileMenu } from './ProfileMenu'
 import { TrashDropTarget } from './TrashDropTarget'
 import { BgColorPicker } from './BgColorPicker'
+import { useDialog } from './dialog/DialogProvider'
 
 export function WorkspaceShell() {
   const auth = useAuth()
   const user = auth.status === 'authenticated' ? auth.user : null
+  const dialog = useDialog()
 
   const isMobile = useIsMobile()
   const workspaces = useWorkspaces()
@@ -64,6 +67,15 @@ export function WorkspaceShell() {
     setReveal((r) => ({ folderId: null, nonce: r.nonce }))
   }, [selectedWorkspaceId])
 
+  // Si le dossier sélectionné disparaît de l'arbre (supprimé, ex. glissé vers la
+  // corbeille), on abandonne la sélection : sinon l'écran d'accueil tenterait de
+  // créer une note dans un dossier fantôme.
+  useEffect(() => {
+    if (selectedFolderId && folders.data && !folders.data.some((f) => f.id === selectedFolderId)) {
+      setSelectedFolderId(null)
+    }
+  }, [folders.data, selectedFolderId])
+
   const currentRole = useMemo(
     () => workspaces.data?.find((w) => w.id === selectedWorkspaceId)?.role ?? null,
     [workspaces.data, selectedWorkspaceId],
@@ -78,18 +90,31 @@ export function WorkspaceShell() {
     setMobilePane(id ? 'editor' : 'list')
   }
 
+  // Referme l'éditeur quand la note ouverte n'est plus consultable (corbeille,
+  // dossier supprimé), signalé par NoteEditor. Mémoïsé pour ne pas relancer son effet.
+  const handleNoteGone = useCallback(() => {
+    setSelectedNoteId(null)
+    setMobilePane('list')
+  }, [])
+
   const onDeleteWorkspace = async (ws: WorkspaceWithRole) => {
-    if (
-      !window.confirm(
-        `Supprimer le workspace « ${ws.name} » ? Tout son contenu (dossiers, notes, pièces jointes) sera définitivement perdu.`,
-      )
-    )
-      return
+    const ok = await dialog.confirm({
+      title: 'Supprimer le workspace',
+      message: (
+        <>
+          Le workspace <strong>« {ws.name} »</strong> et tout son contenu (dossiers, notes, pièces
+          jointes) seront définitivement perdus.
+        </>
+      ),
+      confirmLabel: 'Supprimer',
+      variant: 'danger',
+    })
+    if (!ok) return
     try {
       await del.mutateAsync(ws.id)
       if (ws.id === selectedWorkspaceId) setSelectedWorkspaceId(null)
     } catch {
-      window.alert('La suppression a échoué.')
+      void dialog.alert({ message: 'La suppression a échoué.', variant: 'danger' })
     }
   }
 
@@ -134,7 +159,10 @@ export function WorkspaceShell() {
               </div>
             )}
 
-            <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto">
+            {/* -mx/px compensés : gutter interne pour que le halo de focus
+                (:focus-visible, outline + offset) des champs ne soit pas rogné
+                par le clip horizontal induit par overflow-y-auto. */}
+            <div className="-mx-1.5 flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-1.5">
               {selectedWorkspaceId && (
                 <SearchBox
                   workspaceId={selectedWorkspaceId}
@@ -208,11 +236,17 @@ export function WorkspaceShell() {
           {isMobile && <MobileBackButton onClick={() => setMobilePane('list')} />}
           <InviteAcceptBanner />
           {selectedNoteId ? (
-            <NoteEditor noteId={selectedNoteId} />
+            <NoteEditor noteId={selectedNoteId} onUnavailable={handleNoteGone} />
           ) : (
-            <div className="mt-20 text-center text-sm opacity-50">
-              Sélectionnez ou créez une note pour commencer.
-            </div>
+            <EmptyState
+              workspaceId={selectedWorkspaceId}
+              folders={folders.data ?? []}
+              selectedFolderId={selectedFolderId}
+              canEdit={canEdit}
+              onCreateWorkspace={() => setWsForm({ mode: 'create' })}
+              onSelectFolder={setSelectedFolderId}
+              onOpenNote={openNote}
+            />
           )}
         </main>
       )}

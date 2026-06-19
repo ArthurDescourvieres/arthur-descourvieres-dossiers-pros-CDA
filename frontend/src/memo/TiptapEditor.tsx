@@ -6,6 +6,7 @@ import { useEffect, useRef } from 'react'
 import type { TiptapDoc } from '../lib/types'
 import { AttachmentAwareImage } from './TiptapImageNode'
 import { useUploadAttachment, attachmentFileUrl } from '../hooks/useAttachments'
+import { useDialog } from './dialog/DialogProvider'
 
 const lowlight = createLowlight(common)
 
@@ -25,6 +26,7 @@ export function TiptapEditor({
   editable = true,
 }: TiptapEditorProps) {
   const upload = useUploadAttachment(noteId)
+  const dialog = useDialog()
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -67,7 +69,7 @@ export function TiptapEditor({
         e && typeof e === 'object' && 'payload' in e
           ? JSON.stringify((e as { payload: unknown }).payload)
           : 'Échec de l’envoi'
-      alert(`Upload refusé: ${msg}`)
+      void dialog.alert({ title: 'Upload refusé', message: msg, variant: 'danger' })
     }
   }
 
@@ -124,10 +126,10 @@ function Toolbar({
         editor.chain().focus().toggleHeading({ level: 3 }).run(),
       )}
       <span className={separatorClass} />
-      {btn('• List', editor.isActive('bulletList'), () =>
+      {btn('• Liste', editor.isActive('bulletList'), () =>
         editor.chain().focus().toggleBulletList().run(),
       )}
-      {btn('1. List', editor.isActive('orderedList'), () =>
+      {btn('1. Liste', editor.isActive('orderedList'), () =>
         editor.chain().focus().toggleOrderedList().run(),
       )}
       {btn('Code', editor.isActive('codeBlock'), () =>

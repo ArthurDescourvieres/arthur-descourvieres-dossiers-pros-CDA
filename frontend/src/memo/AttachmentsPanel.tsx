@@ -7,6 +7,7 @@ import {
   type Attachment,
 } from '../hooks/useAttachments'
 import { useBlobUrl } from './AttachmentImage'
+import { useDialog } from './dialog/DialogProvider'
 
 const KB = 1024
 const MB = KB * 1024
@@ -21,6 +22,7 @@ export function AttachmentsPanel({ noteId }: { noteId: string }) {
   const { data, isPending } = useNoteAttachments(noteId)
   const upload = useUploadAttachment(noteId)
   const remove = useDeleteAttachment(noteId)
+  const dialog = useDialog()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const onPickFile = () => fileInputRef.current?.click()
@@ -35,7 +37,7 @@ export function AttachmentsPanel({ noteId }: { noteId: string }) {
         err && typeof err === 'object' && 'payload' in err
           ? JSON.stringify((err as { payload: unknown }).payload)
           : 'Échec'
-      alert(`Upload refusé: ${msg}`)
+      void dialog.alert({ title: 'Upload refusé', message: msg, variant: 'danger' })
     }
   }
 

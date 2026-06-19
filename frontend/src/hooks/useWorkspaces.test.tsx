@@ -157,7 +157,7 @@ describe('useWorkspaces hooks', () => {
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['folders', 'w1'] })
   })
 
-  it('deletes a folder and invalidates the folder tree', async () => {
+  it('deletes a folder and refreshes the tree, note lists and any open note', async () => {
     fetchMock.mockResolvedValue(new Response(null, { status: 204 }))
     const { qc, wrapper } = makeWrapper()
     const invalidate = vi.spyOn(qc, 'invalidateQueries')
@@ -169,6 +169,10 @@ describe('useWorkspaces hooks', () => {
 
     expect(fetchMock.mock.calls[0][0]).toBe('/api/workspaces/w1/folders/f1')
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['folders', 'w1'] })
+    // Cascade : les notes du dossier disparaissent ; une note ouverte de ce dossier
+    // renverra une erreur au refetch, ce qui referme l'éditeur.
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['notes'] })
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['note'] })
   })
 
   it('requires both workspace and folder ids before fetching notes', () => {
@@ -249,5 +253,6 @@ describe('useWorkspaces hooks', () => {
     expect(fetchMock.mock.calls[0][0]).toBe('/api/notes/n1')
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['notes', 'w1', 'f1'] })
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['trash', 'w1'] })
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['note', 'n1'] })
   })
 })

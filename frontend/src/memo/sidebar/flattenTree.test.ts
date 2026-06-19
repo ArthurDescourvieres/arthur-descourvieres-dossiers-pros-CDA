@@ -8,6 +8,7 @@ const f = (id: string, parentId: string | null): Folder => ({
   name: id,
   workspaceId: 'w',
   parentId,
+  deletedAt: null,
   createdAt: '',
   updatedAt: '',
 })

@@ -75,6 +75,15 @@ a {
   color: var(--color-text);
 }
 
+/* Masque la barre de défilement tout en gardant le scroll fonctionnel. */
+.no-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Edge / IE legacy */
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome / Safari */
+}
+
 .ws-btn--active {
   animation: wsActiveGlow 3.5s var(--ease-in-out) infinite;
 }

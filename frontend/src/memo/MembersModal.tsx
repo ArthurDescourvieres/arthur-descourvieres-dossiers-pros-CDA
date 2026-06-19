@@ -4,6 +4,7 @@ import { ApiError } from '../lib/api'
 import { useRemoveMember, useUpdateMemberRole, useWorkspaceDetail } from '../hooks/useMembers'
 import { ASSIGNABLE_ROLE_OPTIONS, roleLabel } from './inviteUtils'
 import { Select } from './Select'
+import { useDialog } from './dialog/DialogProvider'
 import type { WorkspaceMember, WorkspaceRole } from '../lib/types'
 
 type ManageableRole = 'EDITOR' | 'VIEWER'
@@ -26,6 +27,7 @@ export function MembersModal({
   const detail = useWorkspaceDetail(workspaceId)
   const updateRole = useUpdateMemberRole(workspaceId)
   const remove = useRemoveMember(workspaceId)
+  const dialog = useDialog()
   const [error, setError] = useState<string | null>(null)
 
   const members = sortMembers(detail.data?.members ?? [])
@@ -41,7 +43,18 @@ export function MembersModal({
 
   const onRemove = async (member: WorkspaceMember) => {
     setError(null)
-    if (!window.confirm(`Retirer ${member.user.name} du workspace ?`)) return
+    const ok = await dialog.confirm({
+      title: 'Retirer le membre',
+      message: (
+        <>
+          <strong>{member.user.name}</strong> sera retiré du workspace et perdra l'accès à son
+          contenu.
+        </>
+      ),
+      confirmLabel: 'Retirer',
+      variant: 'danger',
+    })
+    if (!ok) return
     try {
       await remove.mutateAsync(member.userId)
     } catch (err) {
@@ -57,7 +70,7 @@ export function MembersModal({
       }}
     >
       <div
-        className="flex flex-col gap-4 w-[min(480px,calc(100vw-48px))] max-h-[calc(100vh-48px)] overflow-y-auto rounded-2xl border border-[var(--color-line-strong)] p-[22px] bg-[var(--color-surface-strong)] text-[var(--color-text)]"
+        className="flex flex-col gap-4 w-[min(480px,calc(100vw-48px))] max-h-[calc(100vh-48px)] overflow-y-auto rounded-2xl border border-[var(--color-line-strong)] p-[22px] bg-[var(--color-surface-2)] text-[var(--color-text)] shadow-[0_16px_48px_var(--color-shadow)]"
         role="dialog"
         aria-modal="true"
         aria-label="Membres"

@@ -74,7 +74,16 @@ export function useDeleteFolder(workspaceId: string | null) {
   return useMutation({
     mutationFn: (id: string) =>
       api<void>(`/api/workspaces/${workspaceId}/folders/${id}`, { method: 'DELETE' }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['folders', workspaceId] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['folders', workspaceId] })
+      // Mise en corbeille (soft-delete) en cascade du dossier, de ses sous-dossiers
+      // et de leurs notes : on rafraîchit les listes, la note éventuellement ouverte
+      // (erreur si elle vivait là → l'éditeur se referme, voir NoteEditor) et la
+      // corbeille des dossiers.
+      qc.invalidateQueries({ queryKey: ['notes'] })
+      qc.invalidateQueries({ queryKey: ['note'] })
+      qc.invalidateQueries({ queryKey: ['trash-folders', workspaceId] })
+    },
   })
 }
 
@@ -105,9 +114,10 @@ export function useDeleteNote(workspaceId: string | null, folderId: string | nul
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (noteId: string) => api<void>(`/api/notes/${noteId}`, { method: 'DELETE' }),
-    onSuccess: () => {
+    onSuccess: (_data, noteId) => {
       qc.invalidateQueries({ queryKey: ['notes', workspaceId, folderId] })
       qc.invalidateQueries({ queryKey: ['trash', workspaceId] })
+      qc.invalidateQueries({ queryKey: ['note', noteId] })
     },
   })
 }

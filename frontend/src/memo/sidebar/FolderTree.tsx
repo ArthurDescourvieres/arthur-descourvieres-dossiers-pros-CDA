@@ -7,6 +7,7 @@ import { ancestorFolderIds, buildFolderTree } from './buildFolderTree'
 import { flattenTree } from './flattenTree'
 import { resolveTreeKey } from './treeKeyboard'
 import { TreeRow, type TreeRowEdit, type TreeRowHandlers } from './TreeRow'
+import { useDialog } from '../dialog/DialogProvider'
 import {
   SectionHeader,
   sectionClass,
@@ -49,6 +50,7 @@ export function FolderTree({
   revealFolderId: string | null
   revealNonce: number
 }) {
+  const dialog = useDialog()
   const roots = useMemo(() => buildFolderTree(folders), [folders])
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const [activeIndex, setActiveIndex] = useState(0)
@@ -152,7 +154,7 @@ export function FolderTree({
         await data.renameNote.mutateAsync({ id, title: next })
       }
     } catch {
-      window.alert('Le renommage a échoué.')
+      void dialog.alert({ message: 'Le renommage a échoué.', variant: 'danger' })
     }
   }
 
@@ -170,7 +172,7 @@ export function FolderTree({
         onOpenNote(note.id)
       }
     } catch {
-      window.alert('La création a échoué.')
+      void dialog.alert({ message: 'La création a échoué.', variant: 'danger' })
     }
   }
 
@@ -188,13 +190,32 @@ export function FolderTree({
       setCreating({ parentId, kind, value: '' })
       toggle(parentId, true)
     },
-    onDeleteFolder: (id, name) => {
-      if (!window.confirm(`Supprimer le dossier « ${name} » et tout son contenu ?`)) return
-      data.deleteFolder.mutate(id)
+    onDeleteFolder: async (id, name) => {
+      const ok = await dialog.confirm({
+        title: 'Supprimer le dossier',
+        message: (
+          <>
+            Le dossier <strong>« {name} »</strong> et tout son contenu seront supprimés
+            définitivement.
+          </>
+        ),
+        confirmLabel: 'Supprimer',
+        variant: 'danger',
+      })
+      if (ok) data.deleteFolder.mutate(id)
     },
-    onDeleteNote: (id, title) => {
-      if (!window.confirm(`Supprimer la note « ${title || 'sans titre'} » ?`)) return
-      data.deleteNote.mutate(id)
+    onDeleteNote: async (id, title) => {
+      const ok = await dialog.confirm({
+        title: 'Supprimer la note',
+        message: (
+          <>
+            La note <strong>« {title || 'sans titre'} »</strong> sera supprimée.
+          </>
+        ),
+        confirmLabel: 'Supprimer',
+        variant: 'danger',
+      })
+      if (ok) data.deleteNote.mutate(id)
     },
   }
 
@@ -271,7 +292,11 @@ export function FolderTree({
       ) : rows.length === 0 ? (
         <div className={emptyClass}>Aucun dossier</div>
       ) : (
-        <div ref={scrollRef} onKeyDown={onKeyDown} className="max-h-[50vh] overflow-y-auto">
+        <div
+          ref={scrollRef}
+          onKeyDown={onKeyDown}
+          className="no-scrollbar max-h-[50vh] overflow-y-auto"
+        >
           <div
             role="tree"
             aria-label="Dossiers et notes"

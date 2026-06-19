@@ -54,9 +54,10 @@ export function useTreeData(workspaceId: string, openIds: string[]) {
 
   const deleteNote = useMutation({
     mutationFn: (id: string) => api<void>(`/api/notes/${id}`, { method: 'DELETE' }),
-    onSuccess: () => {
+    onSuccess: (_data, id) => {
       qc.invalidateQueries({ queryKey: ['notes'] })
       qc.invalidateQueries({ queryKey: ['trash', workspaceId] })
+      qc.invalidateQueries({ queryKey: ['note', id] })
     },
   })
 

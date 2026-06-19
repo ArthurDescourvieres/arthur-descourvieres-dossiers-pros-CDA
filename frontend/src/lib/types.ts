@@ -51,6 +51,7 @@ export type Folder = {
   name: string
   workspaceId: string
   parentId: string | null
+  deletedAt: string | null
   createdAt: string
   updatedAt: string
 }

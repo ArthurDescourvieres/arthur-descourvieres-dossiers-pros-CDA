@@ -6,7 +6,13 @@ import { TiptapEditor } from '../TiptapEditor'
 import { AttachmentsPanel } from '../AttachmentsPanel'
 import type { TiptapDoc } from '../../lib/types'
 
-export function NoteEditor({ noteId }: { noteId: string }) {
+export function NoteEditor({
+  noteId,
+  onUnavailable,
+}: {
+  noteId: string
+  onUnavailable: () => void
+}) {
   const note = useNote(noteId)
   const autosave = useNoteAutosave(noteId)
 
@@ -53,6 +59,17 @@ export function NoteEditor({ noteId }: { noteId: string }) {
     }
   }, [])
 
+  // La note ouverte peut disparaître sous nos pieds : mise à la corbeille (par
+  // glisser-déposer ou par un collaborateur) ou supprimée avec son dossier
+  // parent. Dans tous ces cas on referme l'éditeur, sinon on continuerait
+  // d'afficher une note « fantôme » qui n'est plus consultable. Le backend ne
+  // filtrant pas deletedAt sur GET, une note en corbeille revient avec ce champ
+  // renseigné ; une note réellement supprimée (cascade dossier) renvoie une erreur.
+  const unavailable = note.isError || note.data?.deletedAt != null
+  useEffect(() => {
+    if (unavailable) onUnavailable()
+  }, [unavailable, onUnavailable])
+
   if (note.isPending) return <div className="opacity-50">Chargement…</div>
   if (note.isError)
     return <div className="text-[var(--color-danger)]">Impossible de charger la note.</div>
@@ -72,7 +89,7 @@ export function NoteEditor({ noteId }: { noteId: string }) {
           className="flex-1 border-none bg-transparent text-[28px] font-bold text-inherit outline-none"
         />
         <PresenceAvatars presence={realtime.presence} />
-        <SaveStatus status={autosave.status} onFlush={() => void autosave.flush()} />
+        <SaveStatus status={autosave.status} />
       </header>
 
       <TiptapEditor
@@ -130,19 +147,8 @@ function colorForUser(userId: string): string {
   return `hsl(${hue}, 60%, 50%)`
 }
 
-function SaveStatus({ status, onFlush }: { status: AutosaveStatus; onFlush: () => void }) {
-  return (
-    <div className="flex items-center gap-3">
-      <span className="min-w-20 text-right text-xs opacity-60">{labelFor(status)}</span>
-      <button
-        type="button"
-        onClick={onFlush}
-        className="cursor-pointer rounded border border-[var(--color-accent-border)] bg-[var(--color-accent-soft)] px-2.5 py-1.5 text-xs text-inherit"
-      >
-        Enregistrer
-      </button>
-    </div>
-  )
+function SaveStatus({ status }: { status: AutosaveStatus }) {
+  return <span className="min-w-20 text-right text-xs opacity-60">{labelFor(status)}</span>
 }
 
 function labelFor(s: AutosaveStatus): string {
@@ -154,7 +160,7 @@ function labelFor(s: AutosaveStatus): string {
     case 'saving':
       return 'Sauvegarde…'
     case 'saved':
-      return 'Enregistré'
+      return ''
     case 'error':
       return 'Erreur'
   }
