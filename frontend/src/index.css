@@ -1,8 +1,9 @@
 @import 'tailwindcss';
 
 @import './memo/styles/tokens.css';
-@import './memo/styles/base.css';
+@import './memo/styles/base.css' layer(base);
 @import './memo/styles/tiptap.css';
 @import './memo/styles/responsive.css';
 @import './memo/styles/landing.css';
 @import './memo/styles/landing-sections.css';
+@import './memo/styles/landing-mockup.css';
