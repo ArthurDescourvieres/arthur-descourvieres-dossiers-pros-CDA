@@ -58,7 +58,7 @@ export function Login({ initialMode = 'login', onBack, onSwitchMode }: LoginProp
     <div className="grid min-h-screen place-items-center bg-[var(--color-bg)] p-6 text-[var(--color-text)]">
       <form
         onSubmit={onSubmit}
-        className="flex w-[360px] flex-col gap-3 rounded-xl bg-[var(--color-surface)] p-7 shadow-[0_8px_32px_var(--color-shadow)]"
+        className="flex w-full max-w-[360px] flex-col gap-3 rounded-xl bg-[var(--color-surface)] p-7 shadow-[0_8px_32px_var(--color-shadow)]"
       >
         {onBack && (
           <button

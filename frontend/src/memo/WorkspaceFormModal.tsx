@@ -59,7 +59,7 @@ export function WorkspaceFormModal({
     >
       <form
         onSubmit={submit}
-        className="flex flex-col gap-4 w-[min(440px,calc(100vw-48px))] max-h-[calc(100vh-48px)] overflow-y-auto rounded-2xl border border-[var(--color-line-strong)] p-[22px] bg-[var(--color-surface-strong)] text-[var(--color-text)]"
+        className="flex flex-col gap-4 w-[min(440px,calc(100vw-48px))] max-h-[calc(100vh-48px)] overflow-y-auto rounded-2xl border border-[var(--color-line-strong)] p-[22px] bg-[var(--color-surface-2)] text-[var(--color-text)] shadow-[0_16px_48px_var(--color-shadow)]"
         role="dialog"
         aria-modal="true"
         aria-label={mode === 'create' ? 'Nouveau workspace' : 'Modifier le workspace'}

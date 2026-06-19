@@ -57,7 +57,7 @@ export function InviteModal({
       }}
     >
       <div
-        className="flex max-h-[calc(100vh-48px)] w-[min(480px,calc(100vw-48px))] flex-col gap-4 overflow-y-auto rounded-2xl border border-[var(--color-line-strong)] bg-[var(--color-surface-2)] p-[22px] text-[var(--color-text)]"
+        className="flex max-h-[calc(100vh-48px)] w-[min(480px,calc(100vw-48px))] flex-col gap-4 overflow-y-auto rounded-2xl border border-[var(--color-line-strong)] bg-[var(--color-surface-2)] p-[22px] text-[var(--color-text)] shadow-[0_16px_48px_var(--color-shadow)]"
         role="dialog"
         aria-modal="true"
         aria-label="Inviter un membre"
