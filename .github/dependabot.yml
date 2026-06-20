@@ -7,21 +7,29 @@ updates:
     directory: '/backend'
     schedule:
       interval: 'weekly'
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 3
     commit-message:
       prefix: 'chore(deps)'
+    groups:
+      backend-deps:
+        patterns:
+          - '*'
 
   - package-ecosystem: 'npm'
     directory: '/frontend'
     schedule:
       interval: 'weekly'
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 3
     commit-message:
       prefix: 'chore(deps)'
+    groups:
+      frontend-deps:
+        patterns:
+          - '*'
 
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
-      interval: 'weekly'
+      interval: 'monthly'
     commit-message:
       prefix: 'chore(ci)'
