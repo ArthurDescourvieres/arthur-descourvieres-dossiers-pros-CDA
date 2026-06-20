@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 import { Spinner } from './memo/Spinner'
 import { useAuth } from './lib/auth/AuthContext'
+import { readPendingInvite } from './lib/pendingInvite'
 
 // Code splitting (éco-conception) : les écrans lourds sont chargés à la demande.
 // WorkspaceShell embarque l'éditeur Tiptap + lowlight + socket.io (gros chunk) et
@@ -11,6 +12,9 @@ const WorkspaceShell = lazy(() =>
 )
 const Landing = lazy(() => import('./memo/landing/Landing').then((m) => ({ default: m.Landing })))
 const Login = lazy(() => import('./memo/Login').then((m) => ({ default: m.Login })))
+const InviteGuestGate = lazy(() =>
+  import('./memo/InviteGuestGate').then((m) => ({ default: m.InviteGuestGate })),
+)
 const MentionsLegales = lazy(() =>
   import('./memo/legal/MentionsLegales').then((m) => ({ default: m.MentionsLegales })),
 )
@@ -33,12 +37,20 @@ export function App() {
     return <CenteredSpinner />
   }
 
+  // A signed-out visitor who followed an invite link gets the invite-aware auth
+  // screen (workspace shown, email prefilled) instead of the marketing landing.
+  const pendingInvite = readPendingInvite()
+
   // Public routes are only mounted for unauthenticated visitors, so the landing
   // page is unreachable once signed in. Suspense covers the lazy-loaded chunks.
   return (
     <Suspense fallback={<CenteredSpinner />}>
       {auth.status === 'guest' ? (
-        <PublicRoutes />
+        pendingInvite ? (
+          <InviteGuestGate token={pendingInvite} />
+        ) : (
+          <PublicRoutes />
+        )
       ) : (
         <Routes>
           <Route path="/" element={<WorkspaceShell />} />

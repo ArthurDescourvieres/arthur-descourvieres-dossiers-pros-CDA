@@ -7,12 +7,22 @@ type LoginProps = {
   initialMode?: Mode
   onBack?: () => void
   onSwitchMode?: () => void
+  // Invite flow: prefill and lock the email so acceptance (which requires an
+  // exact email match) can't silently fail; `inviteNote` explains the context.
+  lockedEmail?: string
+  inviteNote?: string
 }
 
-export function Login({ initialMode = 'login', onBack, onSwitchMode }: LoginProps = {}) {
+export function Login({
+  initialMode = 'login',
+  onBack,
+  onSwitchMode,
+  lockedEmail,
+  inviteNote,
+}: LoginProps = {}) {
   const auth = useAuth()
   const [mode, setMode] = useState<Mode>(initialMode)
-  const [identifier, setIdentifier] = useState('')
+  const [identifier, setIdentifier] = useState(lockedEmail ?? '')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -74,6 +84,12 @@ export function Login({ initialMode = 'login', onBack, onSwitchMode }: LoginProp
           {mode === 'login' ? 'Connexion à Memo' : 'Créer un compte'}
         </h1>
 
+        {inviteNote && (
+          <div className="rounded-md border border-[var(--color-accent-border)] bg-[var(--color-accent-soft)] px-3 py-2 text-[13px]">
+            {inviteNote}
+          </div>
+        )}
+
         {mode === 'register' && (
           <label htmlFor="login-name" className="flex flex-col gap-1">
             <span className="text-xs opacity-70">Nom</span>
@@ -92,11 +108,11 @@ export function Login({ initialMode = 'login', onBack, onSwitchMode }: LoginProp
 
         <label htmlFor="login-identifier" className="flex flex-col gap-1">
           <span className="text-xs opacity-70">
-            {mode === 'login' ? 'Email ou pseudo' : 'Email'}
+            {lockedEmail || mode === 'register' ? 'Email' : 'Email ou pseudo'}
           </span>
           <input
             id="login-identifier"
-            type={mode === 'login' ? 'text' : 'email'}
+            type={mode === 'login' && !lockedEmail ? 'text' : 'email'}
             value={identifier}
             onChange={(e) => setIdentifier(e.target.value)}
             required
@@ -104,7 +120,8 @@ export function Login({ initialMode = 'login', onBack, onSwitchMode }: LoginProp
             aria-invalid={error ? true : undefined}
             aria-describedby={error ? 'login-error' : undefined}
             autoComplete={mode === 'login' ? 'username' : 'email'}
-            className={inputClass}
+            readOnly={Boolean(lockedEmail)}
+            className={`${inputClass}${lockedEmail ? ' cursor-not-allowed opacity-70' : ''}`}
           />
         </label>
 

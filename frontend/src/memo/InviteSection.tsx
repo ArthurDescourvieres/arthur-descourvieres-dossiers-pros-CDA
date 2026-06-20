@@ -15,8 +15,9 @@ type InvitableRole = 'EDITOR' | 'VIEWER'
 const inputClass =
   'min-w-0 rounded border border-[var(--color-line-strong)] bg-[var(--color-surface-strong)] px-2 py-1.5 text-xs text-inherit outline-none'
 
-// OWNER-only modale : inviter un membre par e-mail ou pseudo + rôle, copier le
-// lien généré (aucun e-mail côté serveur). Liste et révoque les invitations en attente.
+// OWNER-only modale : inviter un membre par e-mail ou pseudo + rôle. Le serveur
+// envoie l'invitation par e-mail ; le lien copiable reste affiché en secours.
+// Liste et révoque les invitations en attente.
 export function InviteModal({
   workspaceId,
   onClose,
@@ -106,7 +107,7 @@ export function InviteModal({
         {createdToken && (
           <div className="flex flex-col gap-1.5 rounded border border-[var(--color-accent-border)] bg-[var(--color-accent-soft)] p-2">
             <div className="text-[11px] opacity-75">
-              Lien prêt — aucun e-mail n’est envoyé, transmettez-le vous-même :
+              Invitation envoyée par e-mail. Lien de secours, à copier si besoin :
             </div>
             <div className="flex gap-1.5">
               <input

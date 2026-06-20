@@ -1,6 +1,9 @@
 import { randomBytes } from 'node:crypto'
 import { WorkspaceRole, InvitationStatus } from '@prisma/client'
 import { prisma } from '../lib/prisma.js'
+import { sendInvitationEmail } from '../lib/mailer.js'
+import { MAIL_ENABLED } from '../lib/env.js'
+import { logger } from '../lib/logger.js'
 
 const INVITATION_TTL_MS = 7 * 24 * 60 * 60 * 1000 // 7 days
 
@@ -20,6 +23,39 @@ async function resolveInviteeEmail(identifier: string): Promise<string> {
   return user.email.toLowerCase()
 }
 
+// Resolve the workspace name + inviter name and send the invite e-mail. Kept
+// separate so createInvitation can fire it without awaiting; swallows its own
+// errors so a mail failure never bubbles up to the request.
+async function dispatchInvitationEmail(invitation: {
+  email: string
+  token: string
+  role: WorkspaceRole
+  workspaceId: string
+  invitedById: string
+}): Promise<void> {
+  try {
+    const [workspace, inviter] = await Promise.all([
+      prisma.workspace.findUnique({
+        where: { id: invitation.workspaceId },
+        select: { name: true },
+      }),
+      prisma.user.findUnique({
+        where: { id: invitation.invitedById },
+        select: { name: true },
+      }),
+    ])
+    await sendInvitationEmail({
+      to: invitation.email,
+      token: invitation.token,
+      role: invitation.role,
+      workspaceName: workspace?.name ?? 'un espace de travail',
+      invitedByName: inviter?.name ?? 'Un membre',
+    })
+  } catch (err) {
+    logger.error({ err: { message: (err as Error).message } }, 'invitation email dispatch failed')
+  }
+}
+
 export const invitationService = {
   async createInvitation(
     workspaceId: string,
@@ -28,7 +64,7 @@ export const invitationService = {
     invitedById: string,
   ) {
     const email = await resolveInviteeEmail(identifier)
-    return prisma.invitation.create({
+    const invitation = await prisma.invitation.create({
       data: {
         workspaceId,
         email,
@@ -38,6 +74,14 @@ export const invitationService = {
         expiresAt: new Date(Date.now() + INVITATION_TTL_MS),
       },
     })
+
+    // Send the invitation e-mail out of band: fire-and-forget so SMTP latency
+    // never delays the response, and a send failure never fails the invite (the
+    // OWNER can still forward the copied link). Skipped entirely when mail is
+    // disabled, so dev/tests run no extra queries.
+    if (MAIL_ENABLED) void dispatchInvitationEmail(invitation)
+
+    return invitation
   },
 
   async listPending(workspaceId: string) {
@@ -45,6 +89,36 @@ export const invitationService = {
       where: { workspaceId, status: InvitationStatus.PENDING },
       orderBy: { createdAt: 'desc' },
     })
+  },
+
+  // Public invitation metadata for the invite landing page (no auth). Exposed
+  // only for a still-pending, non-expired invitation; anything else throws
+  // NOT_FOUND so we never leak whether a consumed/revoked token existed. The
+  // 32-byte token is the credential, so returning the bound email here (to
+  // prefill signup) is safe — only someone holding the link can read it.
+  async getInvitationByToken(token: string) {
+    const invitation = await prisma.invitation.findUnique({
+      where: { token },
+      select: {
+        email: true,
+        role: true,
+        status: true,
+        expiresAt: true,
+        workspace: { select: { name: true } },
+      },
+    })
+    if (
+      !invitation ||
+      invitation.status !== InvitationStatus.PENDING ||
+      invitation.expiresAt.getTime() < Date.now()
+    ) {
+      throw Object.assign(new Error('Invitation not found'), { code: 'NOT_FOUND' })
+    }
+    return {
+      email: invitation.email,
+      role: invitation.role,
+      workspaceName: invitation.workspace.name,
+    }
   },
 
   async revokeInvitation(workspaceId: string, invitationId: string) {

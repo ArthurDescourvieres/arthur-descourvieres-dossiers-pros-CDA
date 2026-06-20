@@ -51,6 +51,21 @@ export const invitationController = {
     }
   },
 
+  // Public: minimal invitation metadata so the invite landing page can show the
+  // workspace/role and prefill the signup email. 404 hides anything not pending.
+  async peek(c: C) {
+    const token = c.req.param('token')!
+    try {
+      const meta = await invitationService.getInvitationByToken(token)
+      return c.json(meta, 200)
+    } catch (e) {
+      if (hasCode(e, 'NOT_FOUND')) {
+        return c.json({ error: 'Invitation introuvable ou expirée.' }, 404)
+      }
+      throw e
+    }
+  },
+
   async accept(c: C) {
     const token = c.req.param('token')!
     const userId = (c.get('jwtPayload') as { sub: string }).sub

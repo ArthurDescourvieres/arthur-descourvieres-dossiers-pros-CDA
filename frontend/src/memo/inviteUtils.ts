@@ -1,8 +1,8 @@
 import { ApiError } from '../lib/api'
 import type { WorkspaceRole } from '../lib/types'
 
-// No email is sent server-side: the OWNER copies this link and forwards it.
-// The invited user opens it while logged in (see InviteAcceptBanner).
+// The server e-mails this link to the invitee (see backend lib/mailer). This
+// builds the same link for the in-app "copy link" fallback shown to the OWNER.
 export function inviteLink(token: string): string {
   return `${window.location.origin}/?invite=${encodeURIComponent(token)}`
 }
