@@ -125,4 +125,38 @@ describe('invitations (§12)', () => {
     const inv = await invite(owner.token, wsId, 'no-such-pseudo', 'EDITOR')
     expect(inv.status).toBe(404)
   })
+
+  it('exposes pending invitation metadata via public GET (no auth)', async () => {
+    const owner = await register('owner-peek@ex.com')
+    const wsId = await createWorkspace(owner.token)
+    const inv = await invite(owner.token, wsId, 'peek-invitee@ex.com', 'VIEWER')
+    const { token: inviteToken } = (await inv.json()) as { token: string }
+
+    // No Authorization header — the 32-byte token is itself the credential.
+    const res = await app.request(`/api/invitations/${inviteToken}`)
+    expect(res.status).toBe(200)
+    const meta = (await res.json()) as Record<string, unknown>
+    expect(meta.email).toBe('peek-invitee@ex.com')
+    expect(meta.role).toBe('VIEWER')
+    expect(meta.workspaceName).toBe('Workspace')
+    // Must not echo the token back to the public.
+    expect(meta).not.toHaveProperty('token')
+  })
+
+  it('returns 404 metadata for a revoked invitation', async () => {
+    const owner = await register('owner-peek2@ex.com')
+    const wsId = await createWorkspace(owner.token)
+    const inv = await invite(owner.token, wsId, 'peek2@ex.com', 'EDITOR')
+    const { id, token: inviteToken } = (await inv.json()) as { id: string; token: string }
+
+    await authed(`/api/workspaces/${wsId}/invitations/${id}`, owner.token, { method: 'DELETE' })
+
+    const res = await app.request(`/api/invitations/${inviteToken}`)
+    expect(res.status).toBe(404)
+  })
+
+  it('returns 404 metadata for an unknown token', async () => {
+    const res = await app.request('/api/invitations/nope-not-a-real-token')
+    expect(res.status).toBe(404)
+  })
 })

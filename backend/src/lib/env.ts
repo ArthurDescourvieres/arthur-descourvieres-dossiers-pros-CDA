@@ -25,3 +25,29 @@ export const CORS_ORIGINS = (process.env.CORS_ORIGINS ?? 'http://localhost:5173'
   .split(',')
   .map((origin) => origin.trim())
   .filter((origin) => origin.length > 0)
+
+/**
+ * Public base URL of the app, used to build links inside transactional e-mails
+ * (e.g. the invitation link). Trailing slash is stripped so concatenation is
+ * predictable. Defaults to the first CORS origin in dev.
+ */
+export const APP_URL = (process.env.APP_URL ?? CORS_ORIGINS[0] ?? 'http://localhost:5173').replace(
+  /\/+$/,
+  '',
+)
+
+/**
+ * Transactional e-mail (Brevo SMTP). Every field is optional: when host/user/
+ * key are missing the mailer becomes a no-op (see lib/mailer), so dev and tests
+ * run without a provider and invitations still work via the copy-link fallback.
+ */
+export const MAIL = {
+  host: process.env.SMTP_HOST ?? '',
+  port: Number(process.env.SMTP_PORT ?? '587'),
+  user: process.env.SMTP_USER ?? '',
+  pass: process.env.SMTP_KEY ?? '',
+  from: process.env.MAIL_FROM ?? 'Memo <noreply@localhost>',
+}
+
+/** True only when SMTP is fully configured; gates every send. */
+export const MAIL_ENABLED = Boolean(MAIL.host && MAIL.user && MAIL.pass)

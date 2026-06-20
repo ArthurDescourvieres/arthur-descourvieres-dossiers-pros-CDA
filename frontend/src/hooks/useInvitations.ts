@@ -47,3 +47,17 @@ export function useAcceptInvitation() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['workspaces'] }),
   })
 }
+
+export type InviteMeta = { email: string; role: WorkspaceRole; workspaceName: string }
+
+// Public invitation metadata (no auth) — lets the guest invite screen show the
+// workspace/role and prefill the signup email. retry:false so an invalid or
+// expired token surfaces its 404 immediately instead of being retried.
+export function useInviteMeta(token: string | null) {
+  return useQuery({
+    queryKey: ['invite-meta', token],
+    queryFn: () => api<InviteMeta>(`/api/invitations/${token}`),
+    enabled: Boolean(token),
+    retry: false,
+  })
+}

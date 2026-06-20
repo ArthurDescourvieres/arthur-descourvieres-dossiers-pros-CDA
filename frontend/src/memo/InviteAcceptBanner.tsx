@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAcceptInvitation } from '../hooks/useInvitations'
+import { clearPendingInvite, readPendingInvite } from '../lib/pendingInvite'
 import { acceptInviteErrorMessage, roleLabel } from './inviteUtils'
 
 type BannerState = 'idle' | 'pending' | 'success' | 'error'
@@ -8,12 +9,18 @@ type BannerState = 'idle' | 'pending' | 'success' | 'error'
 // doesn't replay the acceptance.
 function consumeInviteToken(): string | null {
   const params = new URLSearchParams(window.location.search)
-  const token = params.get('invite')
-  if (!token) return null
-  params.delete('invite')
-  const qs = params.toString()
-  const url = window.location.pathname + (qs ? `?${qs}` : '') + window.location.hash
-  window.history.replaceState(null, '', url)
+  let token = params.get('invite')
+  if (token) {
+    params.delete('invite')
+    const qs = params.toString()
+    const url = window.location.pathname + (qs ? `?${qs}` : '') + window.location.hash
+    window.history.replaceState(null, '', url)
+  } else {
+    // Fallback: the token was stashed before the signup/login detour stripped
+    // it from the URL (see pendingInvite / main.tsx).
+    token = readPendingInvite()
+  }
+  clearPendingInvite()
   return token
 }
 

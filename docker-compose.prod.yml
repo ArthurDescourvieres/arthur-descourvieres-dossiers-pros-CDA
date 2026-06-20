@@ -73,6 +73,13 @@ services:
       REDIS_URL: redis://redis:6379
       JWT_SECRET: ${JWT_SECRET}
       CORS_ORIGINS: ${CORS_ORIGINS}
+      APP_URL: ${APP_URL}
+      # Transactional email (Brevo SMTP). Left blank disables sending gracefully.
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_KEY: ${SMTP_KEY}
+      MAIL_FROM: ${MAIL_FROM}
       UPLOADS_DIR: /app/uploads
     volumes:
       - uploads:/app/uploads
