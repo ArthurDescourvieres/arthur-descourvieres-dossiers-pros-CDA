@@ -173,6 +173,24 @@ au besoin). Restauration : [docs/runbooks/restore.md](../runbooks/restore.md) �
 **à dérouler réellement et dater** (exigence du dossier : une sauvegarde jamais
 restaurée n'est qu'une présomption de sauvegarde).
 
+## Journalisation & rétention des logs (RGPD)
+
+Le backend journalise en JSON sur `stdout` (Pino) ; Docker matérialise ces flux
+sur l'hôte (`/var/lib/docker/containers/*/*-json.log`). Comme ces lignes peuvent
+contenir des données personnelles (IP), la conservation est bornée à **30 jours
+puis purge**, au niveau infra (pas applicatif) :
+
+- **Borne temporelle (30 j)** : [`infra/logrotate/memo`](../../infra/logrotate/memo)
+  → à copier dans `/etc/logrotate.d/memo` sur le VPS. **Aucun cron à ajouter**,
+  logrotate tourne déjà quotidiennement sous Ubuntu.
+- **Garde-fou taille** : bloc `logging` (`max-size`/`max-file`) de
+  [`docker-compose.prod.yml`](../../docker-compose.prod.yml), appliqué au prochain
+  `up -d`.
+
+Installation, test (`logrotate -d`) et justification du choix « infra vs
+applicatif » : [docs/runbooks/log-retention.md](../runbooks/log-retention.md) —
+**à installer puis dater** (même exigence de démontrabilité que la restauration).
+
 ## Décisions & notes
 
 - **Deux rôles PostgreSQL** (moindre privilège) : l'API tourne en `memo_app`

@@ -1,0 +1,48 @@
+# Memo — host-side retention for Docker container logs (RGPD: 30 days).
+#
+# WHY THIS FILE EXISTS
+#   The Memo backend logs to stdout via Pino (backend/src/lib/logger.ts); Caddy
+#   and the other containers do the same. Docker's json-file driver materialises
+#   those streams as plain files on the HOST:
+#       /var/lib/docker/containers/<id>/<id>-json.log
+#   Those lines can carry personal data (client IP, request metadata). The RGPD
+#   chapter of the dossier states the application logs are kept 30 days then
+#   purged automatically — this file is what makes that statement TRUE and
+#   auditable, at the layer where the files actually live.
+#
+# WHY HERE AND NOT IN THE APPLICATION
+#   The app never owns these files: it only emits to stdout (12-factor). Whoever
+#   materialises the stream on disk owns its rotation — that is the host. Doing
+#   it here covers EVERY container uniformly (api, caddy, db, redis), survives
+#   container re-creation on each deploy, and needs zero application code.
+#
+# RELATION TO docker-compose.prod.yml
+#   The json-file driver options there (max-size / max-file) are a SIZE guardrail
+#   only — they stop a log burst from filling the disk between two nightly runs.
+#   This file is the TIME bound (30 days) that the RGPD claim relies on. Two
+#   complementary bounds: spatial (Docker) + temporal (logrotate).
+#
+# INSTALL & TEST: see docs/runbooks/log-retention.md
+#   cp infra/logrotate/memo /etc/logrotate.d/memo
+#   chown root:root /etc/logrotate.d/memo && chmod 0644 /etc/logrotate.d/memo
+# logrotate is already run daily by the OS (cron.daily / systemd logrotate.timer),
+# so NO extra cron entry is needed (unlike infra/backup/backup.sh).
+
+/var/lib/docker/containers/*/*-json.log {
+	# 30 daily archives, then the oldest is purged → ~30-day sliding window.
+	daily
+	rotate 30
+	# Date-stamped archives (<id>-json.log-YYYYMMDD.gz): one readable file per
+	# day, trivial to audit with `ls`, and no numeric-suffix clash with Docker's
+	# own size-rotation files (<id>-json.log.1 / .2).
+	dateext
+	# Tolerate a container with no log yet, and skip empty files.
+	missingok
+	notifempty
+	# Compress archives (JSON logs shrink ~10x).
+	compress
+	# Docker holds the json-file open and offers no "reopen on signal" for it, so
+	# we copy-then-truncate the live file in place rather than rename it. Accepted
+	# trade-off: a negligible race for lines written during the copy/truncate.
+	copytruncate
+}

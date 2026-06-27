@@ -12,9 +12,20 @@
 #   docker compose -f docker-compose.prod.yml --profile migrate run --rm migrate
 #   docker compose -f docker-compose.prod.yml up -d
 
+# Shared json-file logging guardrail. SIZE bound only (<= max-size x max-file per
+# container) so a log burst can't fill the VPS disk between two nightly logrotate
+# runs. The 30-day TIME retention the RGPD chapter relies on is enforced on the
+# host by infra/logrotate/memo (see docs/runbooks/log-retention.md).
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: '10m'
+    max-file: '3'
+
 services:
   db:
     image: postgres:16-alpine
+    logging: *default-logging
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -36,6 +47,7 @@ services:
 
   redis:
     image: redis:7-alpine
+    logging: *default-logging
     restart: unless-stopped
     command: ['redis-server', '--save', '60', '1', '--appendonly', 'no']
     volumes:
@@ -52,6 +64,7 @@ services:
   # workflow runs it explicitly with `run --rm`.
   migrate:
     image: ${BACKEND_IMAGE}
+    logging: *default-logging
     profiles: ['migrate']
     command: ['npx', 'prisma', 'migrate', 'deploy']
     environment:
@@ -66,6 +79,7 @@ services:
 
   api:
     image: ${BACKEND_IMAGE}
+    logging: *default-logging
     restart: unless-stopped
     environment:
       NODE_ENV: production
@@ -98,6 +112,7 @@ services:
 
   caddy:
     image: ${WEB_IMAGE}
+    logging: *default-logging
     restart: unless-stopped
     ports:
       - '80:80'
