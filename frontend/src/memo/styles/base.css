@@ -96,3 +96,12 @@ a {
       0 0 10px -2px var(--color-accent-soft);
   }
 }
+
+/* Surlignage des correspondances dans les résultats de recherche.
+   Le snippet est injecté via dangerouslySetInnerHTML après sanitizeHtml, qui
+   retire les attributs style/class (vecteur d'injection CSS). La couleur du
+   <mark> est donc portée ici plutôt qu'en style inline (cf. SearchBox.tsx). */
+.search-snippet mark {
+  background: var(--color-accent-border);
+  color: inherit;
+}

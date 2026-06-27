@@ -24,7 +24,12 @@ const ALLOWED_TAGS = [
   'mark',
   'span',
 ]
-const ALLOWED_ATTR = ['href', 'src', 'alt', 'title', 'class', 'style']
+// No `style` (nor `class`): the only consumer is the search snippet
+// (SearchBox), whose sanitised markup is just <mark> highlighting. Allowing
+// inline styles would reopen a CSS injection / data-exfiltration vector
+// (e.g. `background:url(https://attacker/beacon)`); the highlight colour now
+// lives in CSS (.search-snippet mark) instead of an inline style.
+const ALLOWED_ATTR = ['href', 'src', 'alt', 'title']
 
 // Bind the purifier to the live window explicitly. The default auto-bound
 // instance can degrade to a no-op when the global window isn't ready at import

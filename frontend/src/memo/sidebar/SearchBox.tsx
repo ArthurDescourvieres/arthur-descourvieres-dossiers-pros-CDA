@@ -42,7 +42,7 @@ export function SearchBox({
                 <span className="text-xs font-medium">{hit.title || '(sans titre)'}</span>
                 {hit.snippet && (
                   <span
-                    className="text-[11px] opacity-50"
+                    className="search-snippet text-[11px] opacity-50"
                     // The server returns << / >> markers around matches.
                     dangerouslySetInnerHTML={{
                       __html: sanitizeHtml(highlightSnippet(hit.snippet)),
@@ -60,8 +60,9 @@ export function SearchBox({
 
 function highlightSnippet(text: string): string {
   const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-  // The original << / >> become &lt;&lt; / &gt;&gt; — restore as <mark>
-  return escaped
-    .replace(/&lt;&lt;/g, '<mark style="background: var(--color-accent-border); color: inherit;">')
-    .replace(/&gt;&gt;/g, '</mark>')
+  // The original << / >> become &lt;&lt; / &gt;&gt; — restore as a bare <mark>.
+  // Styling lives in CSS (.search-snippet mark); emitting no inline style keeps
+  // the markup intact through sanitizeHtml, which strips style/class as an XSS
+  // and CSS-exfiltration guard.
+  return escaped.replace(/&lt;&lt;/g, '<mark>').replace(/&gt;&gt;/g, '</mark>')
 }
