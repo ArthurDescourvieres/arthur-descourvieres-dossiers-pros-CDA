@@ -166,7 +166,7 @@ export function Login({
           </div>
         )}
 
-        <button type="submit" disabled={loading} className={buttonClass}>
+        <button type="submit" disabled={loading} className={buttonClass} data-testid="auth-submit">
           {loading ? '…' : mode === 'login' ? 'Se connecter' : "S'inscrire"}
         </button>
 

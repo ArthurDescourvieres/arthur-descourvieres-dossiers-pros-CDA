@@ -20,6 +20,13 @@ frontend/media-src/
 # Test coverage
 coverage/
 
+# Playwright E2E (local, hors CI)
+e2e/test-results/
+e2e/playwright-report/
+e2e/blob-report/
+e2e/.cache/
+e2e/playwright/.cache/
+
 docs/claude/
 
 # Environment

@@ -99,6 +99,7 @@ export function AccountModal({ onClose }: { onClose: () => void }) {
             <div className="flex gap-2 flex-wrap">
               <button
                 type="button"
+                data-testid="account-delete-confirm"
                 className={`${buttonBase} border-none bg-[var(--color-danger)] text-white`}
                 onClick={handleDelete}
                 disabled={deleteAccount.isPending}
@@ -116,6 +117,7 @@ export function AccountModal({ onClose }: { onClose: () => void }) {
           ) : (
             <button
               type="button"
+              data-testid="account-delete"
               className={`${buttonBase} bg-transparent border border-[var(--color-danger)] text-[var(--color-danger)]`}
               onClick={() => setConfirming(true)}
             >

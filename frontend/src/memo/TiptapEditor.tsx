@@ -36,6 +36,11 @@ export function TiptapEditor({
     ],
     editable,
     content: initialContent ?? defaultDoc(),
+    editorProps: {
+      // Hook stable pour les tests E2E : pose le data-testid directement sur
+      // l'élément contenteditable de ProseMirror (aucun impact comportemental).
+      attributes: { 'data-testid': 'note-editor-content' },
+    },
     onUpdate: ({ editor }) => {
       onChange(editor.getJSON() as TiptapDoc)
     },

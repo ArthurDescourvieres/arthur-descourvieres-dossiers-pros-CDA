@@ -88,6 +88,7 @@ export function WorkspaceFormModal({
             placeholder="Nom du workspace"
             autoFocus
             maxLength={50}
+            data-testid="workspace-name-input"
             className="flex-1 rounded-md border border-[var(--color-line-strong)] bg-[var(--color-surface)] px-2.5 py-1.5 text-sm text-inherit outline-none"
           />
         </div>
@@ -107,6 +108,7 @@ export function WorkspaceFormModal({
           <button
             type="submit"
             disabled={!valid || busy}
+            data-testid="workspace-submit"
             className="cursor-pointer rounded-md border border-[var(--color-accent-border)] bg-[var(--color-accent-soft)] px-3 py-1.5 text-[13px] text-inherit disabled:opacity-50"
           >
             {busy ? '…' : mode === 'create' ? 'Créer' : 'Enregistrer'}

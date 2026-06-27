@@ -151,6 +151,7 @@ function ActionCard({ action, disabled }: { action: Action; disabled: boolean })
   return (
     <button
       type="button"
+      data-testid={`empty-action-${action.key}`}
       onClick={onClick}
       disabled={disabled}
       className={`group flex items-center gap-3.5 rounded-[var(--r-lg)] border p-3.5 text-left transition-[transform,background-color,border-color] duration-300 ease-[var(--ease-out-expo)] hover:-translate-y-0.5 disabled:pointer-events-none disabled:opacity-50 ${
