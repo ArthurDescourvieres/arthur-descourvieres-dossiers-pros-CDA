@@ -123,6 +123,7 @@ export function WorkspaceShell() {
 
   return (
     <div
+      data-testid="workspace-shell"
       className={`relative flex overflow-hidden bg-[var(--color-bg)] text-[var(--color-text)] ${
         isMobile ? 'h-[100dvh]' : 'h-screen'
       }`}

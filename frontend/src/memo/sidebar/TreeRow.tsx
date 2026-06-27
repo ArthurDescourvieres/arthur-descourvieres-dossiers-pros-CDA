@@ -104,6 +104,8 @@ export function TreeRow({
     <div
       {...common}
       role="treeitem"
+      data-testid={`tree-${row.kind}`}
+      data-id={row.id}
       aria-level={row.depth + 1}
       aria-expanded={isFolder ? row.isOpen : undefined}
       aria-selected={isSelected}

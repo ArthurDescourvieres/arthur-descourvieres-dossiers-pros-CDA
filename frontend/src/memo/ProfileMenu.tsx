@@ -47,15 +47,18 @@ function Switch({
 function MenuItem({
   onClick,
   danger,
+  testId,
   children,
 }: {
   onClick: () => void
   danger?: boolean
+  testId?: string
   children: React.ReactNode
 }) {
   return (
     <button
       type="button"
+      data-testid={testId}
       onClick={onClick}
       className={`block w-full border-none text-left px-3.5 py-[9px] text-[13px] cursor-pointer bg-transparent transition-colors duration-[120ms] hover:bg-[var(--color-line)] ${
         danger ? 'text-[var(--color-danger,#c0392b)]' : 'text-inherit'
@@ -87,6 +90,7 @@ export function ProfileMenu({ onSettings, onTrash, onLogout }: Props) {
       <button
         type="button"
         aria-label="Menu"
+        data-testid="profile-menu-button"
         onClick={() => setOpen((v) => !v)}
         className="flex items-center justify-center p-1 rounded-[12px] bg-transparent border-none cursor-pointer opacity-90 transition duration-150 hover:opacity-100 hover:bg-[var(--color-line)]"
       >
@@ -96,6 +100,7 @@ export function ProfileMenu({ onSettings, onTrash, onLogout }: Props) {
       {open && (
         <div className="absolute top-[calc(100%+6px)] right-0 min-w-[160px] overflow-hidden rounded-lg border border-[var(--color-line-strong)] bg-[var(--color-surface-1)] shadow-[0_4px_16px_rgba(0,0,0,0.15)] z-[200]">
           <MenuItem
+            testId="profile-settings"
             onClick={() => {
               setOpen(false)
               onSettings()

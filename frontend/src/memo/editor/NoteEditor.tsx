@@ -86,6 +86,7 @@ export function NoteEditor({
             realtime.sendLive({ title: e.target.value })
           }}
           placeholder="Titre"
+          data-testid="note-title-input"
           className="flex-1 border-none bg-transparent text-[28px] font-bold text-inherit outline-none"
         />
         <PresenceAvatars presence={realtime.presence} />
@@ -112,7 +113,7 @@ export function NoteEditor({
 function PresenceAvatars({ presence }: { presence: Presence[] }) {
   if (presence.length === 0) return null
   return (
-    <div className="flex">
+    <div className="flex" data-testid="note-presence">
       {presence.slice(0, 5).map((p, i) => (
         <span
           key={p.socketId}
@@ -148,7 +149,15 @@ function colorForUser(userId: string): string {
 }
 
 function SaveStatus({ status }: { status: AutosaveStatus }) {
-  return <span className="min-w-20 text-right text-xs opacity-60">{labelFor(status)}</span>
+  return (
+    <span
+      data-testid="note-save-status"
+      data-status={status}
+      className="min-w-20 text-right text-xs opacity-60"
+    >
+      {labelFor(status)}
+    </span>
+  )
 }
 
 function labelFor(s: AutosaveStatus): string {
