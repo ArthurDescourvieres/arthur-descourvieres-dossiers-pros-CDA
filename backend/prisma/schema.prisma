@@ -8,20 +8,20 @@ datasource db {
 }
 
 model User {
-  id            String            @id @default(cuid())
-  email         String            @unique
-  name          String            @unique
-  password      String
-  tokenVersion  Int               @default(0)
-  deactivatedAt DateTime?
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
-  workspaces    WorkspaceMember[]
-  notes         Note[]
-  attachments   Attachment[]
-  ownedWorkspaces    Workspace[]  @relation("WorkspaceOwner")
-  permissionsGranted Permission[] @relation("PermissionGrantedBy")
-  invitationsSent    Invitation[] @relation("InvitationInvitedBy")
+  id                 String            @id @default(cuid())
+  email              String            @unique
+  name               String            @unique
+  password           String
+  tokenVersion       Int               @default(0)
+  deactivatedAt      DateTime?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  workspaces         WorkspaceMember[]
+  notes              Note[]
+  attachments        Attachment[]
+  ownedWorkspaces    Workspace[]       @relation("WorkspaceOwner")
+  permissionsGranted Permission[]      @relation("PermissionGrantedBy")
+  invitationsSent    Invitation[]      @relation("InvitationInvitedBy")
 }
 
 enum WorkspaceRole {
@@ -69,6 +69,9 @@ model WorkspaceMember {
   permissions Permission[]
 
   @@unique([userId, workspaceId])
+  // Listing a workspace's members filters on workspaceId alone; the composite
+  // unique above is left-prefixed by userId, so it can't serve that lookup.
+  @@index([workspaceId])
 }
 
 model Folder {
@@ -84,6 +87,9 @@ model Folder {
   children    Folder[]     @relation("FolderTree")
   notes       Note[]
   permissions Permission[]
+
+  // Folders are listed per workspace.
+  @@index([workspaceId])
 }
 
 model Note {
@@ -107,6 +113,9 @@ model Note {
   createdBy    User                     @relation(fields: [createdById], references: [id])
   attachments  Attachment[]
   permissions  Permission[]
+
+  // Notes are listed per folder.
+  @@index([folderId])
 }
 
 model Attachment {

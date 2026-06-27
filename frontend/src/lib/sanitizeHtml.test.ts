@@ -23,4 +23,17 @@ describe('sanitizeHtml (§8.1)', () => {
   it('keeps the search-highlight <mark>', () => {
     expect(sanitizeHtml('<mark>match</mark>')).toContain('<mark>')
   })
+
+  it('strips the style attribute (CSS injection / exfiltration vector)', () => {
+    const out = sanitizeHtml('<mark style="background:url(https://evil.example/beacon)">m</mark>')
+    expect(out).not.toContain('style=')
+    expect(out).not.toContain('evil.example')
+    // …while keeping the highlight tag and its text content.
+    expect(out).toContain('<mark>')
+    expect(out).toContain('m')
+  })
+
+  it('strips the class attribute', () => {
+    expect(sanitizeHtml('<mark class="x">m</mark>')).not.toContain('class=')
+  })
 })
