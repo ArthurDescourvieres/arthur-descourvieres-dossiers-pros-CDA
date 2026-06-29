@@ -15,6 +15,18 @@
   `POSTGRES_*`, `MIGRATE_DATABASE_URL`).
 - `gpg` installé sur la machine qui déchiffre.
 
+> **Drill local (stack jetable)** — pour valider la procédure sans VPS ni Storage Box,
+> remplacer `docker-compose.prod.yml` par `docker-compose.yml` dans toutes les commandes
+> ci-dessous et démarrer une stack isolée :
+> ```bash
+> docker compose -p memo-restoredrill -f docker-compose.yml up -d db redis api
+> ```
+> Sauter les étapes 1 (rsync Storage Box) et 2 (déchiffrement GPG) : produire le
+> dump directement avec `pg_dump … -f /tmp/db.dump` dans le conteneur, puis
+> `docker cp` pour le rapatrier sur l'hôte. La vérification health utilise
+> `http://localhost:3000/api/health` au lieu de `https://$DOMAIN/api/health`.
+> Détruire la stack une fois terminé : `docker compose -p memo-restoredrill down -v`.
+
 ## Objectifs de reprise
 
 | Indicateur | Cible | Justification |
@@ -94,4 +106,4 @@ shred -u db.dump uploads.tar.gz db-$TS.dump.gpg uploads-$TS.tar.gz.gpg
 
 | Date | Opérateur | Source (`<ts>`) | RTO mesuré | Résultat | Notes |
 |---|---|---|---|---|---|
-| _à remplir_ | _à remplir_ | _à remplir_ | _à remplir_ | _à remplir_ | _aucune restauration réelle déroulée à ce jour_ |
+| 2026-06-23 | Arthur Descourvieres | drill local | 51 s | ✅ OK | Drill local stack jetable (`-p memo-restoredrill`, `docker-compose.yml`) ; GPG + rsync Storage Box sautés (non disponibles en local) ; checklist 4/4 : health `ok`, login OK, note + contenu sentinel retrouvés, pièce jointe téléchargeable. |

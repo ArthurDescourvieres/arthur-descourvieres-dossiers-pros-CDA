@@ -1,0 +1,15 @@
+{
+  "base": "http://localhost:3000",
+  "clients": 50,
+  "durationSeconds": 180,
+  "intervalMs": 200,
+  "samples": 40278,
+  "latencyMs": {
+    "p50": 11,
+    "p95": 16,
+    "p99": 28,
+    "max": 254532,
+    "mean": 321
+  },
+  "measuredAt": "2026-06-22T12:25:40.480Z"
+}
