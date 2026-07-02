@@ -46,6 +46,16 @@ RUN npm ci --omit=dev && npm cache clean --force
 COPY prisma ./prisma
 RUN npx prisma generate
 
+# Strip npm from the runtime image. It is only needed at build time (npm ci and
+# the `prisma generate` above); the API runs `node dist/index.js` and the
+# one-shot `migrate` service invokes the Prisma CLI directly through its bin
+# (node_modules/.bin/prisma — see docker-compose.prod.yml), never npm/npx.
+# Removing the bundled npm also removes its transitive packages (sigstore, etc.),
+# so a CVE in npm's own dependency tree can no longer fail the Trivy scan of an
+# image that never runs npm. Operate on packages via the Prisma bin or a
+# throwaway container — `docker compose exec api npm/npx …` no longer works here.
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
+
 # Compiled application.
 COPY --from=builder /app/dist ./dist
 
