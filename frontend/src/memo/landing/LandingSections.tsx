@@ -19,7 +19,6 @@ export function LandingSections({ onRegister }: { onRegister: () => void }) {
         />
         <Demo
           reverse
-          annotate
           title="Écris. Glisse une image. C'est noté."
           text="Un éditeur qui va à l'essentiel — titres, listes, blocs de code. Tes captures se posent directement sous le texte, au bon endroit."
           videoLabel="Démo : écrire une note et y glisser une image"
@@ -61,10 +60,9 @@ type DemoProps = {
   video?: { src: string; webm?: string; poster?: string }
   id?: string
   reverse?: boolean
-  annotate?: boolean
 }
 
-function Demo({ title, text, videoLabel, video, id, reverse, annotate }: DemoProps) {
+function Demo({ title, text, videoLabel, video, id, reverse }: DemoProps) {
   return (
     <section className={`lp-demo${reverse ? ' lp-demo--reverse' : ''}`} id={id}>
       <div className="lp-demo-text" data-reveal>
@@ -84,26 +82,8 @@ function Demo({ title, text, videoLabel, video, id, reverse, annotate }: DemoPro
             <VideoSlot label={videoLabel} />
           )}
         </WindowFrame>
-        {annotate && <Annotation />}
       </div>
     </section>
-  )
-}
-
-function Annotation() {
-  return (
-    <span className="lp-anno">
-      <svg viewBox="0 0 40 40" fill="none" aria-hidden>
-        <path
-          d="M31 7C31 23 23 31 9 33"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-        <path d="M9 33l8-2M9 33l2-8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      </svg>
-      glisse ton image ici
-    </span>
   )
 }
 

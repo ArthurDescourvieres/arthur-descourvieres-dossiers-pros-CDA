@@ -45,7 +45,7 @@ export function WorkspaceBar({
 
   return (
     <div className="shrink-0 border-t border-[var(--color-line)] pt-3">
-      <div className="overflow-x-auto py-2">
+      <div className="no-scrollbar overflow-x-auto py-2">
         <div className="mx-auto flex w-max items-center gap-2 px-1">
           {workspaces.map((ws) => (
             <WorkspaceButton
