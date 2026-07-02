@@ -18,7 +18,6 @@ import { EmptyState } from './EmptyState'
 import { AccountModal } from './AccountModal'
 import { ProfileMenu } from './ProfileMenu'
 import { TrashDropTarget } from './TrashDropTarget'
-import { BgColorPicker } from './BgColorPicker'
 import { useDialog } from './dialog/DialogProvider'
 
 export function WorkspaceShell() {
@@ -265,7 +264,6 @@ export function WorkspaceShell() {
         onClick={() => setCollapsed(false)}
         className={!isMobile ? 'left-[30px] top-[30px]' : undefined}
       />
-      <BgColorPicker />
 
       {accountOpen && <AccountModal onClose={() => setAccountOpen(false)} />}
 

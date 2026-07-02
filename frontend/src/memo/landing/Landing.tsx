@@ -3,6 +3,7 @@ import { usePointerParallax, useScrollParallax, useRevealOnScroll } from './useP
 import { WindowFrame } from './WindowFrame'
 import { AppMockup } from './AppMockup'
 import { LandingSections } from './LandingSections'
+import { LandingButton } from './LandingButton'
 import { MemoLogo } from '../MemoLogo'
 
 /**
@@ -47,19 +48,19 @@ export function Landing({ onRegister, onLogin }: LandingProps) {
 
 function LandingNav({ onRegister, onLogin }: LandingProps) {
   return (
-    <header className="lp-nav">
-      <div className="lp-nav-inner">
-        <span className="lp-brand">
+    <header className="sticky top-0 z-20 border-b border-[var(--color-line)] bg-[color-mix(in_oklab,var(--color-bg)_72%,transparent)] backdrop-blur-[14px]">
+      <div className="mx-auto flex max-w-[1180px] items-center justify-between px-6 py-[14px]">
+        <span className="inline-flex items-center gap-[10px] text-[18px] font-semibold tracking-[0.01em]">
           <MemoLogo size={26} />
           Memo
         </span>
-        <nav className="lp-nav-actions">
-          <button type="button" className="lp-btn lp-btn-ghost" onClick={onLogin}>
+        <nav className="flex gap-[10px]">
+          <LandingButton variant="ghost" onClick={onLogin} className="max-[560px]:hidden">
             Se connecter
-          </button>
-          <button type="button" className="lp-btn lp-btn-primary" onClick={onRegister}>
+          </LandingButton>
+          <LandingButton variant="primary" onClick={onRegister}>
             Créer un compte
-          </button>
+          </LandingButton>
         </nav>
       </div>
     </header>
@@ -72,29 +73,41 @@ function Hero({ onRegister }: { onRegister: () => void }) {
     document.getElementById('decouvrir')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
   return (
-    <section className="lp-hero">
-      <div className="lp-hero-text" data-reveal>
-        <h1 className="lp-title">
+    <section className="mx-auto grid max-w-[1180px] grid-cols-1 items-center gap-9 px-6 pt-12 pb-16 min-[900px]:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] min-[900px]:gap-14 min-[900px]:pt-[76px] min-[900px]:pb-[92px]">
+      <div className="max-w-none min-[900px]:max-w-[520px]" data-reveal>
+        <h1 className="m-0 text-[clamp(38px,5.4vw,64px)] font-semibold leading-[1.04] tracking-[-0.025em]">
           Prends tes notes,
           <br />
           pas la tête.
         </h1>
-        <p className="lp-subtitle">
+        <p className="mt-[22px] max-w-[460px] text-[clamp(16px,1.5vw,19px)] leading-[1.6] text-[var(--color-text-muted)]">
           Memo est un espace de notes open source et léger. Tu crées un espace, tu écris, tu glisses
           tes images. Zéro configuration.
         </p>
-        <div className="lp-hero-actions">
-          <button type="button" className="lp-btn lp-btn-primary lp-btn-lg" onClick={onRegister}>
+        <div className="mt-[30px] flex flex-wrap gap-[14px] max-[560px]:flex-col max-[560px]:items-center">
+          <LandingButton
+            variant="primary"
+            size="lg"
+            onClick={onRegister}
+            className="max-[560px]:w-full max-[560px]:justify-center"
+          >
             Créer mon espace
-          </button>
-          <button type="button" className="lp-btn lp-btn-ghost lp-btn-lg" onClick={seeProduct}>
+          </LandingButton>
+          <LandingButton
+            variant="ghost"
+            size="lg"
+            onClick={seeProduct}
+            className="max-[560px]:w-full max-[560px]:justify-center"
+          >
             Voir Memo en action
-          </button>
+          </LandingButton>
         </div>
-        <p className="lp-hero-note">Gratuit · Open source · Sans carte bancaire</p>
+        <p className="mt-[18px] text-[13px] text-[var(--color-text-faint)]">
+          Gratuit · Open source · Sans carte bancaire
+        </p>
       </div>
 
-      <div className="lp-hero-visual" data-reveal>
+      <div data-reveal>
         <div className="lp-hero-frame" ref={visualRef}>
           <WindowFrame className="lp-win-hero">
             <AppMockup />

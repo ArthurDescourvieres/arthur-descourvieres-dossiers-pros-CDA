@@ -43,6 +43,36 @@
   color: var(--color-text-faint);
 }
 
+/* ---- démo vidéo : la fenêtre s'agrandit et pivote au survol ---- */
+.lp-demo-visual .lp-win {
+  position: relative;
+  transform-origin: center;
+  transition:
+    transform 0.45s var(--ease-out-expo),
+    box-shadow 0.45s var(--ease-out-expo);
+  will-change: transform;
+}
+.lp-demo-visual .lp-win:hover {
+  transform: scale(1.4) rotate(3deg);
+  box-shadow:
+    0 60px 120px -55px var(--color-ink-shadow),
+    0 0 0 1px var(--color-overlay-weak) inset;
+  z-index: 2;
+}
+/* section inversée : on penche dans l'autre sens pour un rendu symétrique */
+.lp-demo--reverse .lp-demo-visual .lp-win:hover {
+  transform: scale(1.4) rotate(-3deg);
+}
+
+/* « Réduire les animations » (réglage Windows/macOS) coupe TOUTES les transitions
+   du site via responsive.css. Ce survol est discret et déclenché par l'utilisateur :
+   on ré-autorise sa transition pour qu'il reste fluide au lieu d'être instantané. */
+@media (prefers-reduced-motion: reduce) {
+  .lp-demo-visual .lp-win {
+    transition-duration: 0.45s !important;
+  }
+}
+
 /* ---- app mockup (sidebar + note) ---- */
 .lp-app {
   display: grid;

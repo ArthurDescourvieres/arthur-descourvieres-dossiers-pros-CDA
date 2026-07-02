@@ -18,23 +18,7 @@
   font-weight: 300;
 }
 
-/* ---- nav ---- */
-.lp-nav {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  backdrop-filter: blur(14px);
-  background: color-mix(in oklab, var(--color-bg) 72%, transparent);
-  border-bottom: 1px solid var(--color-line);
-}
-.lp-nav-inner {
-  max-width: 1180px;
-  margin: 0 auto;
-  padding: 14px 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
+/* ---- brand (nav migrée en Tailwind ; conservé pour le footer) ---- */
 .lp-brand {
   display: inline-flex;
   align-items: center;
@@ -46,12 +30,8 @@
 .lp-brand-sm {
   font-size: 15px;
 }
-.lp-nav-actions {
-  display: flex;
-  gap: 10px;
-}
 
-/* ---- buttons ---- */
+/* ---- buttons (encore utilisés par les sections non migrées) ---- */
 .lp-btn {
   font: inherit;
   font-weight: 500;
@@ -95,44 +75,7 @@
   font-size: 16px;
 }
 
-/* ---- hero (asymmetric: copy left, product right) ---- */
-.lp-hero {
-  max-width: 1180px;
-  margin: 0 auto;
-  padding: 76px 24px 92px;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
-  gap: 56px;
-  align-items: center;
-}
-.lp-hero-text {
-  max-width: 520px;
-}
-.lp-title {
-  margin: 0;
-  font-size: clamp(38px, 5.4vw, 64px);
-  line-height: 1.04;
-  font-weight: 600;
-  letter-spacing: -0.025em;
-}
-.lp-subtitle {
-  margin: 22px 0 0;
-  max-width: 460px;
-  font-size: clamp(16px, 1.5vw, 19px);
-  line-height: 1.6;
-  color: var(--color-text-muted);
-}
-.lp-hero-actions {
-  margin-top: 30px;
-  display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
-}
-.lp-hero-note {
-  margin-top: 18px;
-  font-size: 13px;
-  color: var(--color-text-faint);
-}
+/* ---- hero visual (parallaxe piloté en JS, conservé en CSS) ---- */
 .lp-hero-frame {
   transform: translate3d(calc(var(--px, 0) * 16px), calc(var(--py, 0) * 16px), 0);
   transition: transform 0.35s var(--ease-out-expo);
@@ -177,29 +120,6 @@
   transform: none;
 }
 
-@media (max-width: 900px) {
-  .lp-hero {
-    grid-template-columns: 1fr;
-    gap: 36px;
-    padding: 48px 24px 64px;
-  }
-  .lp-hero-text {
-    max-width: none;
-  }
-}
-@media (max-width: 560px) {
-  .lp-nav-actions .lp-btn-ghost {
-    display: none;
-  }
-  .lp-hero-actions {
-    flex-direction: column;
-    align-items: center;
-  }
-  .lp-hero-actions .lp-btn {
-    width: 100%;
-    justify-content: center;
-  }
-}
 @media (prefers-reduced-motion: reduce) {
   .landing {
     scroll-behavior: auto;

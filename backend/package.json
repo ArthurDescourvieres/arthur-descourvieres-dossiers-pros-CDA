@@ -16,7 +16,11 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
+    "db:seed": "tsx prisma/seed.ts",
     "purge": "tsx src/jobs/purge-deactivated.ts"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.7",

@@ -74,6 +74,12 @@ jobs:
             echo \"Deploying \$BACKEND_IMAGE\"
             docker compose -f docker-compose.prod.yml pull
             docker compose -f docker-compose.prod.yml --profile migrate run --rm migrate
+            # Self-heal Caddy's cert storage ownership: Caddy runs as non-root
+            # (USER app, frontend/Dockerfile), so a caddy_data/caddy_config volume
+            # left root-owned by an earlier root-era run is unreadable -> TLS aborts
+            # with 'internal error' and serves no certificate. chown is idempotent
+            # and cheap (small /data, /config); --no-deps avoids starting the API.
+            docker compose -f docker-compose.prod.yml run --rm --no-deps --user root --entrypoint sh caddy -c 'chown -R app:app /data /config'
             docker compose -f docker-compose.prod.yml up -d
             docker image prune -f
           "
